@@ -16,6 +16,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -49,7 +50,16 @@ public class CharacterCreateScreen {
         root.setPadding(new Insets(20));
 
         root.setTop(buildTitle());
-        root.setCenter(buildForm());
+
+        VBox form = buildForm();
+
+        ScrollPane scrollPane = new ScrollPane(form);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPannable(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        root.setCenter(scrollPane);
 
         return root;
     }
@@ -76,17 +86,16 @@ public class CharacterCreateScreen {
         );
         Button saveButton = new Button("Save & View Character");
         saveButton.setOnAction(event -> saveAndShowOverview());
+        saveButton.setPrefWidth(200);
+        form.getChildren().add(saveButton);
         return form;
     }
 
     private void saveAndShowOverview() {
         Character character = new Character();
-
-        // Здесь нужно собрать данные из всех секций
-        // Пример:
-        character.setName("Default Name"); // заменить на данные из BaseInfoForm
-        character.setRace("Human");         // заменить на данные из BaseInfoForm
-        character.setCharacterClass("Ranger"); // тоже
+        character.setName("Default Name");
+        character.setRace("Human");
+        character.setCharacterClass("Ranger");
         character.setDescription(descriptionSection.getDescription());
         character.setPersonality(descriptionSection.getPersonality());
         character.setBackstory(descriptionSection.getBackstory());
