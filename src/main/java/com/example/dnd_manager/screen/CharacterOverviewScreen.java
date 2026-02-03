@@ -78,22 +78,21 @@ public class CharacterOverviewScreen extends BorderPane {
 
         // Left column: Description + Stats
         VBox description = createTextBlock("Description", character.getDescription());
+        Label titleStats = new Label("Stats");
+        titleStats.setStyle("""
+                    -fx-text-fill: #ffffff;
+                    -fx-font-size: 16px;
+                    -fx-font-weight: bold;
+                """);
         VBox stats = new VBox(
-                new Label("Stats"),
+                titleStats,
                 new StatsGridView(character.getStats().asMap())
         );
         stylePanel(stats);
         VBox leftColumn = new VBox(10, description, stats);
 
         // Right column: Buffs/Debuffs + Inventory
-        Label title = new Label("Buffs / Debuffs");
-        title.setStyle("""
-                    -fx-text-fill: #ffffff;
-                    -fx-font-size: 16px;
-                    -fx-font-weight: bold;
-                """);
         VBox buffs = new VBox(5,
-                title,
                 new BuffsView(character.getBuffs())
         );
         buffs.setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
