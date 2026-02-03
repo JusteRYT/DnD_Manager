@@ -11,16 +11,14 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
-    private StorageService storageService;
-
     @Override
     public void start(Stage primaryStage) {
-        storageService = new StorageService();
+        StorageService storageService = new StorageService();
         storageService.init();
 
         StartScreen startScreen = new StartScreen(primaryStage, storageService);
 
-        Scene scene = new Scene(startScreen.getView(), 600, 400);
+        Scene scene = new Scene(startScreen.getView(), 1600, 900);
         primaryStage.setTitle("D&D Character Manager");
         primaryStage.setScene(scene);
         primaryStage.show();

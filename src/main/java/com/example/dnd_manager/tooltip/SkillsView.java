@@ -1,37 +1,26 @@
 package com.example.dnd_manager.tooltip;
 
 import com.example.dnd_manager.info.skills.Skill;
-import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import com.example.dnd_manager.info.skills.SkillCardView;
+import javafx.geometry.Insets;
 import javafx.scene.layout.FlowPane;
 
 import java.util.List;
 
 /**
- * View for displaying character skills as icons with tooltips.
+ * View for displaying a list of skill cards.
  */
 public class SkillsView extends FlowPane {
 
     public SkillsView(List<Skill> skills) {
-        super(10, 10);
-        setPrefWrapLength(400);
+        setHgap(20);
+        setVgap(20);
+        setPadding(new Insets(20));
+        setPrefWidth(900);
+        setMaxWidth(Double.MAX_VALUE);
 
-        for (Skill skill : skills) {
-            ImageView icon = new ImageView();
-            icon.setFitWidth(48);
-            icon.setFitHeight(48);
-
-            if (skill.iconPath() != null) {
-                icon.setImage(new Image("file:" + skill.iconPath()));
-            }
-
-            Tooltip tooltip = TooltipFactory.createSkillTooltip(skill);
-            Tooltip.install(icon, tooltip);
-
-            icon.setStyle("-fx-cursor: hand;");
-
-            getChildren().add(icon);
-        }
+        skills.stream()
+                .map(SkillCardView::new)
+                .forEach(getChildren()::add);
     }
 }

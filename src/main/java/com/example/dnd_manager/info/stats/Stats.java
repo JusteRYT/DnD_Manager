@@ -1,72 +1,63 @@
 package com.example.dnd_manager.info.stats;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Represents base character statistics.
+ * Character stats with Jackson-friendly serialization
  */
 public class Stats {
 
-    private int strength = 0;
-    private int dexterity = 0;
-    private int constitution = 0;
-    private int intelligence = 0;
-    private int wisdom = 0;
-    private int charisma = 0;
+    private final Map<String, Integer> values = new HashMap<>();
 
-    public int getStrength() {
-        return strength;
+    public Stats() {
+        for (StatEnum stat : StatEnum.values()) {
+            values.put(stat.name(), 0); // key = enum name
+        }
     }
 
-    public void increaseStrength() {
-        strength++;
+    public int get(StatEnum stat) {
+        return values.get(stat.name());
     }
 
-    public int getDexterity() {
-        return dexterity;
+    public void increase(StatEnum stat) {
+        values.put(stat.name(), values.get(stat.name()) + 1);
     }
 
-    public void increaseDexterity() {
-        dexterity++;
+    public void decrease(StatEnum stat) {
+        values.put(stat.name(), values.get(stat.name()) - 1);
     }
 
-    public int getConstitution() {
-        return constitution;
+    public void copyFrom(Stats other) {
+        for (StatEnum stat : StatEnum.values()) {
+            values.put(stat.name(), other.get(stat));
+        }
     }
 
-    public void increaseConstitution() {
-        constitution++;
+    @JsonAnyGetter
+    public Map<String, Integer> any() {
+        return values;
     }
 
-    public int getIntelligence() {
-        return intelligence;
+    @JsonAnySetter
+    public void set(String key, Integer value) {
+        values.put(key, value);
     }
 
-    public void increaseIntelligence() {
-        intelligence++;
-    }
-
-    public int getWisdom() {
-        return wisdom;
-    }
-
-    public void increaseWisdom() {
-        wisdom++;
-    }
-
-    public int getCharisma() {
-        return charisma;
-    }
-
-    public void increaseCharisma() {
-        charisma++;
-    }
-    public Stats copyForm(Stats stats) {
-        Stats newStats = new Stats();
-        newStats.strength = stats.strength;
-        newStats.dexterity = stats.dexterity;
-        newStats.constitution = stats.constitution;
-        newStats.intelligence = stats.intelligence;
-        newStats.wisdom = stats.wisdom;
-        newStats.charisma = stats.charisma;
-        return newStats;
+    /**
+     * Returns immutable enum-based stats map for UI usage.
+     *
+     * @return map of StatEnum to value
+     */
+    public Map<StatEnum, Integer> asMap() {
+        Map<StatEnum, Integer> result = new EnumMap<>(StatEnum.class);
+        for (StatEnum stat : StatEnum.values()) {
+            result.put(stat, get(stat));
+        }
+        return Map.copyOf(result);
     }
 }

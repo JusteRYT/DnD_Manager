@@ -35,6 +35,11 @@ public class CharacterCreateScreen {
     private BuffEditor buffEditor;
     private final StorageService storageService;
 
+    private BaseInfoForm baseInfoForm;
+    private InventoryEditor inventoryEditor;
+    private SkillsEditor skillsEditor;
+    private AvatarPicker avatarPicker;
+
     public CharacterCreateScreen(Stage stage, StorageService storageService) {
         this.stage = stage;
         this.storageService = storageService;
@@ -76,14 +81,12 @@ public class CharacterCreateScreen {
         descriptionSection = new CharacterDescriptionSection();
         buffEditor = new BuffEditor();
         form.getChildren().add(buildBaseInfoSection());
-        form.getChildren().add(buildTextSections());
         form.getChildren().add(buildStatsSection());
         form.getChildren().add(descriptionSection);
         form.getChildren().add(buffEditor);
-        form.getChildren().addAll(
-                new InventoryEditor(),
-                new SkillsEditor()
-        );
+        inventoryEditor = new InventoryEditor();
+        skillsEditor = new SkillsEditor();
+        form.getChildren().addAll(inventoryEditor, skillsEditor);
         Button saveButton = new Button("Save & View Character");
         saveButton.setOnAction(event -> saveAndShowOverview());
         saveButton.setPrefWidth(200);
@@ -92,23 +95,42 @@ public class CharacterCreateScreen {
     }
 
     private void saveAndShowOverview() {
-        Character character = new Character();
-        character.setName("Default Name");
-        character.setRace("Human");
-        character.setCharacterClass("Ranger");
-        character.setDescription(descriptionSection.getDescription());
-        character.setPersonality(descriptionSection.getPersonality());
-        character.setBackstory(descriptionSection.getBackstory());
-        character.getStats().copyForm(stats);
-        character.getBuffs().addAll(buffEditor.getBuffs());
-        // inventory и skills можно аналогично
+        Character character = getCharacter();
 
-        // Сохраняем через StorageService
+        // Stats
+        character.getStats().copyFrom(stats);
+
+        // Buffs
+        character.getBuffs().addAll(buffEditor.getBuffs());
+
+        // Inventory
+        character.getInventory().addAll(inventoryEditor.getItems());
+
+        // Skills
+        character.getSkills().addAll(skillsEditor.getSkills());
+
+        // Сохраняем в JSON
         storageService.saveCharacter(character);
 
         // Переходим на экран обзора
-        CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(character);
+        CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(character.getName(), storageService);
         stage.getScene().setRoot(overviewScreen);
+    }
+
+    private Character getCharacter() {
+        Character character = new Character();
+
+        // Base info
+        character.setName(baseInfoForm.getName());
+        character.setRace(baseInfoForm.getRace());
+        character.setCharacterClass(baseInfoForm.getCharacterClass());
+        character.setAvatarImage(avatarPicker.getImage());
+
+        // Text info
+        character.setDescription(descriptionSection.getDescription());
+        character.setPersonality(descriptionSection.getPersonality());
+        character.setBackstory(descriptionSection.getBackstory());
+        return character;
     }
 
     private GridPane buildBaseInfoSection() {
@@ -116,21 +138,13 @@ public class CharacterCreateScreen {
         grid.setHgap(20);
         grid.setVgap(10);
 
-        AvatarPicker avatarPicker = new AvatarPicker();
-        BaseInfoForm baseInfoForm = new BaseInfoForm();
+        avatarPicker = new AvatarPicker();
+        baseInfoForm = new BaseInfoForm();
 
         grid.add(avatarPicker, 0, 0);
         grid.add(baseInfoForm, 1, 0);
 
         return grid;
-    }
-
-    private VBox buildTextSections() {
-        VBox box = new VBox(10);
-        box.getChildren().add(new Label("Description"));
-        box.getChildren().add(new Label("Personality"));
-        box.getChildren().add(new Label("Backstory"));
-        return box;
     }
 
     private VBox buildStatsSection() {

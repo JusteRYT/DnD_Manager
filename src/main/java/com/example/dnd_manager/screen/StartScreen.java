@@ -52,11 +52,10 @@ public class StartScreen {
             return;
         }
 
-        // Пока просто берем первого для примера
         String name = names.getFirst();
 
         Character character = storageService.loadCharacter(name).orElseThrow();
-        CharacterOverviewScreen overview = new CharacterOverviewScreen(character);
+        CharacterOverviewScreen overview = new CharacterOverviewScreen(character.getName(), storageService);
 
         stage.getScene().setRoot(overview);
     }

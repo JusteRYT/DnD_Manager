@@ -7,60 +7,38 @@ import javafx.scene.layout.VBox;
  */
 public class StatsEditor extends VBox {
 
-    private final Stats stats;
+
 
     public StatsEditor(Stats stats) {
-        this.stats = stats;
         setSpacing(8);
 
-        StatRow strength = new StatRow(
-                "Strength",
-                stats.getStrength(),
-                stats::increaseStrength
-        );
-        strength.updateValue(stats.getStrength());
+        for (StatEnum stat : StatEnum.values()) {
+            StatRow row = createStatRow(stat, stats);
+            getChildren().add(row);
+        }
 
-        StatRow dexterity = new StatRow(
-                "Dexterity",
-                stats.getDexterity(),
-                stats::increaseDexterity
-        );
+    }
 
-        StatRow constitution = new StatRow(
-                "Constitution",
-                stats.getConstitution(),
-                stats::increaseConstitution
-        );
-        constitution.updateValue(stats.getConstitution());
+    /**
+     * Creates a single row for a stat with + and - buttons.
+     *
+     * @param stat  stat type
+     * @param stats Stats object
+     * @return StatRow with buttons and value label
+     */
+    private StatRow createStatRow(StatEnum stat, Stats stats) {
+        StatRow row = new StatRow(stat, stats.get(stat));
 
-        StatRow intelligence = new StatRow(
-                "Intelligence",
-                stats.getIntelligence(),
-                stats::increaseIntelligence
-        );
-        intelligence.updateValue(stats.getIntelligence());
+        row.addIncreaseAction(() -> {
+            stats.increase(stat);
+            row.updateValue(stats.get(stat));
+        });
 
-        StatRow wisdom = new StatRow(
-                "Wisdom",
-                stats.getWisdom(),
-                stats::increaseWisdom
-        );
-        wisdom.updateValue(stats.getWisdom());
+        row.addDecreaseAction(() -> {
+            stats.decrease(stat);
+            row.updateValue(stats.get(stat));
+        });
 
-        StatRow charisma = new StatRow(
-                "Charisma",
-                stats.getCharisma(),
-                stats::increaseCharisma
-        );
-        charisma.updateValue(stats.getCharisma());
-
-        getChildren().addAll(
-                strength,
-                dexterity,
-                constitution,
-                intelligence,
-                wisdom,
-                charisma
-        );
+        return row;
     }
 }

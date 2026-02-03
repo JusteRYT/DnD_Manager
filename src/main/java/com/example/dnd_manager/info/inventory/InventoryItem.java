@@ -1,13 +1,20 @@
 package com.example.dnd_manager.info.inventory;
 
+import lombok.Getter;
+
 /**
  * Represents an item in character inventory.
  */
+@Getter
 public class InventoryItem {
 
-    private final String name;
-    private final String description;
-    private final String iconPath;
+    private  String name;
+    private  String description;
+    private  String iconPath;
+
+    public InventoryItem() {
+
+    }
 
     public InventoryItem(String name, String description, String iconPath) {
         this.name = name;
@@ -15,15 +22,4 @@ public class InventoryItem {
         this.iconPath = iconPath;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getIconPath() {
-        return iconPath;
-    }
 }

@@ -16,7 +16,7 @@ public class AvatarPicker extends VBox {
     private final ImageView imageView;
 
     public AvatarPicker() {
-        this.imageView = new ImageView();
+        this.imageView = new ImageView("com/example/dnd_manager/icon/images.png");
         imageView.setFitWidth(120);
         imageView.setFitHeight(120);
         imageView.setPreserveRatio(true);
@@ -43,7 +43,7 @@ public class AvatarPicker extends VBox {
     /**
      * @return selected avatar image
      */
-    public Image getImage() {
-        return imageView.getImage();
+    public String getImage() {
+        return imageView.getImage().getUrl();
     }
 }

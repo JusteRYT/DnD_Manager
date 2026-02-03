@@ -1,85 +1,190 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.inventory.InventoryItem;
+import com.example.dnd_manager.info.stats.StatsGridView;
+import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.tooltip.BuffsView;
 import com.example.dnd_manager.tooltip.SkillsView;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import com.example.dnd_manager.domain.Character;
 
 /**
  * Main character overview screen.
- * Displays all important character data on one screen.
+ * Displays character information, stats, skills, buffs, and inventory.
  */
 public class CharacterOverviewScreen extends BorderPane {
 
-    public CharacterOverviewScreen(Character character) {
+    public CharacterOverviewScreen(String name, StorageService storageService) {
+        Character character = storageService.loadCharacter(name)
+                .orElseThrow(() -> new RuntimeException("Character not found: " + name));
+
         setPadding(new Insets(15));
+        setStyle("-fx-background-color: #1e1e1e;");
 
         setTop(createHeader(character));
         setCenter(createMainContent(character));
+        setBottom(createSkillsBar(character));
     }
 
+    /**
+     * Creates header with avatar and character identity panel.
+     */
     private HBox createHeader(Character character) {
-        ImageView avatar = new ImageView(new Image("file:assets/avatar_placeholder.png"));
+        ImageView avatar = new ImageView(new Image(character.getAvatarImage()));
         avatar.setFitWidth(96);
         avatar.setFitHeight(96);
 
-        VBox info = new VBox(5,
-                new Label(character.getName()),
-                new Label(character.getRace() + " • " + character.getCharacterClass())
-        );
+        Label name = new Label(character.getName());
+        name.setStyle("""
+                -fx-font-size: 22px;
+                -fx-font-weight: bold;
+                -fx-text-fill: #f2f2f2;
+                """);
 
-        info.setStyle("-fx-font-size: 16px;");
+        Label meta = new Label(character.getRace() + " • " + character.getCharacterClass());
+        meta.setStyle("""
+                -fx-font-size: 14px;
+                -fx-text-fill: #c89b3c;
+                """);
 
-        return new HBox(15, avatar, info);
+        VBox info = new VBox(2, name, meta);
+        info.setPadding(new Insets(8, 12, 8, 12));
+        info.setStyle("""
+                -fx-background-color: #252526;
+                -fx-background-radius: 8;
+                """);
+
+        HBox header = new HBox(15, avatar, info);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setPadding(new Insets(10, 0, 20, 0));
+
+        return header;
     }
 
+    /**
+     * Main content with left info, center stats & description, right inventory/buffs
+     */
     private GridPane createMainContent(Character character) {
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(15);
+        grid.setPadding(new Insets(10));
 
-        // Left column
+        // Left column: Description + Stats
         VBox description = createTextBlock("Description", character.getDescription());
-        VBox stats = createTextBlock("Stats", character.getStats().toString());
+        VBox stats = new VBox(
+                new Label("Stats"),
+                new StatsGridView(character.getStats().asMap())
+        );
+        stylePanel(stats);
+        VBox leftColumn = new VBox(10, description, stats);
 
-        // Right column (MAIN)
-        VBox buffs = new VBox(
-                new Label("Buffs / Debuffs"),
+        // Right column: Buffs/Debuffs + Inventory
+        Label title = new Label("Buffs / Debuffs");
+        title.setStyle("""
+                    -fx-text-fill: #ffffff;
+                    -fx-font-size: 16px;
+                    -fx-font-weight: bold;
+                """);
+        VBox buffs = new VBox(5,
+                title,
                 new BuffsView(character.getBuffs())
         );
+        buffs.setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
+        buffs.setPadding(new Insets(8));
 
-        VBox skills = new VBox(
-                new Label("Skills"),
-                new SkillsView(character.getSkills())
+        VBox inventory = new VBox(5,
+                new Label("Inventory"),
+                createInventoryView(character)
         );
+        inventory.setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
+        inventory.setPadding(new Insets(8));
 
-        grid.add(description, 0, 0);
-        grid.add(stats, 0, 1);
+        VBox rightColumn = new VBox(15, buffs, inventory);
 
-        grid.add(buffs, 1, 0);
-        grid.add(skills, 1, 1);
+        // Layout in grid
+        grid.add(leftColumn, 0, 0);
+        grid.add(rightColumn, 1, 0);
 
         ColumnConstraints left = new ColumnConstraints();
-        left.setPercentWidth(40);
-
+        left.setPercentWidth(50);
         ColumnConstraints right = new ColumnConstraints();
-        right.setPercentWidth(60);
+        right.setPercentWidth(50);
 
         grid.getColumnConstraints().addAll(left, right);
 
         return grid;
     }
 
+    /**
+     * Skills bar at the bottom with icon buttons
+     */
+    private HBox createSkillsBar(Character character) {
+        HBox skillsBar = new HBox();
+        skillsBar.setPadding(new Insets(10));
+        skillsBar.setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
+        skillsBar.setAlignment(Pos.CENTER_LEFT);
+
+        SkillsView skillsView = new SkillsView(character.getSkills());
+        skillsBar.getChildren().add(skillsView);
+
+        return skillsBar;
+    }
+
+    /**
+     * Inventory as icons with hover info
+     */
+    private FlowPane createInventoryView(Character character) {
+        FlowPane inventory = new FlowPane(8, 8);
+        inventory.setPadding(new Insets(5));
+
+        for (InventoryItem item : character.getInventory()) {
+            ImageView icon = new ImageView(new Image("file:" + item.getIconPath()));
+            icon.setFitWidth(40);
+            icon.setFitHeight(40);
+
+            Tooltip tooltip = new Tooltip(
+                    item.getName() + "\n\n" + item.getDescription()
+            );
+            tooltip.setStyle("""
+                    -fx-background-color: #252526;
+                    -fx-text-fill: #f2f2f2;
+                    -fx-padding: 10;
+                    -fx-background-radius: 8;
+                    """);
+            tooltip.setShowDelay(javafx.util.Duration.millis(50));
+
+            Tooltip.install(icon, tooltip);
+            inventory.getChildren().add(icon);
+        }
+
+        return inventory;
+    }
+
+    private void stylePanel(Region region) {
+        region.setStyle("""
+                -fx-background-color: #252526;
+                -fx-background-radius: 8;
+                -fx-padding: 10;
+                """);
+    }
+
+    /**
+     * Text block with title and content, styled
+     */
     private VBox createTextBlock(String title, String content) {
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-font-weight: bold;");
+        titleLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #ffffff;");
 
         Label text = new Label(content);
         text.setWrapText(true);
+        text.setStyle("-fx-text-fill: #dddddd;");
 
         VBox box = new VBox(5, titleLabel, text);
         box.setPadding(new Insets(8));
