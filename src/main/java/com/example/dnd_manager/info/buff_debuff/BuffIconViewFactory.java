@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.buff_debuff;
 
+import com.example.dnd_manager.repository.CharacterAssetResolver;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Popup;
@@ -14,23 +15,14 @@ public final class BuffIconViewFactory {
     private static final String DEFAULT_ICON_PATH =
             "/com/example/dnd_manager/icon/images.png";
 
-    private static final int DEFAULT_ICON_SIZE = 40;
-
     private BuffIconViewFactory() {
-    }
-
-    /**
-     * Creates a buff/debuff icon with default size.
-     */
-    public static ImageView create(Buff buff, BuffColumnStyle style) {
-        return createInternal(buff, style, DEFAULT_ICON_SIZE);
     }
 
     /**
      * Creates a buff/debuff icon with custom size.
      */
-    public static ImageView create(Buff buff, BuffColumnStyle style, int size) {
-        return createInternal(buff, style, size);
+    public static ImageView create(Buff buff, BuffColumnStyle style, int size, String characterName) {
+        return createInternal(buff, style, size,  characterName);
     }
 
     /**
@@ -39,7 +31,8 @@ public final class BuffIconViewFactory {
     private static ImageView createInternal(
             Buff buff,
             BuffColumnStyle style,
-            int size
+            int size,
+            String characterName
     ) {
         Image image;
 
@@ -51,7 +44,10 @@ public final class BuffIconViewFactory {
                         ).toExternalForm()
                 );
             } else {
-                image = new Image("file:" + buff.iconPath());
+                image = new Image(CharacterAssetResolver.resolve(
+                        characterName,
+                        buff.iconPath()
+                ));
             }
         } catch (Exception e) {
             image = new Image(

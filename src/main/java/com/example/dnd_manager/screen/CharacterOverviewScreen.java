@@ -4,6 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.inventory.InventoryItemPopup;
 import com.example.dnd_manager.info.stats.StatsGridView;
+import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.tooltip.BuffsView;
 import com.example.dnd_manager.tooltip.SkillsView;
@@ -37,7 +38,10 @@ public class CharacterOverviewScreen extends BorderPane {
      * Creates header with avatar and character identity panel.
      */
     private HBox createHeader(Character character) {
-        ImageView avatar = new ImageView(new Image(character.getAvatarImage()));
+        ImageView avatar = new ImageView(new Image(CharacterAssetResolver.resolve(
+                character.getName(),
+                character.getAvatarImage()
+        )));
         avatar.setFitWidth(96);
         avatar.setFitHeight(96);
 
@@ -94,7 +98,7 @@ public class CharacterOverviewScreen extends BorderPane {
 
         // Right column: Buffs/Debuffs + Inventory
         VBox buffs = new VBox(5,
-                new BuffsView(character.getBuffs())
+                new BuffsView(character)
         );
         buffs.setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
         buffs.setPadding(new Insets(8));
@@ -137,7 +141,7 @@ public class CharacterOverviewScreen extends BorderPane {
         skillsBar.setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
         skillsBar.setAlignment(Pos.CENTER_LEFT);
 
-        SkillsView skillsView = new SkillsView(character.getSkills());
+        SkillsView skillsView = new SkillsView(character);
         skillsBar.getChildren().add(skillsView);
 
         return skillsBar;
@@ -151,7 +155,10 @@ public class CharacterOverviewScreen extends BorderPane {
         inventory.setPadding(new Insets(8));
 
         for (InventoryItem item : character.getInventory()) {
-            ImageView icon = new ImageView(new Image("file:" + item.getIconPath()));
+            ImageView icon = new ImageView(new Image(CharacterAssetResolver.resolve(
+                    character.getName(),
+                    item.getIconPath()
+            )));
             icon.setFitWidth(48);
             icon.setFitHeight(48);
             icon.setPreserveRatio(true);

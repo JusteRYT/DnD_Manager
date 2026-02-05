@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.skills;
 
+import com.example.dnd_manager.repository.CharacterAssetResolver;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -13,7 +14,7 @@ import javafx.scene.layout.VBox;
  */
 public class SkillCardView extends VBox {
 
-    public SkillCardView(Skill skill) {
+    public SkillCardView(Skill skill, String characterName) {
         setSpacing(10);
         setPadding(new Insets(14));
         setAlignment(Pos.TOP_CENTER);
@@ -26,7 +27,7 @@ public class SkillCardView extends VBox {
                 -fx-border-color: #3a3a3a;
                 """);
 
-        ImageView icon = createIcon(skill);
+        ImageView icon = createIcon(skill, characterName);
         Label name = createName(skill);
         Label activation = createActivation(skill);
         Label damage = createDamage(skill);
@@ -35,8 +36,11 @@ public class SkillCardView extends VBox {
         getChildren().addAll(icon, name, activation, damage, description);
     }
 
-    private ImageView createIcon(Skill skill) {
-        ImageView icon = new ImageView(new Image("file:" + skill.iconPath()));
+    private ImageView createIcon(Skill skill, String characterName) {
+        ImageView icon = new ImageView(new Image(CharacterAssetResolver.resolve(
+                characterName,
+                skill.iconPath()
+        )));
         icon.setFitWidth(80);
         icon.setFitHeight(80);
         return icon;

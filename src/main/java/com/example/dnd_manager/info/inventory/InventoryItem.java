@@ -1,11 +1,13 @@
 package com.example.dnd_manager.info.inventory;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents an item in character inventory.
  */
 @Getter
+@Setter
 public class InventoryItem {
 
     private  String name;

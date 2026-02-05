@@ -2,6 +2,7 @@ package com.example.dnd_manager.info.avatar;
 
 import com.example.dnd_manager.theme.AppButtonFactory;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -28,6 +29,7 @@ public class AvatarPicker extends VBox {
 
         setSpacing(10);
         setPadding(new Insets(10, 0, 0, 0));
+        setAlignment(Pos.CENTER);
         getChildren().addAll(imageView, uploadButton);
     }
 

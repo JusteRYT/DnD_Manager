@@ -6,6 +6,7 @@ import com.example.dnd_manager.theme.AppTextSection;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -54,7 +55,7 @@ public class BuffEditor extends VBox {
         notificationLabel.setVisible(false);
 
         // Кнопка выбора иконки
-        var chooseIconButton = AppButtonFactory.customButton("Icon", 60);
+        Button chooseIconButton = AppButtonFactory.customButton("Icon", 60);
         chooseIconButton.setOnAction(e -> {
             FileChooser chooser = new FileChooser();
             chooser.setTitle("Choose Buff Icon");
@@ -62,7 +63,9 @@ public class BuffEditor extends VBox {
                     new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
             );
             File file = chooser.showOpenDialog(getScene().getWindow());
-            if (file != null) iconPath.set(file.getAbsolutePath());
+            if (file != null) {
+                iconPath.set(file.getAbsolutePath());
+            }
         });
 
         var addButton = AppButtonFactory.customButton("Add", 60);

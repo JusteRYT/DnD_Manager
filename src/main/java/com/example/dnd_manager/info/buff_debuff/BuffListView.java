@@ -15,7 +15,8 @@ public class BuffListView extends VBox {
     public BuffListView(
             String titleText,
             List<Buff> buffs,
-            BuffColumnStyle style
+            BuffColumnStyle style,
+            String characterName
     ) {
         setSpacing(8);
         setPadding(new Insets(4));
@@ -37,7 +38,7 @@ public class BuffListView extends VBox {
         } else {
             buffs.forEach(buff ->
                     icons.getChildren().add(
-                            BuffIconViewFactory.create(buff, style, 48)
+                            BuffIconViewFactory.create(buff, style, 48, characterName)
                     )
             );
         }

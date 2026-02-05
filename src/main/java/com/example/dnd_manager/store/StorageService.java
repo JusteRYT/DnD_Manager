@@ -6,9 +6,12 @@ import com.example.dnd_manager.repository.JsonCharacterRepository;
 import java.util.List;
 import java.util.Optional;
 import com.example.dnd_manager.domain.Character;
+import lombok.Getter;
+
 /**
  * Service for managing character storage.
  */
+@Getter
 public class StorageService {
 
     private CharacterRepository repository;
@@ -29,7 +32,4 @@ public class StorageService {
         return repository.listAll();
     }
 
-    public CharacterRepository getRepository() {
-        return repository;
-    }
 }

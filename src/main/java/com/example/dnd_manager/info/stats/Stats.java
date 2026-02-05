@@ -16,7 +16,7 @@ public class Stats {
 
     public Stats() {
         for (StatEnum stat : StatEnum.values()) {
-            values.put(stat.name(), 0); // key = enum name
+            values.put(stat.name(), 0);
         }
     }
 
