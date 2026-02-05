@@ -65,6 +65,7 @@ public class SkillCardView extends VBox {
     private Label createDescription(Skill skill) {
         Label label = new Label(skill.description());
         label.setWrapText(true);
+        label.setMaxHeight(40);
         label.setStyle("-fx-text-fill: #d4d4d4; -fx-font-size: 12px;");
         return label;
     }

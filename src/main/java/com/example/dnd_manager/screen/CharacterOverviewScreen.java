@@ -2,6 +2,7 @@ package com.example.dnd_manager.screen;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.inventory.InventoryItem;
+import com.example.dnd_manager.info.inventory.InventoryItemPopup;
 import com.example.dnd_manager.info.stats.StatsGridView;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.tooltip.BuffsView;
@@ -9,10 +10,10 @@ import com.example.dnd_manager.tooltip.SkillsView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Popup;
 
 /**
  * Main character overview screen.
@@ -77,7 +78,7 @@ public class CharacterOverviewScreen extends BorderPane {
         grid.setPadding(new Insets(10));
 
         // Left column: Description + Stats
-        VBox description = createTextBlock("Description", character.getDescription());
+        VBox description = createTextBlock(character.getDescription());
         Label titleStats = new Label("Stats");
         titleStats.setStyle("""
                     -fx-text-fill: #ffffff;
@@ -98,8 +99,14 @@ public class CharacterOverviewScreen extends BorderPane {
         buffs.setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
         buffs.setPadding(new Insets(8));
 
+        Label titleInventory = new Label("INVENTORY");
+        titleInventory.setStyle("""
+                    -fx-text-fill: #c89b3c;
+                    -fx-font-size: 14px;
+                    -fx-font-weight: bold;
+                """);
         VBox inventory = new VBox(5,
-                new Label("Inventory"),
+                titleInventory,
                 createInventoryView(character)
         );
         inventory.setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
@@ -140,26 +147,30 @@ public class CharacterOverviewScreen extends BorderPane {
      * Inventory as icons with hover info
      */
     private FlowPane createInventoryView(Character character) {
-        FlowPane inventory = new FlowPane(8, 8);
-        inventory.setPadding(new Insets(5));
+        FlowPane inventory = new FlowPane(10, 10);
+        inventory.setPadding(new Insets(8));
 
         for (InventoryItem item : character.getInventory()) {
             ImageView icon = new ImageView(new Image("file:" + item.getIconPath()));
-            icon.setFitWidth(40);
-            icon.setFitHeight(40);
+            icon.setFitWidth(48);
+            icon.setFitHeight(48);
+            icon.setPreserveRatio(true);
+            icon.setStyle("-fx-cursor: hand;");
 
-            Tooltip tooltip = new Tooltip(
-                    item.getName() + "\n\n" + item.getDescription()
-            );
-            tooltip.setStyle("""
-                    -fx-background-color: #252526;
-                    -fx-text-fill: #f2f2f2;
-                    -fx-padding: 10;
-                    -fx-background-radius: 8;
-                    """);
-            tooltip.setShowDelay(javafx.util.Duration.millis(50));
+            Popup popup = new Popup();
+            popup.setAutoHide(true);
+            popup.getContent().add(new InventoryItemPopup(item));
 
-            Tooltip.install(icon, tooltip);
+            icon.setOnMouseEntered(e -> {
+                var bounds = icon.localToScreen(icon.getBoundsInLocal());
+                popup.show(
+                        icon.getScene().getWindow(),
+                        bounds.getMaxX() + 10,
+                        bounds.getMinY()
+                );
+            });
+
+            icon.setOnMouseExited(e -> popup.hide());
             inventory.getChildren().add(icon);
         }
 
@@ -177,8 +188,8 @@ public class CharacterOverviewScreen extends BorderPane {
     /**
      * Text block with title and content, styled
      */
-    private VBox createTextBlock(String title, String content) {
-        Label titleLabel = new Label(title);
+    private VBox createTextBlock(String content) {
+        Label titleLabel = new Label("Description");
         titleLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #ffffff;");
 
         Label text = new Label(content);
