@@ -38,7 +38,7 @@ public class BuffListView extends VBox {
         } else {
             buffs.forEach(buff ->
                     icons.getChildren().add(
-                            BuffIconViewFactory.create(buff, style, 48, characterName)
+                            BuffIconViewFactory.create(buff, style, 60, characterName)
                     )
             );
         }

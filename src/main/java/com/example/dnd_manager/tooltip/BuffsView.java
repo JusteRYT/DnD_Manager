@@ -1,9 +1,10 @@
 package com.example.dnd_manager.tooltip;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.buff_debuff.*;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import com.example.dnd_manager.info.buff_debuff.Buff;
+import com.example.dnd_manager.info.buff_debuff.BuffColumnStyle;
+import com.example.dnd_manager.info.buff_debuff.BuffListView;
+import com.example.dnd_manager.info.buff_debuff.BuffType;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
@@ -15,16 +16,7 @@ import java.util.List;
 public class BuffsView extends HBox {
 
     public BuffsView(Character character) {
-        setSpacing(16);
-        setPadding(new Insets(12));
-        setAlignment(Pos.TOP_LEFT);
-
-        setStyle("""
-            -fx-background-color: #252526;
-            -fx-background-radius: 8;
-        """);
-
-        List<Buff> buffs = character.getBuffs();
+              List<Buff> buffs = character.getBuffs();
 
         BuffListView buffsView = new BuffListView(
                 "BUFFS",

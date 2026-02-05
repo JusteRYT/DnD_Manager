@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.example.dnd_manager.domain.Character;
@@ -110,10 +111,15 @@ public class JsonCharacterRepository implements CharacterRepository {
     private void copyIcon(
             String sourcePath,
             Path iconDir,
-            java.util.function.Consumer<String> pathSetter
+            Consumer<String> pathSetter
     ) throws IOException {
 
         if (sourcePath == null || sourcePath.isBlank()) {
+            return;
+        }
+
+        // already stored icon, do not copy again
+        if (sourcePath.startsWith("icon/")) {
             return;
         }
 
@@ -129,7 +135,6 @@ public class JsonCharacterRepository implements CharacterRepository {
         Path target = iconDir.resolve(fileName);
 
         Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-
         pathSetter.accept("icon/" + fileName);
     }
 
