@@ -8,7 +8,7 @@ import javafx.scene.layout.VBox;
 /**
  * Styled container for displaying a text section.
  * Background and text colors follow the application theme.
- * Can be created without initial content and allows getting/setting text.
+ * Can be created with or without title and border.
  */
 public class AppTextSection extends VBox {
 
@@ -47,18 +47,39 @@ public class AppTextSection extends VBox {
             -fx-font-weight: bold;
         """.formatted(AppTheme.TEXT_ACCENT));
 
-        contentArea = new TextArea(content);
-        contentArea.setWrapText(true);
-        contentArea.setStyle("""
+        contentArea = createStyledTextArea(content, 4, "");
+
+        getChildren().addAll(titleLabel, contentArea);
+    }
+
+    /**
+     * Creates a “plain” text area without title or border.
+     *
+     * @param initialText initial text content
+     * @param rows        preferred row count
+     */
+    public AppTextSection(String initialText, int rows, String promptText) {
+        super(0);
+        setPadding(Insets.EMPTY);
+
+        titleLabel = null;
+        contentArea = createStyledTextArea(initialText, rows, promptText);
+
+        getChildren().add(contentArea);
+    }
+
+    private TextArea createStyledTextArea(String content, int rows, String promptText) {
+        TextArea area = new TextArea(content);
+        area.setWrapText(true);
+        area.setPrefRowCount(rows);
+        area.setPromptText(promptText);
+        area.setStyle("""
             -fx-control-inner-background: %s;
             -fx-text-fill: %s;
             -fx-font-size: 12px;
+            -fx-prompt-text-fill: #aaaaaa;
         """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY));
-
-        contentArea.setPrefRowCount(4);
-
-
-        getChildren().addAll(titleLabel, contentArea);
+        return area;
     }
 
     /**
@@ -85,7 +106,7 @@ public class AppTextSection extends VBox {
      * @param title new title text
      */
     public void setTitle(String title) {
-        titleLabel.setText(title);
+        if (titleLabel != null) titleLabel.setText(title);
     }
 
     /**
@@ -94,6 +115,6 @@ public class AppTextSection extends VBox {
      * @return section title
      */
     public String getTitle() {
-        return titleLabel.getText();
+        return titleLabel != null ? titleLabel.getText() : null;
     }
 }

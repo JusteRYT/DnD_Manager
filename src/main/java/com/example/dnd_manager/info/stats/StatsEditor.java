@@ -10,7 +10,7 @@ public class StatsEditor extends VBox {
 
 
     public StatsEditor(Stats stats) {
-        setSpacing(8);
+        setSpacing(10);
 
         for (StatEnum stat : StatEnum.values()) {
             StatRow row = createStatRow(stat, stats);

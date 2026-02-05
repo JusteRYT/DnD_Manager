@@ -20,11 +20,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
-
 
 
 /**
@@ -69,6 +66,8 @@ public class CharacterCreateScreen {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
+        buffEditor.setParentScrollPane(scrollPane);
+
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         root.setCenter(scrollPane);
@@ -93,7 +92,6 @@ public class CharacterCreateScreen {
 
         form.getChildren().addAll(
                 new SectionBox(buildBaseInfoSection()),
-                new SectionBox(buildStatsSection()),
                 new SectionBox(descriptionSection),
                 new SectionBox(buffEditor),
                 new SectionBox(inventoryEditor),
@@ -146,26 +144,45 @@ public class CharacterCreateScreen {
         return character;
     }
 
-    private GridPane buildBaseInfoSection() {
-        GridPane grid = new GridPane();
-        grid.setHgap(20);
-        grid.setVgap(10);
+    private HBox buildBaseInfoSection() {
+        HBox row = new HBox(20);
+        row.setPadding(new Insets(10));
 
         avatarPicker = new AvatarPicker();
         baseInfoForm = new BaseInfoForm();
+        VBox statsSection = buildStatsSection();
 
-        grid.add(avatarPicker, 0, 0);
-        grid.add(baseInfoForm, 1, 0);
+        HBox statsContainer = new HBox();
+        statsContainer.getChildren().add(statsSection);
+        statsContainer.setAlignment(Pos.TOP_RIGHT);
+        HBox.setHgrow(statsContainer, Priority.ALWAYS);
 
-        return grid;
+        row.getChildren().addAll(avatarPicker, baseInfoForm, statsContainer);
+
+        return row;
     }
 
     private VBox buildStatsSection() {
-        VBox box = new VBox(10);
+        VBox sectionBox = new VBox(10);
+        sectionBox.setPadding(new Insets(12));
+        sectionBox.setStyle("""
+                    -fx-background-color: %s;
+                    -fx-background-radius: 8;
+                    -fx-border-radius: 8;
+                    -fx-border-color: %s;
+                """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BORDER_MUTED));
+
         Label titleStats = new Label("Stats");
-        titleStats.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: orange");
-        box.getChildren().add(titleStats);
-        box.getChildren().add(new StatsEditor(stats));
-        return box;
+        titleStats.setStyle("""
+                    -fx-font-size: 16px;
+                    -fx-font-weight: bold;
+                    -fx-text-fill: %s;
+                """.formatted(AppTheme.TEXT_ACCENT));
+
+        StatsEditor statsEditor = new StatsEditor(stats);
+
+        sectionBox.getChildren().addAll(titleStats, statsEditor);
+
+        return sectionBox;
     }
 }

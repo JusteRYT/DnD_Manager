@@ -1,82 +1,135 @@
 package com.example.dnd_manager.info.buff_debuff;
 
+import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppComboBox;
+import com.example.dnd_manager.theme.AppTextSection;
+import com.example.dnd_manager.theme.AppTheme;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Editor component for character buffs and debuffs.
+ * Fully styled according to application theme.
  */
 @Getter
 public class BuffEditor extends VBox {
 
     private final ObservableList<Buff> buffs = FXCollections.observableArrayList();
     private final VBox listContainer = new VBox(5);
+    @Setter
+    private ScrollPane parentScrollPane;
 
     public BuffEditor() {
         setSpacing(10);
+        setPadding(new Insets(12));
+        setStyle("""
+            -fx-background-color: %s;
+            -fx-background-radius: 8;
+            -fx-border-radius: 8;
+            -fx-border-color: %s;
+        """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BORDER_MUTED));
 
+        // Заголовок
         Label title = new Label("Buffs / Debuffs");
-        title.setStyle("-fx-font-weight: bold;");
+        title.setStyle("""
+            -fx-text-fill: %s;
+            -fx-font-weight: bold;
+            -fx-font-size: 14px;
+        """.formatted(AppTheme.TEXT_ACCENT));
 
-        TextField nameField = new TextField();
-        nameField.setPromptText("Name");
-
-        TextArea descriptionField = new TextArea();
-        descriptionField.setPromptText("Description");
-        descriptionField.setPrefRowCount(2);
-
-        ComboBox<BuffType> typeBox = new ComboBox<>();
+        // Поля ввода
+        TextField nameField = createStyledTextField();
+        AppTextSection descriptionField = new AppTextSection("", 4, "Description");
+        AppComboBox<BuffType> typeBox = new AppComboBox<>();
         typeBox.getItems().addAll(BuffType.values());
         typeBox.setValue(BuffType.BUFF);
 
-        TextField iconPathField = new TextField();
-        iconPathField.setPromptText("Icon path");
-        iconPathField.setEditable(false);
-        Button chooseIconButton = new Button("Icon");
+        AtomicReference<String> iconPath = new AtomicReference<>("");
 
-        chooseIconButton.setOnAction(event -> {
+        Label notificationLabel = new Label();
+        notificationLabel.setStyle("""
+            -fx-text-fill: %s;
+            -fx-font-size: 12px;
+        """.formatted(AppTheme.BUTTON_PRIMARY));
+        notificationLabel.setVisible(false);
+
+        // Кнопка выбора иконки
+        var chooseIconButton = AppButtonFactory.customButton("Icon", 60);
+        chooseIconButton.setOnAction(e -> {
             FileChooser chooser = new FileChooser();
             chooser.setTitle("Choose Buff Icon");
             chooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
             );
-
             File file = chooser.showOpenDialog(getScene().getWindow());
-            if (file != null) {
-                iconPathField.setText(file.getAbsolutePath());
-            }
+            if (file != null) iconPath.set(file.getAbsolutePath());
         });
 
-        Button addButton = new Button("Add");
+        var addButton = AppButtonFactory.customButton("Add", 60);
+        addButton.setOnAction(e -> {
+            String name = nameField.getText().trim();
+            if (name.isEmpty()) {
+                notificationLabel.setText("Name is required!");
+                notificationLabel.setVisible(true);
+                return;
+            }
+            notificationLabel.setVisible(false);
 
-        addButton.setOnAction(event -> {
             Buff buff = new Buff(
-                    nameField.getText(),
+                    name,
                     descriptionField.getText(),
                     typeBox.getValue(),
-                    iconPathField.getText()
+                    iconPath.get()
             );
 
             buffs.add(buff);
-            listContainer.getChildren().add(new BuffEditorRow(buff));
+
+            BuffEditorRow row = new BuffEditorRow(buff, () -> removeBuffRow(buff));
+            listContainer.getChildren().add(row);
 
             nameField.clear();
-            descriptionField.clear();
+            descriptionField.setText("");
+            iconPath.set("");
         });
 
-        HBox controls = new HBox(10, nameField, typeBox, iconPathField, chooseIconButton, addButton);
-        getChildren().addAll(
-                title,
-                controls,
-                descriptionField,
-                listContainer
-        );
+        HBox controls = new HBox(10, nameField, typeBox, chooseIconButton, addButton);
+        getChildren().addAll(title, notificationLabel, controls, descriptionField, listContainer);
+    }
+
+    private TextField createStyledTextField() {
+        TextField field = new TextField();
+        field.setPromptText("Name");
+        field.setStyle("""
+            -fx-background-color: %s;
+            -fx-text-fill: %s;
+            -fx-prompt-text-fill: #aaaaaa;
+            -fx-border-color: %s;
+            -fx-border-radius: 6;
+            -fx-background-radius: 6;
+            -fx-padding: 4 6 4 6;
+        """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY, AppTheme.BORDER_MUTED));
+        return field;
+    }
+
+
+    private void removeBuffRow(Buff buff) {
+        listContainer.getChildren().stream()
+                .filter(node -> node instanceof BuffEditorRow row && row.getBuff() == buff)
+                .findFirst()
+                .ifPresent(node -> {
+                    node.setManaged(false);
+                    node.setVisible(false);
+                    buffs.remove(buff);
+                });
     }
 }

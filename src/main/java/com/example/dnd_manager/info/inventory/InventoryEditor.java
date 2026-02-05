@@ -1,11 +1,16 @@
 package com.example.dnd_manager.info.inventory;
 
+import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppTextField;
+import com.example.dnd_manager.theme.AppTextSection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import lombok.Getter;
 
 import java.io.File;
 
@@ -14,49 +19,61 @@ import java.io.File;
  */
 public class InventoryEditor extends VBox {
 
+    @Getter
     private final ObservableList<InventoryItem> items = FXCollections.observableArrayList();
+    private final VBox listContainer = new VBox(6);
+
     private String iconPath;
 
     public InventoryEditor() {
         setSpacing(10);
 
         Label title = new Label("Inventory");
-        title.setStyle("-fx-font-weight: bold;");
+        title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
 
-        TextField nameField = new TextField();
-        nameField.setPromptText("Item name");
+        AppTextField nameField = new AppTextField("Item name");
+        AppTextSection descriptionTextSection = new AppTextSection("", 2, "Description");
 
-        TextArea descriptionField = new TextArea();
-        descriptionField.setPromptText("Item description");
-        descriptionField.setPrefRowCount(2);
-
-        Button iconButton = new Button("Choose icon");
+        Button iconButton = AppButtonFactory.customButton("Add Icon", 100);
         iconButton.setOnAction(e -> iconPath = chooseIcon());
 
-        Button addButton = new Button("Add item");
+        Button addButton = AppButtonFactory.customButton("Add Item", 100);
         addButton.setOnAction(event -> {
             InventoryItem item = new InventoryItem(
                     nameField.getText(),
-                    descriptionField.getText(),
+                    descriptionTextSection.getText(),
                     iconPath
             );
+
             items.add(item);
-            nameField.clear();
-            descriptionField.clear();
+
+            InventoryRow row = new InventoryRow(item, () -> removeItemRow(item));
+            listContainer.getChildren().add(row);
+
+            nameField.setText("");
+            descriptionTextSection.setText("");
             iconPath = null;
         });
 
-        ListView<InventoryItem> listView = new ListView<>(items);
-        listView.setCellFactory(v -> new InventoryCell());
-
-        HBox controls = new HBox(10, nameField, iconButton, addButton);
+        HBox controls = new HBox(10, nameField.getField(), iconButton, addButton);
 
         getChildren().addAll(
                 title,
                 controls,
-                descriptionField,
-                listView
+                descriptionTextSection,
+                listContainer
         );
+    }
+
+    private void removeItemRow(InventoryItem item) {
+        listContainer.getChildren().stream()
+                .filter(node -> node instanceof InventoryRow row && row.getItem() == item)
+                .findFirst()
+                .ifPresent(node -> {
+                    node.setManaged(false);
+                    node.setVisible(false);
+                    items.remove(item);
+                });
     }
 
     private String chooseIcon() {
@@ -66,9 +83,5 @@ public class InventoryEditor extends VBox {
         );
         File file = chooser.showOpenDialog(getScene().getWindow());
         return file != null ? file.getAbsolutePath() : null;
-    }
-
-    public ObservableList<InventoryItem> getItems() {
-        return items;
     }
 }

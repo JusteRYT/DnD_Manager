@@ -25,7 +25,7 @@ public class StatRow extends HBox {
 
         valueLabel = new Label(String.valueOf(initialValue));
         valueLabel.setPrefWidth(40);
-        valueLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
+        valueLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #aaaaaa");
 
         increaseButton = AppButtonFactory.customButton("+", 25);
         decreaseButton = AppButtonFactory.customButton("-", 25);

@@ -1,7 +1,6 @@
 package com.example.dnd_manager.info.text;
 
 import com.example.dnd_manager.theme.AppTheme;
-import javafx.geometry.Insets;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
@@ -18,7 +17,6 @@ public class BaseInfoForm extends VBox {
 
     public BaseInfoForm() {
         setSpacing(10);
-        setPadding(new Insets(10));
 
         styleTextField(nameField, "Name");
         styleTextField(raceField, "Race");
@@ -34,7 +32,7 @@ public class BaseInfoForm extends VBox {
      * @param promptText placeholder text
      */
     private void styleTextField(TextField field, String promptText) {
-        field.setPrefWidth(1500);
+        field.setPrefWidth(500);
         field.setPromptText(promptText);
         field.setStyle("""
             -fx-background-color: %s;
