@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.stats;
 
+import com.example.dnd_manager.theme.AppButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -20,12 +21,14 @@ public class StatRow extends HBox {
 
         Label nameLabel = new Label(statName.getName());
         nameLabel.setPrefWidth(100);
+        nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
 
         valueLabel = new Label(String.valueOf(initialValue));
         valueLabel.setPrefWidth(40);
+        valueLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
 
-        increaseButton = new Button("+");
-        decreaseButton = new Button("-");
+        increaseButton = AppButtonFactory.customButton("+", 25);
+        decreaseButton = AppButtonFactory.customButton("-", 25);
 
         getChildren().addAll(nameLabel, valueLabel, increaseButton, decreaseButton);
     }

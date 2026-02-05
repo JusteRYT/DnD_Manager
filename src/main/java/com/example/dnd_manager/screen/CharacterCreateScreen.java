@@ -10,6 +10,9 @@ import com.example.dnd_manager.info.text.CharacterDescriptionSection;
 import com.example.dnd_manager.info.stats.Stats;
 import com.example.dnd_manager.info.stats.StatsEditor;
 import com.example.dnd_manager.store.StorageService;
+import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppTheme;
+import com.example.dnd_manager.theme.SectionBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -54,6 +57,8 @@ public class CharacterCreateScreen {
         BorderPane root = new BorderPane();
         root.setPadding(new Insets(20));
 
+        root.setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + ";");
+
         root.setTop(buildTitle());
 
         VBox form = buildForm();
@@ -64,6 +69,8 @@ public class CharacterCreateScreen {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
         root.setCenter(scrollPane);
 
         return root;
@@ -71,25 +78,31 @@ public class CharacterCreateScreen {
 
     private Label buildTitle() {
         Label title = new Label("Character Creation");
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: orange");
         BorderPane.setAlignment(title, Pos.CENTER);
         return title;
     }
 
     private VBox buildForm() {
         VBox form = new VBox(20);
+
         descriptionSection = new CharacterDescriptionSection();
         buffEditor = new BuffEditor();
-        form.getChildren().add(buildBaseInfoSection());
-        form.getChildren().add(buildStatsSection());
-        form.getChildren().add(descriptionSection);
-        form.getChildren().add(buffEditor);
         inventoryEditor = new InventoryEditor();
         skillsEditor = new SkillsEditor();
-        form.getChildren().addAll(inventoryEditor, skillsEditor);
-        Button saveButton = new Button("Save & View Character");
+
+        form.getChildren().addAll(
+                new SectionBox(buildBaseInfoSection()),
+                new SectionBox(buildStatsSection()),
+                new SectionBox(descriptionSection),
+                new SectionBox(buffEditor),
+                new SectionBox(inventoryEditor),
+                new SectionBox(skillsEditor)
+        );
+
+        Button saveButton = AppButtonFactory.primary("Save & View Character");
         saveButton.setOnAction(event -> saveAndShowOverview());
-        saveButton.setPrefWidth(200);
+
         form.getChildren().add(saveButton);
         return form;
     }
@@ -149,7 +162,9 @@ public class CharacterCreateScreen {
 
     private VBox buildStatsSection() {
         VBox box = new VBox(10);
-        box.getChildren().add(new Label("Attributes"));
+        Label titleStats = new Label("Stats");
+        titleStats.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: orange");
+        box.getChildren().add(titleStats);
         box.getChildren().add(new StatsEditor(stats));
         return box;
     }
