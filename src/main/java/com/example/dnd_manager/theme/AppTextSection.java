@@ -31,14 +31,8 @@ public class AppTextSection extends VBox {
      * @param content section text content
      */
     public AppTextSection(String title, String content) {
-        super(8); // spacing between title and content
+        super(8);
         setPadding(new Insets(12));
-        setStyle("""
-            -fx-background-color: %s;
-            -fx-background-radius: 8;
-            -fx-border-radius: 8;
-            -fx-border-color: %s;
-        """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BORDER_MUTED));
 
         titleLabel = new Label(title);
         titleLabel.setStyle("""
@@ -116,5 +110,9 @@ public class AppTextSection extends VBox {
      */
     public String getTitle() {
         return titleLabel != null ? titleLabel.getText() : null;
+    }
+
+    public void clear() {
+        contentArea.clear();
     }
 }

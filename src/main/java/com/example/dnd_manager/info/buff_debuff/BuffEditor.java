@@ -6,13 +6,12 @@ import com.example.dnd_manager.theme.AppTextSection;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,26 +25,17 @@ public class BuffEditor extends VBox {
 
     private final ObservableList<Buff> buffs = FXCollections.observableArrayList();
     private final VBox listContainer = new VBox(5);
-    @Setter
-    private ScrollPane parentScrollPane;
 
     public BuffEditor() {
         setSpacing(10);
-        setPadding(new Insets(12));
-        setStyle("""
-            -fx-background-color: %s;
-            -fx-background-radius: 8;
-            -fx-border-radius: 8;
-            -fx-border-color: %s;
-        """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BORDER_MUTED));
 
         // Заголовок
         Label title = new Label("Buffs / Debuffs");
         title.setStyle("""
-            -fx-text-fill: %s;
-            -fx-font-weight: bold;
-            -fx-font-size: 14px;
-        """.formatted(AppTheme.TEXT_ACCENT));
+                    -fx-text-fill: %s;
+                    -fx-font-weight: bold;
+                    -fx-font-size: 14px;
+                """.formatted(AppTheme.TEXT_ACCENT));
 
         // Поля ввода
         TextField nameField = createStyledTextField();
@@ -58,9 +48,9 @@ public class BuffEditor extends VBox {
 
         Label notificationLabel = new Label();
         notificationLabel.setStyle("""
-            -fx-text-fill: %s;
-            -fx-font-size: 12px;
-        """.formatted(AppTheme.BUTTON_PRIMARY));
+                    -fx-text-fill: %s;
+                    -fx-font-size: 12px;
+                """.formatted(AppTheme.BUTTON_PRIMARY));
         notificationLabel.setVisible(false);
 
         // Кнопка выбора иконки
@@ -110,14 +100,14 @@ public class BuffEditor extends VBox {
         TextField field = new TextField();
         field.setPromptText("Name");
         field.setStyle("""
-            -fx-background-color: %s;
-            -fx-text-fill: %s;
-            -fx-prompt-text-fill: #aaaaaa;
-            -fx-border-color: %s;
-            -fx-border-radius: 6;
-            -fx-background-radius: 6;
-            -fx-padding: 4 6 4 6;
-        """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY, AppTheme.BORDER_MUTED));
+                    -fx-background-color: %s;
+                    -fx-text-fill: %s;
+                    -fx-prompt-text-fill: #aaaaaa;
+                    -fx-border-color: %s;
+                    -fx-border-radius: 6;
+                    -fx-background-radius: 6;
+                    -fx-padding: 4 6 4 6;
+                """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY, AppTheme.BORDER_MUTED));
         return field;
     }
 

@@ -32,7 +32,7 @@ public class InventoryEditor extends VBox {
         title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
 
         AppTextField nameField = new AppTextField("Item name");
-        AppTextSection descriptionTextSection = new AppTextSection("", 2, "Description");
+        AppTextSection descriptionTextSection = new AppTextSection("", 4, "Description");
 
         Button iconButton = AppButtonFactory.customButton("Add Icon", 100);
         iconButton.setOnAction(e -> iconPath = chooseIcon());

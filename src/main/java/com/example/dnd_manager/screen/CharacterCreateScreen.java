@@ -66,8 +66,6 @@ public class CharacterCreateScreen {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        buffEditor.setParentScrollPane(scrollPane);
-
         scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         root.setCenter(scrollPane);

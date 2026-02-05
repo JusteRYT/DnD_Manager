@@ -29,4 +29,8 @@ public class AppTextField {
     public void setText(String text) {
         field.setText(text);
     }
+
+    public void clear() {
+        field.clear();
+    }
 }

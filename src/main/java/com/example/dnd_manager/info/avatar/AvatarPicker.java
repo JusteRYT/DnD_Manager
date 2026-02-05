@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.avatar;
 
 import com.example.dnd_manager.theme.AppButtonFactory;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -18,14 +19,15 @@ public class AvatarPicker extends VBox {
 
     public AvatarPicker() {
         this.imageView = new ImageView("com/example/dnd_manager/icon/images.png");
-        imageView.setFitWidth(120);
-        imageView.setFitHeight(120);
+        imageView.setFitWidth(220);
+        imageView.setFitHeight(220);
         imageView.setPreserveRatio(true);
 
         Button uploadButton = AppButtonFactory.customButton("Upload photo", 120);
         uploadButton.setOnAction(event -> chooseImage());
 
         setSpacing(10);
+        setPadding(new Insets(10, 0, 0, 0));
         getChildren().addAll(imageView, uploadButton);
     }
 
