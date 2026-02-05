@@ -7,6 +7,8 @@ import javafx.scene.control.Button;
  */
 public final class AppButtonFactory {
 
+    private static final int DEFAULT_SIZE_FONT = 14;
+
     private AppButtonFactory() {
     }
 
@@ -19,7 +21,7 @@ public final class AppButtonFactory {
     public static Button primary(String text) {
         Button button = new Button(text);
         button.setPrefWidth(220);
-        acceptColorTheme(button);
+        acceptColorTheme(button, DEFAULT_SIZE_FONT);
 
         return button;
     }
@@ -27,44 +29,39 @@ public final class AppButtonFactory {
     public static Button customButton(String text, int width) {
         Button button = new Button(text);
         button.setPrefWidth(width);
-        acceptColorTheme(button);
+        acceptColorTheme(button, DEFAULT_SIZE_FONT);
 
         return button;
     }
 
-    private static void acceptColorTheme(Button button) {
-        button.setStyle("""
-            -fx-background-color: %s;
-            -fx-text-fill: %s;
-            -fx-font-weight: bold;
-            -fx-background-radius: 6;
-        """.formatted(
-                AppTheme.BUTTON_PRIMARY,
-                AppTheme.BUTTON_TEXT
-        ));
+    public static Button customButton(String text, int width, int height, int fontSize) {
+        Button button = new Button(text);
+        button.setPrefWidth(width);
+        button.setPrefHeight(height);
+        acceptColorTheme(button, fontSize);
 
-        button.setOnMouseEntered(e ->
-                button.setStyle("""
+        return button;
+    }
+
+    private static void acceptColorTheme(Button button, int fontSize) {
+        String baseStyle = """
                     -fx-background-color: %s;
                     -fx-text-fill: %s;
                     -fx-font-weight: bold;
                     -fx-background-radius: 6;
-                """.formatted(
-                        AppTheme.BUTTON_PRIMARY_HOVER,
-                        AppTheme.BUTTON_TEXT
-                ))
-        );
+                    -fx-font-size: %dpx;
+                """.formatted(AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_TEXT, fontSize);
 
-        button.setOnMouseExited(e ->
-                button.setStyle("""
+        button.setStyle(baseStyle);
+
+        button.setOnMouseEntered(e -> button.setStyle("""
                     -fx-background-color: %s;
                     -fx-text-fill: %s;
                     -fx-font-weight: bold;
                     -fx-background-radius: 6;
-                """.formatted(
-                        AppTheme.BUTTON_PRIMARY,
-                        AppTheme.BUTTON_TEXT
-                ))
-        );
+                    -fx-font-size: %dpx;
+                """.formatted(AppTheme.BUTTON_PRIMARY_HOVER, AppTheme.BUTTON_TEXT, fontSize)));
+
+        button.setOnMouseExited(e -> button.setStyle(baseStyle));
     }
 }
