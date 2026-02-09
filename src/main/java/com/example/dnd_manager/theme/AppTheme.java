@@ -21,4 +21,6 @@ public final class AppTheme {
     public static final String BUTTON_PRIMARY = "#c89b3c";
     public static final String BUTTON_PRIMARY_HOVER = "#e0b84a";
     public static final String BUTTON_TEXT = "#1e1e1e";
+    public static final String BUTTON_REMOVE = "#ff0000";
+    public static final String BUTTON_REMOVE_HOVER = "#ff3636";
 }

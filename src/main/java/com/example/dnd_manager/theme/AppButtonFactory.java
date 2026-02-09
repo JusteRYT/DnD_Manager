@@ -2,6 +2,8 @@ package com.example.dnd_manager.theme;
 
 import javafx.scene.control.Button;
 
+import java.awt.*;
+
 /**
  * Factory for creating styled application buttons.
  */
@@ -21,7 +23,7 @@ public final class AppButtonFactory {
     public static Button primary(String text) {
         Button button = new Button(text);
         button.setPrefWidth(220);
-        acceptColorTheme(button, DEFAULT_SIZE_FONT);
+        acceptColorTheme(button, DEFAULT_SIZE_FONT, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
 
         return button;
     }
@@ -29,7 +31,15 @@ public final class AppButtonFactory {
     public static Button customButton(String text, int width) {
         Button button = new Button(text);
         button.setPrefWidth(width);
-        acceptColorTheme(button, DEFAULT_SIZE_FONT);
+        acceptColorTheme(button, DEFAULT_SIZE_FONT, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
+
+        return button;
+    }
+
+    public static Button customButton(String text, int width, String primaryColor, String secondaryColor) {
+        Button button = new Button(text);
+        button.setPrefWidth(width);
+        acceptColorTheme(button, DEFAULT_SIZE_FONT, primaryColor,  secondaryColor);
 
         return button;
     }
@@ -38,19 +48,19 @@ public final class AppButtonFactory {
         Button button = new Button(text);
         button.setPrefWidth(width);
         button.setPrefHeight(height);
-        acceptColorTheme(button, fontSize);
+        acceptColorTheme(button, fontSize, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
 
         return button;
     }
 
-    private static void acceptColorTheme(Button button, int fontSize) {
+    private static void acceptColorTheme(Button button, int fontSize, String primaryColor, String secondaryColor) {
         String baseStyle = """
                     -fx-background-color: %s;
                     -fx-text-fill: %s;
                     -fx-font-weight: bold;
                     -fx-background-radius: 6;
                     -fx-font-size: %dpx;
-                """.formatted(AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_TEXT, fontSize);
+                """.formatted(primaryColor, AppTheme.BUTTON_TEXT, fontSize);
 
         button.setStyle(baseStyle);
 
@@ -60,7 +70,7 @@ public final class AppButtonFactory {
                     -fx-font-weight: bold;
                     -fx-background-radius: 6;
                     -fx-font-size: %dpx;
-                """.formatted(AppTheme.BUTTON_PRIMARY_HOVER, AppTheme.BUTTON_TEXT, fontSize)));
+                """.formatted(secondaryColor, AppTheme.BUTTON_TEXT, fontSize)));
 
         button.setOnMouseExited(e -> button.setStyle(baseStyle));
     }

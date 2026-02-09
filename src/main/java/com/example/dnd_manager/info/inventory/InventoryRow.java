@@ -57,7 +57,7 @@ public class InventoryRow extends HBox {
         VBox textBox = new VBox(4, name, description);
         HBox.setHgrow(textBox, Priority.ALWAYS);
 
-        var deleteButton = AppButtonFactory.customButton("✕", 28);
+        var deleteButton = AppButtonFactory.customButton("✕", 35, AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
         deleteButton.setOnAction(e -> onDelete.run());
 
         getChildren().addAll(icon, textBox, deleteButton);

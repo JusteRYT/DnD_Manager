@@ -1,16 +1,30 @@
 package com.example.dnd_manager.info.skills;
 
+import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppTheme;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import lombok.Getter;
 
 /**
  * Visual card representation of a skill.
  */
+@Getter
 public class SkillCard extends VBox {
 
-    public SkillCard(Skill skill) {
+
+    private final Skill skill;
+
+    /**
+     * @param skill    skill model
+     * @param onRemove callback invoked when remove button is pressed
+     */
+    public SkillCard(Skill skill, Runnable onRemove) {
+        this.skill = skill;
+
         setSpacing(5);
         setStyle("-fx-border-color: gray; -fx-padding: 8;");
 
@@ -32,6 +46,10 @@ public class SkillCard extends VBox {
         Label description = new Label(skill.description());
         description.setWrapText(true);
 
-        getChildren().addAll(icon, name, meta, description);
+        Button removeButton = AppButtonFactory.customButton("х", 40, AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
+        removeButton.setOnAction(e -> onRemove.run());
+
+        getChildren().addAll(icon, name, meta, description, removeButton);
     }
+
 }
