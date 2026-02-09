@@ -42,8 +42,8 @@ public class StartScreen {
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(40 * SCALE));
         root.setStyle("""
-            -fx-background-color: %s;
-        """.formatted(AppTheme.BACKGROUND_PRIMARY));
+                    -fx-background-color: %s;
+                """.formatted(AppTheme.BACKGROUND_PRIMARY));
 
         Label title = buildTitle();
         ImageView diceImage = buildDiceImage();
@@ -76,10 +76,10 @@ public class StartScreen {
     private Label buildTitle() {
         Label title = new Label("DnD Manager");
         title.setStyle("""
-            -fx-text-fill: %s;
-            -fx-font-size: %dpx;
-            -fx-font-weight: bold;
-        """.formatted(
+                    -fx-text-fill: %s;
+                    -fx-font-size: %dpx;
+                    -fx-font-weight: bold;
+                """.formatted(
                 AppTheme.TEXT_ACCENT,
                 (int) (36 * SCALE)
         ));
@@ -105,8 +105,21 @@ public class StartScreen {
     }
 
     private void openCharacterEdit() {
-        openCharacterLoad();
-        //ToDO Сделать openCharacterCreate, где будут взяты все с героя, чтобы его отредактировать
+        List<String> names = storageService.listCharacterNames();
+
+        if (names.isEmpty()) {
+            //Todo Сделать уведомление, что нет героев
+            System.out.println("No characters found");
+            return;
+        }
+
+        String name = names.getFirst();
+
+        CharacterEditScreen editScreen =
+                new CharacterEditScreen(stage, storageService.loadCharacter(name).get(), storageService);
+
+        stage.getScene().setRoot(editScreen.getView());
+
     }
 
     private void openCharacterLoad() {

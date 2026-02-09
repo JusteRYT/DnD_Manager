@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.inventory;
 
+import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -10,26 +11,36 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import lombok.Getter;
 
 import java.io.File;
 
 /**
  * Editor component for character inventory.
+ * Supports CREATE and EDIT modes without напрямую менять Character.
  */
 public class InventoryEditor extends VBox {
 
-    @Getter
     private final ObservableList<InventoryItem> items = FXCollections.observableArrayList();
     private final VBox listContainer = new VBox(6);
 
     private String iconPath;
 
     public InventoryEditor() {
+        this(FXCollections.observableArrayList());
+    }
+
+    /**
+     * Constructor for EDIT mode with initial items.
+     *
+     * @param initialItems items to pre-fill editor
+     */
+    public InventoryEditor(ObservableList<InventoryItem> initialItems) {
         setSpacing(10);
 
         Label title = new Label("Inventory");
         title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
+
+        items.addAll(initialItems);
 
         AppTextField nameField = new AppTextField("Item name");
         AppTextSection descriptionTextSection = new AppTextSection("", 4, "Description");
@@ -45,10 +56,7 @@ public class InventoryEditor extends VBox {
                     iconPath
             );
 
-            items.add(item);
-
-            InventoryRow row = new InventoryRow(item, () -> removeItemRow(item));
-            listContainer.getChildren().add(row);
+            addItem(item);
 
             nameField.setText("");
             descriptionTextSection.setText("");
@@ -57,23 +65,27 @@ public class InventoryEditor extends VBox {
 
         HBox controls = new HBox(10, nameField.getField(), iconButton, addButton);
 
-        getChildren().addAll(
-                title,
-                controls,
-                descriptionTextSection,
-                listContainer
-        );
+        getChildren().addAll(title, controls, descriptionTextSection, listContainer);
+
+        // Создаем строки для initialItems
+        for (InventoryItem item : items) {
+            addItemRow(item);
+        }
     }
 
-    private void removeItemRow(InventoryItem item) {
-        listContainer.getChildren().stream()
-                .filter(node -> node instanceof InventoryRow row && row.getItem() == item)
-                .findFirst()
-                .ifPresent(node -> {
-                    node.setManaged(false);
-                    node.setVisible(false);
-                    items.remove(item);
-                });
+    private void addItem(InventoryItem item) {
+        items.add(item);
+        addItemRow(item);
+    }
+
+    private void addItemRow(InventoryItem item) {
+        InventoryRow row = new InventoryRow(item, () -> removeItem(item));
+        listContainer.getChildren().add(row);
+    }
+
+    private void removeItem(InventoryItem item) {
+        listContainer.getChildren().removeIf(node -> node instanceof InventoryRow row && row.getItem() == item);
+        items.remove(item);
     }
 
     private String chooseIcon() {
@@ -83,5 +95,20 @@ public class InventoryEditor extends VBox {
         );
         File file = chooser.showOpenDialog(getScene().getWindow());
         return file != null ? file.getAbsolutePath() : null;
+    }
+
+    /**
+     * Apply inventory items to Character object.
+     */
+    public void applyTo(Character character) {
+        character.getInventory().clear();
+        character.getInventory().addAll(items);
+    }
+
+    /**
+     * Returns unmodifiable list of current items.
+     */
+    public ObservableList<InventoryItem> getItems() {
+        return FXCollections.unmodifiableObservableList(items);
     }
 }

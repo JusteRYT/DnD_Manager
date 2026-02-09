@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.buff_debuff;
 
+import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppComboBox;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -12,33 +13,39 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import lombok.Getter;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Editor component for character buffs and debuffs.
- * Fully styled according to application theme.
+ * Supports CREATE and EDIT modes without сразу изменять Character.
  */
-@Getter
 public class BuffEditor extends VBox {
 
     private final ObservableList<Buff> buffs = FXCollections.observableArrayList();
     private final VBox listContainer = new VBox(5);
 
     public BuffEditor() {
+        this(FXCollections.observableArrayList());
+    }
+
+    /**
+     * Create editor with initial buffs (for EDIT mode) or empty (CREATE mode).
+     */
+    public BuffEditor(ObservableList<Buff> initialBuffs) {
         setSpacing(10);
 
-        // Заголовок
         Label title = new Label("Buffs / Debuffs");
         title.setStyle("""
-                    -fx-text-fill: %s;
-                    -fx-font-weight: bold;
-                    -fx-font-size: 14px;
-                """.formatted(AppTheme.TEXT_ACCENT));
+                -fx-text-fill: %s;
+                -fx-font-weight: bold;
+                -fx-font-size: 14px;
+            """.formatted(AppTheme.TEXT_ACCENT));
 
-        // Поля ввода
+        buffs.addAll(initialBuffs);
+
+        // UI элементы
         TextField nameField = createStyledTextField();
         AppTextSection descriptionField = new AppTextSection("", 4, "Description");
         AppComboBox<BuffType> typeBox = new AppComboBox<>();
@@ -49,9 +56,9 @@ public class BuffEditor extends VBox {
 
         Label notificationLabel = new Label();
         notificationLabel.setStyle("""
-                    -fx-text-fill: %s;
-                    -fx-font-size: 12px;
-                """.formatted(AppTheme.BUTTON_PRIMARY));
+                -fx-text-fill: %s;
+                -fx-font-size: 12px;
+            """.formatted(AppTheme.BUTTON_PRIMARY));
         notificationLabel.setVisible(false);
 
         // Кнопка выбора иконки
@@ -85,10 +92,7 @@ public class BuffEditor extends VBox {
                     iconPath.get()
             );
 
-            buffs.add(buff);
-
-            BuffEditorRow row = new BuffEditorRow(buff, () -> removeBuffRow(buff));
-            listContainer.getChildren().add(row);
+            addBuff(buff);
 
             nameField.clear();
             descriptionField.setText("");
@@ -97,32 +101,55 @@ public class BuffEditor extends VBox {
 
         HBox controls = new HBox(10, nameField, typeBox, chooseIconButton, addButton);
         getChildren().addAll(title, notificationLabel, controls, descriptionField, listContainer);
+
+        // Если есть initialBuffs, создаем строки
+        for (Buff buff : buffs) {
+            addBuffRow(buff);
+        }
+    }
+
+    private void addBuff(Buff buff) {
+        buffs.add(buff);
+        addBuffRow(buff);
+    }
+
+    private void addBuffRow(Buff buff) {
+        BuffEditorRow row = new BuffEditorRow(buff, () -> removeBuff(buff));
+        listContainer.getChildren().add(row);
+    }
+
+    private void removeBuff(Buff buff) {
+        listContainer.getChildren().removeIf(node -> node instanceof BuffEditorRow row && row.getBuff() == buff);
+        buffs.remove(buff);
     }
 
     private TextField createStyledTextField() {
         TextField field = new TextField();
         field.setPromptText("Name");
         field.setStyle("""
-                    -fx-background-color: %s;
-                    -fx-text-fill: %s;
-                    -fx-prompt-text-fill: #aaaaaa;
-                    -fx-border-color: %s;
-                    -fx-border-radius: 6;
-                    -fx-background-radius: 6;
-                    -fx-padding: 4 6 4 6;
-                """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY, AppTheme.BORDER_MUTED));
+                -fx-background-color: %s;
+                -fx-text-fill: %s;
+                -fx-prompt-text-fill: #aaaaaa;
+                -fx-border-color: %s;
+                -fx-border-radius: 6;
+                -fx-background-radius: 6;
+                -fx-padding: 4 6 4 6;
+            """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY, AppTheme.BORDER_MUTED));
         return field;
     }
 
+    /**
+     * Apply buffs to Character object.
+     */
+    public void applyTo(Character character) {
+        character.getBuffs().clear();
+        character.getBuffs().addAll(buffs);
+    }
 
-    private void removeBuffRow(Buff buff) {
-        listContainer.getChildren().stream()
-                .filter(node -> node instanceof BuffEditorRow row && row.getBuff() == buff)
-                .findFirst()
-                .ifPresent(node -> {
-                    node.setManaged(false);
-                    node.setVisible(false);
-                    buffs.remove(buff);
-                });
+    /**
+     * Returns current buffs in editor (useful for CharacterCreateScreen).
+     */
+    public ObservableList<Buff> getBuffs() {
+        return FXCollections.unmodifiableObservableList(buffs);
     }
 }

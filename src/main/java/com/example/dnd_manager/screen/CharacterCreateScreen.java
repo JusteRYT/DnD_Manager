@@ -5,10 +5,13 @@ import com.example.dnd_manager.info.buff_debuff.BuffEditor;
 import com.example.dnd_manager.info.inventory.InventoryEditor;
 import com.example.dnd_manager.info.skills.SkillsEditor;
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.text.dto.AvatarData;
+import com.example.dnd_manager.info.text.dto.BaseInfoData;
 import com.example.dnd_manager.info.text.BaseInfoForm;
 import com.example.dnd_manager.info.text.CharacterDescriptionSection;
 import com.example.dnd_manager.info.stats.Stats;
 import com.example.dnd_manager.info.stats.StatsEditor;
+import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
@@ -130,15 +133,18 @@ public class CharacterCreateScreen {
         Character character = new Character();
 
         // Base info
-        character.setName(baseInfoForm.getName());
-        character.setRace(baseInfoForm.getRace());
-        character.setCharacterClass(baseInfoForm.getCharacterClass());
-        character.setAvatarImage(avatarPicker.getImage());
+        BaseInfoData baseInfo = baseInfoForm.getData();
+        AvatarData avatarData = avatarPicker.getData();
+        CharacterDescriptionData descriptionData = descriptionSection.getData();
+        character.setName(baseInfo.name());
+        character.setRace(baseInfo.race());
+        character.setCharacterClass(baseInfo.characterClass());
+        character.setAvatarImage(avatarData.imagePath());
 
         // Text info
-        character.setDescription(descriptionSection.getDescription());
-        character.setPersonality(descriptionSection.getPersonality());
-        character.setBackstory(descriptionSection.getBackstory());
+        character.setDescription(descriptionData.description());
+        character.setPersonality(descriptionData.personality());
+        character.setBackstory(descriptionData.backstory());
         return character;
     }
 

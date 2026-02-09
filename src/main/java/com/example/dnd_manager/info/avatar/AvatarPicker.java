@@ -1,5 +1,9 @@
 package com.example.dnd_manager.info.avatar;
 
+import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.text.dto.AvatarData;
+import com.example.dnd_manager.repository.CharacterAssetResolver;
+import com.example.dnd_manager.screen.FormMode;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,20 +14,61 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
- * Component for selecting character avatar.
+ * Component for selecting and editing character avatar.
+ * <p>
+ * Supports CREATE and EDIT modes.
  */
 public class AvatarPicker extends VBox {
 
-    private final ImageView imageView;
+    private static final String DEFAULT_AVATAR =
+            "/com/example/dnd_manager/icon/images.png";
 
+    private final ImageView imageView = new ImageView();
+    private final FormMode mode;
+
+    /**
+     * Creates avatar picker in CREATE mode.
+     */
     public AvatarPicker() {
-        this.imageView = new ImageView("com/example/dnd_manager/icon/images.png");
+        this(FormMode.CREATE, null);
+    }
+
+    /**
+     * Creates avatar picker with given mode and initial avatar.
+     *
+     * @param mode      picker mode
+     * @param character character
+     */
+    public AvatarPicker(FormMode mode, Character character) {
+        this.mode = mode;
+        initImage(character.getAvatarImage(), character.getName());
+        initLayout();
+    }
+
+    /**
+     * Initializes avatar image depending on mode.
+     */
+    private void initImage(String initialImageUrl, String name) {
         imageView.setFitWidth(220);
         imageView.setFitHeight(220);
         imageView.setPreserveRatio(true);
 
+        if (mode == FormMode.EDIT && initialImageUrl != null && !initialImageUrl.isBlank()) {
+            imageView.setImage(new Image(CharacterAssetResolver.resolve(name, initialImageUrl)));
+        } else {
+            imageView.setImage(new Image(
+                    Objects.requireNonNull(getClass().getResource(DEFAULT_AVATAR)).toExternalForm()
+            ));
+        }
+    }
+
+    /**
+     * Initializes UI layout.
+     */
+    private void initLayout() {
         Button uploadButton = AppButtonFactory.customButton("Upload photo", 120);
         uploadButton.setOnAction(event -> chooseImage());
 
@@ -33,6 +78,9 @@ public class AvatarPicker extends VBox {
         getChildren().addAll(imageView, uploadButton);
     }
 
+    /**
+     * Opens file chooser to select avatar image.
+     */
     private void chooseImage() {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().add(
@@ -46,9 +94,11 @@ public class AvatarPicker extends VBox {
     }
 
     /**
-     * @return selected avatar image
+     * Returns avatar data.
+     *
+     * @return avatar data DTO
      */
-    public String getImage() {
-        return imageView.getImage().getUrl();
+    public AvatarData getData() {
+        return new AvatarData(imageView.getImage().getUrl());
     }
 }

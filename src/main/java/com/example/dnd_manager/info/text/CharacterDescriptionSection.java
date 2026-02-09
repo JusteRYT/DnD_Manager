@@ -1,10 +1,14 @@
 package com.example.dnd_manager.info.text;
 
+import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
+import com.example.dnd_manager.screen.FormMode;
 import com.example.dnd_manager.theme.AppTextSection;
 import javafx.scene.layout.VBox;
 
 /**
  * Section containing character description fields.
+ * <p>
+ * Supports CREATE and EDIT modes.
  */
 public class CharacterDescriptionSection extends VBox {
 
@@ -12,25 +16,48 @@ public class CharacterDescriptionSection extends VBox {
     private final AppTextSection personality;
     private final AppTextSection backstory;
 
+    /**
+     * Creates section in CREATE mode.
+     */
     public CharacterDescriptionSection() {
+        this(FormMode.CREATE, null);
+    }
+
+    /**
+     * Creates section with given mode and initial data.
+     *
+     * @param mode        section mode
+     * @param initialData initial description data (used in EDIT mode)
+     */
+    public CharacterDescriptionSection(
+            FormMode mode,
+            CharacterDescriptionData initialData
+    ) {
         setSpacing(15);
 
         description = new AppTextSection("Description");
         personality = new AppTextSection("Personality");
         backstory = new AppTextSection("Backstory");
 
+        if (mode == FormMode.EDIT && initialData != null) {
+            description.setText(initialData.description());
+            personality.setText(initialData.personality());
+            backstory.setText(initialData.backstory());
+        }
+
         getChildren().addAll(description, personality, backstory);
     }
 
-    public String getDescription() {
-        return description.getText();
-    }
-
-    public String getPersonality() {
-        return personality.getText();
-    }
-
-    public String getBackstory() {
-        return backstory.getText();
+    /**
+     * Returns description data from UI.
+     *
+     * @return immutable description DTO
+     */
+    public CharacterDescriptionData getData() {
+        return new CharacterDescriptionData(
+                description.getText(),
+                personality.getText(),
+                backstory.getText()
+        );
     }
 }

@@ -1,44 +1,55 @@
 package com.example.dnd_manager.info.stats;
 
+
+import com.example.dnd_manager.screen.FormMode;
 import javafx.scene.layout.VBox;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * Editor component for character statistics.
+ * Supports CREATE and EDIT modes without напрямую изменять Stats.
  */
 public class StatsEditor extends VBox {
 
-
+    private final Map<StatEnum, Integer> values = new EnumMap<>(StatEnum.class);
+    private final Map<StatEnum, StatRow> rows = new EnumMap<>(StatEnum.class);
 
     public StatsEditor(Stats stats) {
+        this(stats, FormMode.CREATE);
+    }
+
+    public StatsEditor(Stats stats, FormMode mode) {
         setSpacing(10);
 
+        // Инициализация значений: 0 для CREATE, существующие для EDIT
         for (StatEnum stat : StatEnum.values()) {
-            StatRow row = createStatRow(stat, stats);
+            int initialValue = (mode == FormMode.EDIT) ? stats.get(stat) : 0;
+            values.put(stat, initialValue);
+
+            StatRow row = new StatRow(stat, initialValue);
+
+            row.addIncreaseAction(() -> {
+                values.put(stat, values.get(stat) + 1);
+                row.updateValue(values.get(stat));
+            });
+
+            row.addDecreaseAction(() -> {
+                values.put(stat, values.get(stat) - 1);
+                row.updateValue(values.get(stat));
+            });
+
+            rows.put(stat, row);
             getChildren().add(row);
         }
-
     }
 
     /**
-     * Creates a single row for a stat with + and - buttons.
-     *
-     * @param stat  stat type
-     * @param stats Stats object
-     * @return StatRow with buttons and value label
+     * Apply current editor values to the domain Stats object.
      */
-    private StatRow createStatRow(StatEnum stat, Stats stats) {
-        StatRow row = new StatRow(stat, stats.get(stat));
-
-        row.addIncreaseAction(() -> {
-            stats.increase(stat);
-            row.updateValue(stats.get(stat));
-        });
-
-        row.addDecreaseAction(() -> {
-            stats.decrease(stat);
-            row.updateValue(stats.get(stat));
-        });
-
-        return row;
+    public void applyTo(Stats stats) {
+        for (StatEnum stat : StatEnum.values()) {
+            stats.set(stat.name(), values.get(stat));
+        }
     }
 }

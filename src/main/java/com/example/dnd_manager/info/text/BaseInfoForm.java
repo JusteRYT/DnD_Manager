@@ -1,36 +1,93 @@
 package com.example.dnd_manager.info.text;
 
+import com.example.dnd_manager.info.text.dto.BaseInfoData;
+import com.example.dnd_manager.screen.FormMode;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-import lombok.Getter;
 
 /**
  * Component for base character information.
+ * Supports CREATE and EDIT modes.
  */
-@Getter
 public class BaseInfoForm extends VBox {
 
     private final TextField nameField = new TextField();
     private final TextField raceField = new TextField();
     private final TextField classField = new TextField();
 
+    private final FormMode mode;
+
+    /**
+     * Constructor for CREATE mode.
+     */
     public BaseInfoForm() {
+        this(FormMode.CREATE, null);
+    }
+
+    /**
+     * Constructor for EDIT mode.
+     *
+     * @param data initial data to edit
+     */
+    public BaseInfoForm(BaseInfoData data) {
+        this(FormMode.EDIT, data);
+    }
+
+    public BaseInfoForm(FormMode mode, BaseInfoData data) {
+        this.mode = mode;
+
         setSpacing(10);
         setPadding(new Insets(50, 0, 0, 0));
+
         styleTextField(nameField, "Name");
         styleTextField(raceField, "Race");
         styleTextField(classField, "Class");
+
+        if (mode == FormMode.EDIT && data != null) {
+            applyEditData(data);
+        }
+
+        configureByMode();
 
         getChildren().addAll(nameField, raceField, classField);
     }
 
     /**
-     * Applies theme styling to a text field.
+     * Reads current form state as immutable data object.
      *
-     * @param field      the TextField to style
-     * @param promptText placeholder text
+     * @return base info data
+     */
+    public BaseInfoData getData() {
+        return new BaseInfoData(
+                nameField.getText().trim(),
+                raceField.getText().trim(),
+                classField.getText().trim()
+        );
+    }
+
+    /**
+     * Applies initial values for EDIT mode.
+     */
+    private void applyEditData(BaseInfoData data) {
+        nameField.setText(data.name());
+        raceField.setText(data.race());
+        classField.setText(data.characterClass());
+    }
+
+    /**
+     * Configures form behavior based on mode.
+     */
+    private void configureByMode() {
+        if (mode == FormMode.EDIT) {
+            // Обычно имя персонажа — идентификатор
+            nameField.setDisable(true);
+        }
+    }
+
+    /**
+     * Applies theme styling to a text field.
      */
     private void styleTextField(TextField field, String promptText) {
         field.setPrefWidth(500);
@@ -48,17 +105,5 @@ public class BaseInfoForm extends VBox {
                 AppTheme.TEXT_PRIMARY,
                 AppTheme.BORDER_MUTED
         ));
-    }
-
-    public String getName() {
-        return nameField.getText();
-    }
-
-    public String getRace() {
-        return raceField.getText();
-    }
-
-    public String getCharacterClass() {
-        return classField.getText();
     }
 }
