@@ -122,7 +122,7 @@ public class JsonCharacterRepository implements CharacterRepository {
             copyIcon(skill.iconPath(), iconDir, newPath ->
                     character.getSkills().set(
                             character.getSkills().indexOf(skill),
-                            new Skill(skill.name(), skill.description(), skill.damage(), skill.activationType(), newPath)
+                            new Skill(skill.name(), skill.description(), skill.effects(), skill.activationType(), newPath)
                     )
             );
         }

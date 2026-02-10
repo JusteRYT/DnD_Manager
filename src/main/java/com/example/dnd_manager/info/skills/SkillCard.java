@@ -40,9 +40,7 @@ public class SkillCard extends VBox {
         Label name = new Label(skill.name());
         name.setStyle("-fx-font-weight: bold;");
 
-        Label meta = new Label(
-                skill.activationType() + " | Damage: " + skill.damage()
-        );
+        Label meta = new Label(skill.activationType() + " | Effects: " + skill.effectsSummary());
 
         Label description = new Label(skill.description());
         description.setWrapText(true);

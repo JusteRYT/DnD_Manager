@@ -10,6 +10,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 
 /**
@@ -69,10 +72,23 @@ public class SkillCardView extends VBox {
         activationLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #9cdcfe;");
         activationLabel.setPrefHeight(META_HEIGHT);
 
-        // ===== DAMAGE =====
-        Label damageLabel = new Label("Damage: " + skill.damage());
-        damageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #f44747;");
-        damageLabel.setPrefHeight(META_HEIGHT);
+        // ===== EFFECTS =====
+        TextFlow effectsFlow = new TextFlow();
+        effectsFlow.setPrefHeight(META_HEIGHT);
+
+        for (int i = 0; i < skill.effects().size(); i++) {
+            SkillEffect effect = skill.effects().get(i);
+
+            Text text = new Text(effect.toString());
+            text.setStyle("-fx-font-size: 13px; -fx-fill: " + colorByEffect(effect.getType()) + ";");
+            effectsFlow.setTextAlignment(TextAlignment.CENTER);
+
+            effectsFlow.getChildren().add(text);
+
+            if (i < skill.effects().size() - 1) {
+                effectsFlow.getChildren().add(new Text("; "));
+            }
+        }
 
         // ===== DESCRIPTION =====
         Label descriptionLabel = new Label(skill.description());
@@ -88,6 +104,14 @@ public class SkillCardView extends VBox {
         Tooltip.install(descriptionLabel, tooltip);
 
         // Добавляем все элементы
-        getChildren().addAll(iconContainer, nameLabel, activationLabel, damageLabel, descriptionLabel);
+        getChildren().addAll(iconContainer, nameLabel, activationLabel, effectsFlow, descriptionLabel);
+    }
+
+    private String colorByEffect(TypeEffects type) {
+        return switch (type) {
+            case DAMAGE -> AppTheme.EFFECT_DAMAGE;
+            case HEAL -> AppTheme.EFFECT_HEAL;
+            default ->  AppTheme.EFFECT_OTHER;
+        };
     }
 }

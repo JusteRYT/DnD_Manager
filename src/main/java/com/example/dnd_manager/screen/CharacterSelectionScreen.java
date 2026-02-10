@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -93,13 +94,13 @@ public class CharacterSelectionScreen extends VBox {
             });
 
             // --- ROW LAYOUT ---
-            javafx.scene.layout.BorderPane characterRow = new javafx.scene.layout.BorderPane();
+            BorderPane characterRow = new BorderPane();
             characterRow.setLeft(leftBox);
             characterRow.setCenter(centerBox);
             characterRow.setRight(deleteBtn);
 
-            javafx.scene.layout.BorderPane.setAlignment(deleteBtn, Pos.CENTER_RIGHT);
-            javafx.scene.layout.BorderPane.setMargin(deleteBtn, new Insets(0, 4, 0, 10));
+            BorderPane.setAlignment(deleteBtn, Pos.CENTER_RIGHT);
+            BorderPane.setMargin(deleteBtn, new Insets(0, 4, 0, 10));
 
             characterRow.setPadding(new Insets(8));
             characterRow.setUserData(character);

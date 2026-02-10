@@ -26,4 +26,9 @@ public final class AppTheme {
 
     public static final String BUTTON_DANGER = "#b63a3a";
     public static final String BUTTON_DANGER_HOVER = "#d64545";
+
+    // ===== EFFECT COLORS =====
+    public static final String EFFECT_DAMAGE = "#d64545";   // red
+    public static final String EFFECT_HEAL = "#4caf50";     // green
+    public static final String EFFECT_OTHER = "#4fc3f7";    // blue
 }
