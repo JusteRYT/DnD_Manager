@@ -32,4 +32,8 @@ public class StorageService {
         return repository.listAll();
     }
 
+    public void deleteCharacter(Character character) {
+        repository.delete(character.getName());
+    }
+
 }

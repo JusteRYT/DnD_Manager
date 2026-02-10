@@ -45,7 +45,9 @@ public class BuffEditor extends VBox {
                 -fx-font-size: 14px;
             """.formatted(AppTheme.TEXT_ACCENT));
 
-        buffs.addAll(character.getBuffs());
+        if (character != null) {
+            buffs.addAll(character.getBuffs());
+        }
 
         // UI элементы
         TextField nameField = createStyledTextField();

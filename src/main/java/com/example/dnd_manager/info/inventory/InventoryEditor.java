@@ -42,7 +42,9 @@ public class InventoryEditor extends VBox {
         Label title = new Label("Inventory");
         title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
 
-        items.addAll(character.getInventory());
+        if (character != null) {
+            items.addAll(character.getInventory());
+        }
 
         AppTextField nameField = new AppTextField("Item name");
         AppTextSection descriptionTextSection = new AppTextSection("", 4, "Description");

@@ -2,8 +2,6 @@ package com.example.dnd_manager.theme;
 
 import javafx.scene.control.Button;
 
-import java.awt.*;
-
 /**
  * Factory for creating styled application buttons.
  */
@@ -40,6 +38,15 @@ public final class AppButtonFactory {
         Button button = new Button(text);
         button.setPrefWidth(width);
         acceptColorTheme(button, DEFAULT_SIZE_FONT, primaryColor,  secondaryColor);
+
+        return button;
+    }
+
+    public static Button customButton(String text, int size, int fontSize) {
+        Button button = new Button(text);
+        button.setPrefWidth(size);
+        button.setPrefHeight(size);
+        acceptColorTheme(button, fontSize, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
 
         return button;
     }

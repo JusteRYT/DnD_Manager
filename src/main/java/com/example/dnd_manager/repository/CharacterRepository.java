@@ -14,4 +14,11 @@ public interface CharacterRepository {
     Optional<Character> load(String name);
 
     List<String> listAll();
+
+    /**
+     * Deletes character data completely (including icons).
+     *
+     * @param name character name
+     */
+    void delete(String name);
 }

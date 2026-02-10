@@ -41,7 +41,9 @@ public class SkillsEditor extends VBox {
         this.character = character;
         setSpacing(10);
 
-        skills.addAll(character.getSkills());
+        if (character != null) {
+            skills.addAll(character.getSkills());
+        }
 
         Label title = new Label("Skills");
         title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");

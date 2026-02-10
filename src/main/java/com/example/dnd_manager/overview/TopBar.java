@@ -70,13 +70,13 @@ public class TopBar extends HBox {
         HBox.setHgrow(leftBox, Priority.ALWAYS);
 
         // Right block: buttons
-        Button showDescBtn = AppButtonFactory.customButton("", 50, 50, 0);
+        Button showDescBtn = AppButtonFactory.customButton("", 50, 0);
         ImageView descIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_description.png")).toExternalForm()));
         descIcon.setFitWidth(24);
         descIcon.setFitHeight(24);
         showDescBtn.setGraphic(descIcon);
 
-        Button backBtn = AppButtonFactory.customButton("", 50, 50, 0);
+        Button backBtn = AppButtonFactory.customButton("", 50, 0);
         ImageView backIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_back.png")).toExternalForm()));
         backIcon.setFitWidth(24);
         backIcon.setFitHeight(24);

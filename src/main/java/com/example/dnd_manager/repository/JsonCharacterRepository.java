@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -75,6 +76,38 @@ public class JsonCharacterRepository implements CharacterRepository {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException("Failed to list characters", e);
+        }
+    }
+
+    /**
+     * Deletes character directory recursively.
+     *
+     * @param name character name
+     */
+    @Override
+    public void delete(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Character name must not be empty");
+        }
+
+        Path characterDir = Paths.get(ROOT_DIR, name);
+
+        if (!Files.exists(characterDir)) {
+            return;
+        }
+
+        try {
+            Files.walk(characterDir)
+                    .sorted(Comparator.reverseOrder())
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            throw new RuntimeException("Failed to delete " + path, e);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete character " + name, e);
         }
     }
 
