@@ -26,10 +26,14 @@ public class InventoryItemPopup extends VBox {
             -fx-font-weight: bold;
         """);
 
-        Label description = new Label(item.getDescription());
-        description.setWrapText(true);
-        description.setStyle("-fx-text-fill: #dddddd;");
+        if (!item.getDescription().isEmpty()) {
+            Label description = new Label(item.getDescription());
+            description.setWrapText(true);
+            description.setStyle("-fx-text-fill: #dddddd;");
+            getChildren().addAll(name, description);
+            return;
+        }
 
-        getChildren().addAll(name, description);
+        getChildren().addAll(name);
     }
 }

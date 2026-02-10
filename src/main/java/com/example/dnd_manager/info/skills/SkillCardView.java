@@ -1,76 +1,93 @@
 package com.example.dnd_manager.info.skills;
 
 import com.example.dnd_manager.repository.CharacterAssetResolver;
+import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 /**
  * UI card component for displaying detailed information about a skill.
- * Follows Card View UI pattern.
+ * Fixed-size blocks ensure all cards are aligned in a grid.
  */
 public class SkillCardView extends VBox {
 
+    private static final int CARD_WIDTH = 200;
+    private static final int CARD_HEIGHT = 260;
+
+    private static final int ICON_SIZE = 80;
+    private static final int NAME_HEIGHT = 30;
+    private static final int META_HEIGHT = 18;
+    private static final int DESCRIPTION_HEIGHT = 70;
+
     public SkillCardView(Skill skill, String characterName) {
-        setSpacing(10);
-        setPadding(new Insets(14));
+        setSpacing(8);
+        setPadding(new Insets(10));
         setAlignment(Pos.TOP_CENTER);
-        setPrefSize(200, 260);
+        setPrefSize(CARD_WIDTH, CARD_HEIGHT);
+        setMinSize(CARD_WIDTH, CARD_HEIGHT);
+        setMaxSize(CARD_WIDTH, CARD_HEIGHT);
 
         setStyle("""
-                -fx-background-color: #1e1e1e;
+                -fx-background-color: %s;
                 -fx-background-radius: 14;
                 -fx-border-radius: 14;
                 -fx-border-color: #3a3a3a;
-                """);
+                """.formatted(AppTheme.BACKGROUND_SECONDARY));
 
-        ImageView icon = createIcon(skill, characterName);
-        Label name = createName(skill);
-        Label activation = createActivation(skill);
-        Label damage = createDamage(skill);
-        Label description = createDescription(skill);
+        // ===== ICON =====
+        ImageView icon = new ImageView();
+        icon.setFitWidth(ICON_SIZE);
+        icon.setFitHeight(ICON_SIZE);
+        icon.setPreserveRatio(false); // принудительно квадрат
+        icon.setSmooth(true);
+        if (skill.iconPath() != null && !skill.iconPath().isBlank()) {
+            icon.setImage(new Image(CharacterAssetResolver.resolve(characterName, skill.iconPath())));
+        }
 
-        getChildren().addAll(icon, name, activation, damage, description);
-    }
+        StackPane iconContainer = new StackPane(icon);
+        iconContainer.setPrefSize(ICON_SIZE, ICON_SIZE);
+        iconContainer.setMinSize(ICON_SIZE, ICON_SIZE);
+        iconContainer.setMaxSize(ICON_SIZE, ICON_SIZE);
+        iconContainer.setAlignment(Pos.CENTER);
 
-    private ImageView createIcon(Skill skill, String characterName) {
-        ImageView icon = new ImageView(new Image(CharacterAssetResolver.resolve(
-                characterName,
-                skill.iconPath()
-        )));
-        icon.setFitWidth(80);
-        icon.setFitHeight(80);
-        return icon;
-    }
+        // ===== NAME =====
+        Label nameLabel = new Label(skill.name());
+        nameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #c89b3c;");
+        nameLabel.setAlignment(Pos.CENTER);
+        nameLabel.setPrefHeight(NAME_HEIGHT);
+        nameLabel.setWrapText(true);
 
-    private Label createName(Skill skill) {
-        Label label = new Label(skill.name());
-        label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #c89b3c;");
-        label.setWrapText(true);
-        label.setAlignment(Pos.CENTER);
-        return label;
-    }
+        // ===== ACTIVATION =====
+        Label activationLabel = new Label("Activation: " + skill.activationType());
+        activationLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #9cdcfe;");
+        activationLabel.setPrefHeight(META_HEIGHT);
 
-    private Label createActivation(Skill skill) {
-        Label label = new Label("Activation: " + skill.activationType());
-        label.setStyle("-fx-text-fill: #9cdcfe; -fx-font-size: 13px;");
-        return label;
-    }
+        // ===== DAMAGE =====
+        Label damageLabel = new Label("Damage: " + skill.damage());
+        damageLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #f44747;");
+        damageLabel.setPrefHeight(META_HEIGHT);
 
-    private Label createDamage(Skill skill) {
-        Label label = new Label("Damage: " + skill.damage());
-        label.setStyle("-fx-text-fill: #f44747; -fx-font-size: 13px;");
-        return label;
-    }
+        // ===== DESCRIPTION =====
+        Label descriptionLabel = new Label(skill.description());
+        descriptionLabel.setWrapText(true);
+        descriptionLabel.setPrefHeight(DESCRIPTION_HEIGHT);
+        descriptionLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #d4d4d4;");
 
-    private Label createDescription(Skill skill) {
-        Label label = new Label(skill.description());
-        label.setWrapText(true);
-        label.setMaxHeight(40);
-        label.setStyle("-fx-text-fill: #d4d4d4; -fx-font-size: 12px;");
-        return label;
+        Tooltip tooltip = new Tooltip(skill.description());
+        tooltip.setWrapText(true);
+        tooltip.setMaxWidth(CARD_WIDTH - 20);
+        tooltip.setShowDelay(Duration.millis(300));
+        tooltip.setHideDelay(Duration.millis(100));
+        Tooltip.install(descriptionLabel, tooltip);
+
+        // Добавляем все элементы
+        getChildren().addAll(iconContainer, nameLabel, activationLabel, damageLabel, descriptionLabel);
     }
 }

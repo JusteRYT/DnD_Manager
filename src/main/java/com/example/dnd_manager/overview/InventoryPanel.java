@@ -2,26 +2,41 @@ package com.example.dnd_manager.overview;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.inventory.InventoryItem;
+import com.example.dnd_manager.info.inventory.InventoryItemPopup;
+import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Popup;
+import javafx.util.Duration;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 
 /**
- * Inventory panel with add/edit/remove support.
+ * Inventory panel with square item cells like a grid.
  */
 public class InventoryPanel extends VBox {
+
+    private static final int ITEM_SIZE = 60;
+    private static final int ITEM_CELL_SIZE = 70;
 
     private final Character character;
     private final FlowPane itemsPane;
     private final Consumer<Character> onCharacterUpdated;
+
+    private boolean deleteMode = false;
+    private final Button deleteBtn;
 
     public InventoryPanel(Character character, Consumer<Character> onCharacterUpdated) {
         this.character = character;
@@ -29,64 +44,131 @@ public class InventoryPanel extends VBox {
         setSpacing(6);
 
         Label title = new Label("INVENTORY");
-        title.setStyle("""
-                -fx-text-fill: #c89b3c;
-                -fx-font-size: 14px;
-                -fx-font-weight: bold;
-                """);
+        title.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         Button addBtn = AppButtonFactory.customButton("+", 24);
-        addBtn.setOnAction(e ->
-                new AddInventoryItemDialog(character, this::onItemCreated).show()
-        );
+        addBtn.setOnAction(e -> new AddInventoryItemDialog(character, this::onItemCreated).show());
 
-        HBox header = new HBox(8, title, addBtn);
+        deleteBtn = AppButtonFactory.deleteToggleButton("×", 24);
+        deleteBtn.setOnMouseClicked(e -> deleteMode = deleteBtn.getStyle().contains("#c44747"));
+
+        HBox header = new HBox(8, title, addBtn, deleteBtn);
         header.setAlignment(Pos.CENTER_LEFT);
 
-        itemsPane = new FlowPane(10, 10);
-        itemsPane.setPadding(new Insets(8));
+        VBox.setMargin(title, new Insets(0, 0, 4, 0));
+        itemsPane = new FlowPane(5, 5);
+        itemsPane.setPadding(new Insets(4));
+        itemsPane.setPrefWrapLength(ITEM_CELL_SIZE * 6);
 
-        // Инициализация UI
-        character.getInventory()
-                .forEach(this::addItem);
+        character.getInventory().forEach(this::addItem);
 
         setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
         setPadding(new Insets(8));
-
         getChildren().addAll(header, itemsPane);
     }
 
+    private void toggleDeleteMode() {
+        deleteMode = !deleteMode;
+    }
+
     private void onItemCreated(InventoryItem item) {
-        character.getInventory().add(item);
         addItem(item);
         onCharacterUpdated.accept(character);
     }
 
-    /**
-     * Adds item to UI.
-     */
     private void addItem(InventoryItem item) {
-        itemsPane.getChildren().add(
-                new InventoryItemView(character, item, this::removeItem, this::editItem)
-        );
+        itemsPane.getChildren().add(new InventoryItemCell(character, item, this::removeItem, this::editItem));
     }
 
-    /**
-     * Removes item from model and UI.
-     */
-    private void removeItem(InventoryItem item, InventoryItemView view) {
+    private void removeItem(InventoryItem item, InventoryItemCell view) {
         character.getInventory().remove(item);
         itemsPane.getChildren().remove(view);
         onCharacterUpdated.accept(character);
+        if (deleteMode) toggleDeleteMode(); // выйти из режима удаления после удаления
     }
 
-    /**
-     * Opens edit dialog for item using a separate EditInventoryItemDialog.
-     */
-    private void editItem(InventoryItem item, InventoryItemView view) {
+    private void editItem(InventoryItem item, InventoryItemCell view) {
         new EditInventoryItemDialog(character, item, updated -> {
-            view.refresh(); // обновляем карточку
-            onCharacterUpdated.accept(character); // уведомляем владельца
+            view.refresh();
+            onCharacterUpdated.accept(character);
         }).show();
+    }
+
+    private class InventoryItemCell extends StackPane {
+
+        private final Character character;
+        private final InventoryItem item;
+        private final ImageView icon;
+        private final Popup popup;
+        private final PauseTransition hoverDelay = new PauseTransition(Duration.millis(200));
+
+        public InventoryItemCell(Character character, InventoryItem item,
+                                 BiConsumer<InventoryItem, InventoryItemCell> onRemove,
+                                 BiConsumer<InventoryItem, InventoryItemCell> onEdit) {
+            this.character = character;
+            this.item = item;
+
+            icon = new ImageView();
+            icon.setFitWidth(ITEM_SIZE);
+            icon.setFitHeight(ITEM_SIZE);
+            icon.setPreserveRatio(false);
+            icon.setSmooth(true);
+            icon.setStyle("-fx-cursor: hand;");
+
+            StackPane container = new StackPane(icon);
+            container.setPrefSize(ITEM_CELL_SIZE, ITEM_CELL_SIZE);
+            container.setMinSize(ITEM_CELL_SIZE, ITEM_CELL_SIZE);
+            container.setMaxSize(ITEM_CELL_SIZE, ITEM_CELL_SIZE);
+            container.setStyle("-fx-background-color: #1e1e1e; -fx-border-color: #3a3a3a; -fx-border-radius: 4; -fx-background-radius: 4;");
+            container.setAlignment(Pos.CENTER);
+
+            getChildren().add(container);
+            refresh();
+
+            // ===== POPUP =====
+            popup = new Popup();
+            popup.setAutoHide(true);
+            popup.setAutoFix(true);
+            popup.getContent().add(new InventoryItemPopup(item));
+
+            hoverDelay.setOnFinished(e -> {
+                if (icon.isHover() && getScene() != null) {
+                    var bounds = icon.localToScreen(icon.getBoundsInLocal());
+                    if (!popup.isShowing()) {
+                        popup.show(getScene().getWindow(), bounds.getMaxX() + 10, bounds.getMinY());
+                    }
+                }
+            });
+
+            icon.hoverProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal) hoverDelay.playFromStart();
+                else {
+                    hoverDelay.stop();
+                    popup.hide();
+                }
+            });
+
+            // ===== Клик по иконке =====
+            icon.setOnMouseClicked(e -> {
+                if (deleteMode) {
+                    onRemove.accept(item, this); // удаляем предмет
+                } else {
+                    // можно добавить открытие редактирования
+                }
+            });
+        }
+
+        public void refresh() {
+            if (item.getIconPath() == null || item.getIconPath().isBlank()) {
+                icon.setImage(new Image(getClass().getResource("/com/example/dnd_manager/icon/images.png").toExternalForm()));
+            } else {
+                icon.setImage(new Image(CharacterAssetResolver.resolve(character.getName(), item.getIconPath())));
+            }
+
+            if (popup != null) {
+                popup.getContent().clear();
+                popup.getContent().add(new InventoryItemPopup(item));
+            }
+        }
     }
 }

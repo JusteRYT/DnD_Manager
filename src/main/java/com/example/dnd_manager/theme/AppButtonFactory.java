@@ -37,18 +37,13 @@ public final class AppButtonFactory {
     public static Button customButton(String text, int width, String primaryColor, String secondaryColor) {
         Button button = new Button(text);
         button.setPrefWidth(width);
-        acceptColorTheme(button, DEFAULT_SIZE_FONT, primaryColor,  secondaryColor);
+        acceptColorTheme(button, DEFAULT_SIZE_FONT, primaryColor, secondaryColor);
 
         return button;
     }
 
     public static Button customButton(String text, int size, int fontSize) {
-        Button button = new Button(text);
-        button.setPrefWidth(size);
-        button.setPrefHeight(size);
-        acceptColorTheme(button, fontSize, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
-
-        return button;
+        return customButton(text, size, size, fontSize);
     }
 
     public static Button customButton(String text, int width, int height, int fontSize) {
@@ -58,6 +53,50 @@ public final class AppButtonFactory {
         acceptColorTheme(button, fontSize, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
 
         return button;
+    }
+
+    public static Button deleteToggleButton(String text, int width) {
+        Button button = new Button(text);
+        button.setPrefWidth(width);
+
+        final boolean[] active = {false};
+
+        // Цвета для кнопки
+        String normal = AppTheme.BUTTON_PRIMARY;   // цвет твоих остальных кнопок
+        String activeColor = "#c44747";           // красный при активе
+        String hoverColor = AppTheme.BUTTON_PRIMARY_HOVER; // hover для неактивного состояния
+
+        // Установим начальный цвет
+        button.setStyle(baseStyle(normal));
+
+        // Hover
+        button.setOnMouseEntered(e -> {
+            if (!active[0]) {
+                button.setStyle(baseStyle(hoverColor));
+            }
+        });
+
+        button.setOnMouseExited(e -> {
+            if (!active[0]) {
+                button.setStyle(baseStyle(normal));
+            }
+        });
+
+        // Toggle при клике
+        button.setOnAction(e -> {
+            active[0] = !active[0];
+            button.setStyle(baseStyle(active[0] ? activeColor : normal));
+        });
+
+        return button;
+    }
+
+    private static String baseStyle(String bgColor) {
+        return "-fx-background-color: " + bgColor + ";" +
+                "-fx-text-fill: " + AppTheme.BUTTON_TEXT + ";" +
+                "-fx-font-weight: bold;" +
+                "-fx-font-size: 14px;" +
+                "-fx-background-radius: 6;";
     }
 
     private static void acceptColorTheme(Button button, int fontSize, String primaryColor, String secondaryColor) {
