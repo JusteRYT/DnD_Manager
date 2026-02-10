@@ -49,7 +49,7 @@ public class InventoryPanel extends VBox {
         Button addBtn = AppButtonFactory.customButton("+", 24);
         addBtn.setOnAction(e -> new AddInventoryItemDialog(character, this::onItemCreated).show());
 
-        deleteBtn = AppButtonFactory.deleteToggleButton("×", 24);
+        deleteBtn = AppButtonFactory.deleteToggleButton("-", 30);
         deleteBtn.setOnMouseClicked(e -> deleteMode = deleteBtn.getStyle().contains("#c44747"));
 
         HBox header = new HBox(8, title, addBtn, deleteBtn);
@@ -84,7 +84,7 @@ public class InventoryPanel extends VBox {
         character.getInventory().remove(item);
         itemsPane.getChildren().remove(view);
         onCharacterUpdated.accept(character);
-        if (deleteMode) toggleDeleteMode(); // выйти из режима удаления после удаления
+        if (deleteMode) toggleDeleteMode();
     }
 
     private void editItem(InventoryItem item, InventoryItemCell view) {
@@ -153,7 +153,7 @@ public class InventoryPanel extends VBox {
                 if (deleteMode) {
                     onRemove.accept(item, this); // удаляем предмет
                 } else {
-                    // можно добавить открытие редактирования
+
                 }
             });
         }

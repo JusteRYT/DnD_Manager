@@ -62,9 +62,9 @@ public final class AppButtonFactory {
         final boolean[] active = {false};
 
         // Цвета для кнопки
-        String normal = AppTheme.BUTTON_PRIMARY;   // цвет твоих остальных кнопок
-        String activeColor = "#c44747";           // красный при активе
-        String hoverColor = AppTheme.BUTTON_PRIMARY_HOVER; // hover для неактивного состояния
+        String normal = AppTheme.BUTTON_PRIMARY;
+        String activeColor = AppTheme.BUTTON_DANGER;
+        String hoverColor = AppTheme.BUTTON_PRIMARY_HOVER;
 
         // Установим начальный цвет
         button.setStyle(baseStyle(normal));
