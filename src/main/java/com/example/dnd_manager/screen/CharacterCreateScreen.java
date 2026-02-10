@@ -1,16 +1,16 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.avatar.AvatarPicker;
 import com.example.dnd_manager.info.buff_debuff.BuffEditor;
 import com.example.dnd_manager.info.inventory.InventoryEditor;
 import com.example.dnd_manager.info.skills.SkillsEditor;
-import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.text.dto.AvatarData;
-import com.example.dnd_manager.info.text.dto.BaseInfoData;
-import com.example.dnd_manager.info.text.BaseInfoForm;
-import com.example.dnd_manager.info.text.CharacterDescriptionSection;
 import com.example.dnd_manager.info.stats.Stats;
 import com.example.dnd_manager.info.stats.StatsEditor;
+import com.example.dnd_manager.info.text.BaseInfoForm;
+import com.example.dnd_manager.info.text.CharacterDescriptionSection;
+import com.example.dnd_manager.info.text.dto.AvatarData;
+import com.example.dnd_manager.info.text.dto.BaseInfoData;
 import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
@@ -18,19 +18,19 @@ import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.SectionBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 
 /**
  * Screen for creating a new D&D character.
  */
-public class CharacterCreateScreen {
+public class CharacterCreateScreen extends AbstractScreen {
 
     private final Stage stage;
     private final Stats stats = new Stats();
@@ -48,42 +48,15 @@ public class CharacterCreateScreen {
         this.storageService = storageService;
     }
 
-    /**
-     * Builds and returns character creation view.
-     *
-     * @return root view node
-     */
-    public Parent getView() {
-        BorderPane root = new BorderPane();
-        root.setPadding(new Insets(20));
 
-        root.setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + ";");
-
-        root.setTop(buildTitle());
-
-        VBox form = buildForm();
-
-        ScrollPane scrollPane = new ScrollPane(form);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPannable(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-
-        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-
-        root.setCenter(scrollPane);
-
-        return root;
-    }
-
-    private Label buildTitle() {
+    protected Label buildTitle() {
         Label title = new Label("Character Creation");
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: orange");
         BorderPane.setAlignment(title, Pos.CENTER);
         return title;
     }
 
-    private VBox buildForm() {
+    protected VBox buildForm() {
         VBox form = new VBox(20);
 
         descriptionSection = new CharacterDescriptionSection();
@@ -183,7 +156,7 @@ public class CharacterCreateScreen {
                     -fx-text-fill: %s;
                 """.formatted(AppTheme.TEXT_ACCENT));
 
-        StatsEditor statsEditor = new StatsEditor(stats);
+        StatsEditor statsEditor = new StatsEditor(stats, FormMode.CREATE);
 
         sectionBox.getChildren().addAll(titleStats, statsEditor);
 

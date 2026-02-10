@@ -1,8 +1,11 @@
 package com.example.dnd_manager.info.stats;
 
 
+import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.screen.FormMode;
 import javafx.scene.layout.VBox;
+import lombok.Getter;
+
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -12,12 +15,10 @@ import java.util.Map;
  */
 public class StatsEditor extends VBox {
 
+    @Getter
     private final Map<StatEnum, Integer> values = new EnumMap<>(StatEnum.class);
     private final Map<StatEnum, StatRow> rows = new EnumMap<>(StatEnum.class);
 
-    public StatsEditor(Stats stats) {
-        this(stats, FormMode.CREATE);
-    }
 
     public StatsEditor(Stats stats, FormMode mode) {
         setSpacing(10);
@@ -32,12 +33,15 @@ public class StatsEditor extends VBox {
             row.addIncreaseAction(() -> {
                 values.put(stat, values.get(stat) + 1);
                 row.updateValue(values.get(stat));
+                stats.increase(stat);
             });
 
             row.addDecreaseAction(() -> {
                 values.put(stat, values.get(stat) - 1);
                 row.updateValue(values.get(stat));
+                stats.decrease(stat);
             });
+
 
             rows.put(stat, row);
             getChildren().add(row);
@@ -47,9 +51,9 @@ public class StatsEditor extends VBox {
     /**
      * Apply current editor values to the domain Stats object.
      */
-    public void applyTo(Stats stats) {
+    public void applyTo(Character character) {
         for (StatEnum stat : StatEnum.values()) {
-            stats.set(stat.name(), values.get(stat));
+            character.getStats().set(stat.name(), values.get(stat));
         }
     }
 }

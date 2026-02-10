@@ -18,10 +18,8 @@ import com.example.dnd_manager.theme.SectionBox;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -31,7 +29,7 @@ import javafx.stage.Stage;
 /**
  * Screen for editing an existing D&D character.
  */
-public class CharacterEditScreen {
+public class CharacterEditScreen extends AbstractScreen{
 
     private final Stage stage;
     private final Character character;
@@ -51,35 +49,14 @@ public class CharacterEditScreen {
         this.storageService = storageService;
     }
 
-    public Parent getView() {
-        BorderPane root = new BorderPane();
-        root.setPadding(new Insets(20));
-        root.setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + ";");
-
-        root.setTop(buildTitle());
-
-        VBox form = buildForm();
-
-        ScrollPane scrollPane = new ScrollPane(form);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setPannable(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-
-        root.setCenter(scrollPane);
-
-        return root;
-    }
-
-    private Label buildTitle() {
+    protected Label buildTitle() {
         Label title = new Label("Edit Character");
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: orange");
         BorderPane.setAlignment(title, Pos.CENTER);
         return title;
     }
 
-    private VBox buildForm() {
+    protected VBox buildForm() {
         VBox form = new VBox(20);
 
         // Base info + avatar + stats
@@ -116,7 +93,7 @@ public class CharacterEditScreen {
         HBox row = new HBox(20);
         row.setPadding(new Insets(10));
 
-        avatarPicker = new AvatarPicker(FormMode.EDIT, character);
+        avatarPicker = new AvatarPicker(character);
 
         BaseInfoData baseInfoData = new BaseInfoData(character.getName(),
                 character.getRace(),
@@ -124,7 +101,7 @@ public class CharacterEditScreen {
         baseInfoForm = new BaseInfoForm(FormMode.EDIT, baseInfoData);
 
         Stats stats = character.getStats();
-        statsEditor = new StatsEditor(stats);
+        statsEditor = new StatsEditor(stats, FormMode.EDIT);
 
         VBox statsSection = new VBox(10);
         statsSection.setPadding(new Insets(12));
@@ -159,7 +136,7 @@ public class CharacterEditScreen {
         character.setBackstory(descriptionSection.getData().backstory());
 
         // Stats are already linked in statsEditor
-        statsEditor.applyTo(character.getStats());
+        statsEditor.applyTo(character);
 
         // Buffs, Inventory, Skills
         buffEditor.applyTo(character);

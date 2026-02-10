@@ -1,0 +1,37 @@
+package com.example.dnd_manager.screen;
+
+import com.example.dnd_manager.theme.AppTheme;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+
+public abstract class AbstractScreen {
+
+    public Parent getView() {
+        BorderPane root = new BorderPane();
+        root.setPadding(new Insets(20));
+        root.setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + ";");
+
+        root.setTop(buildTitle());
+
+        VBox form = buildForm();
+
+        ScrollPane scrollPane = new ScrollPane(form);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPannable(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        root.setCenter(scrollPane);
+
+        return root;
+    }
+
+    protected abstract Node buildTitle();
+
+    protected abstract VBox buildForm();
+}

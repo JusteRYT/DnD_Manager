@@ -3,7 +3,6 @@ package com.example.dnd_manager.info.avatar;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.text.dto.AvatarData;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.screen.FormMode;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -27,24 +26,25 @@ public class AvatarPicker extends VBox {
             "/com/example/dnd_manager/icon/images.png";
 
     private final ImageView imageView = new ImageView();
-    private final FormMode mode;
 
     /**
      * Creates avatar picker in CREATE mode.
      */
     public AvatarPicker() {
-        this(FormMode.CREATE, null);
+        this(null);
     }
 
     /**
      * Creates avatar picker with given mode and initial avatar.
      *
-     * @param mode      picker mode
      * @param character character
      */
-    public AvatarPicker(FormMode mode, Character character) {
-        this.mode = mode;
-        initImage(character.getAvatarImage(), character.getName());
+    public AvatarPicker(Character character) {
+        if (Objects.isNull(character)) {
+            initImage();
+        } else {
+            initImage(character.getAvatarImage(), character.getName());
+        }
         initLayout();
     }
 
@@ -56,13 +56,17 @@ public class AvatarPicker extends VBox {
         imageView.setFitHeight(220);
         imageView.setPreserveRatio(true);
 
-        if (mode == FormMode.EDIT && initialImageUrl != null && !initialImageUrl.isBlank()) {
-            imageView.setImage(new Image(CharacterAssetResolver.resolve(name, initialImageUrl)));
-        } else {
-            imageView.setImage(new Image(
-                    Objects.requireNonNull(getClass().getResource(DEFAULT_AVATAR)).toExternalForm()
-            ));
-        }
+        imageView.setImage(new Image(CharacterAssetResolver.resolve(name, initialImageUrl)));
+    }
+
+    private void initImage() {
+        imageView.setFitWidth(220);
+        imageView.setFitHeight(220);
+        imageView.setPreserveRatio(true);
+        imageView.setImage(new Image(
+                Objects.requireNonNull(getClass().getResource(DEFAULT_AVATAR)).toExternalForm()
+        ));
+
     }
 
     /**
