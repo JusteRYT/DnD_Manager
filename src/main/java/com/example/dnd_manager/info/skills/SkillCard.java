@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.skills;
 
+import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.scene.control.Button;
@@ -22,7 +23,7 @@ public class SkillCard extends VBox {
      * @param skill    skill model
      * @param onRemove callback invoked when remove button is pressed
      */
-    public SkillCard(Skill skill, Runnable onRemove) {
+    public SkillCard(Skill skill, Runnable onRemove, String characterName) {
         this.skill = skill;
 
         setSpacing(5);
@@ -33,7 +34,7 @@ public class SkillCard extends VBox {
         icon.setFitHeight(40);
 
         if (skill.iconPath() != null) {
-            icon.setImage(new Image("file:" + skill.iconPath()));
+            icon.setImage(new Image(CharacterAssetResolver.resolve(characterName, skill.iconPath())));
         }
 
         Label name = new Label(skill.name());

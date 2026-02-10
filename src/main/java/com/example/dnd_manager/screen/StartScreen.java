@@ -108,34 +108,37 @@ public class StartScreen {
         List<String> names = storageService.listCharacterNames();
 
         if (names.isEmpty()) {
-            //Todo Сделать уведомление, что нет героев
             System.out.println("No characters found");
             return;
         }
 
-        String name = names.getFirst();
+        CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(
+                stage,
+                storageService,
+                character -> {
+                    CharacterEditScreen editScreen = new CharacterEditScreen(stage, character, storageService);
+                    stage.getScene().setRoot(editScreen.getView());
+                }
+        );
 
-        CharacterEditScreen editScreen =
-                new CharacterEditScreen(stage, storageService.loadCharacter(name).get(), storageService);
-
-        stage.getScene().setRoot(editScreen.getView());
-
+        stage.getScene().setRoot(selectionScreen);
     }
 
     private void openCharacterLoad() {
         List<String> names = storageService.listCharacterNames();
 
         if (names.isEmpty()) {
-            //Todo Сделать уведомление, что нет героев
+            // TODO: Показать уведомление
             System.out.println("No characters found");
             return;
         }
 
-        String name = names.getFirst();
-
-        CharacterOverviewScreen overview =
-                new CharacterOverviewScreen(name, storageService);
-
-        stage.getScene().setRoot(overview);
+        CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(stage,
+                storageService,
+                character -> {
+                    CharacterOverviewScreen editScreen = new CharacterOverviewScreen(character.getName(), storageService);
+                    stage.getScene().setRoot(editScreen);
+                });
+        stage.getScene().setRoot(selectionScreen);
     }
 }

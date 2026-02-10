@@ -26,20 +26,22 @@ public class SkillsEditor extends VBox {
     private final FlowPane cardsPane = new FlowPane(10, 10);
 
     private String iconPath;
+    private final Character character;
 
     public SkillsEditor() {
-        this(FXCollections.observableArrayList());
+        this(null);
     }
 
     /**
      * Constructor for EDIT mode with initial skills.
      *
-     * @param initialSkills pre-filled skills
+     * @param character pre-filled skills
      */
-    public SkillsEditor(ObservableList<Skill> initialSkills) {
+    public SkillsEditor(Character character) {
+        this.character = character;
         setSpacing(10);
 
-        skills.addAll(initialSkills);
+        skills.addAll(character.getSkills());
 
         Label title = new Label("Skills");
         title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
@@ -97,7 +99,7 @@ public class SkillsEditor extends VBox {
     }
 
     private void addSkillCard(Skill skill) {
-        SkillCard card = new SkillCard(skill, () -> removeSkill(skill));
+        SkillCard card = new SkillCard(skill, () -> removeSkill(skill), character.getName());
         cardsPane.getChildren().add(card);
     }
 

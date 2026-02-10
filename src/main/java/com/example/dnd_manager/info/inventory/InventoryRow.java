@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.inventory;
 
+import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.scene.control.Label;
@@ -22,7 +23,7 @@ public class InventoryRow extends HBox {
      * @param item inventory item model
      * @param onDelete delete callback
      */
-    public InventoryRow(InventoryItem item, Runnable onDelete) {
+    public InventoryRow(InventoryItem item, Runnable onDelete, String characterName) {
         this.item = item;
 
         setSpacing(10);
@@ -38,7 +39,7 @@ public class InventoryRow extends HBox {
         icon.setPreserveRatio(true);
 
         if (item.getIconPath() != null && !item.getIconPath().isBlank()) {
-            icon.setImage(new Image("file:" + item.getIconPath()));
+            icon.setImage(new Image(CharacterAssetResolver.resolve(characterName, item.getIconPath())));
         }
 
         Label name = new Label(item.getName());

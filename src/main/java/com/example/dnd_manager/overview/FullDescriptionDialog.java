@@ -2,6 +2,7 @@ package com.example.dnd_manager.overview;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
+import com.example.dnd_manager.theme.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -36,21 +37,11 @@ public class FullDescriptionDialog {
         content.setStyle("-fx-background-color: #1e1e1e; -fx-background-radius: 8;");
 
         // ScrollPane с фоном приложения
-        ScrollPane scrollPane = new ScrollPane(content);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("""
-            -fx-background: #1e1e1e;          /* фон ScrollPane */
-            -fx-background-color: #1e1e1e;
-            -fx-background-insets: 0;
-            -fx-background-radius: 0;
-            """);
-
-        // Также задаем фон для viewport (чтобы скроллируемая область тоже серой была)
-        scrollPane.lookupAll(".viewport").forEach(node -> node.setStyle("-fx-background-color: #1e1e1e;"));
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(content);
 
         // Основной контейнер сцены с фоном приложения
         StackPane root = new StackPane(scrollPane);
-        root.setStyle("-fx-background-color: #1e1e1e;");
+        //root.setStyle("-fx-background-color: #1e1e1e;");
 
         Scene scene = new Scene(root, 500, 400);
         scene.setFill(javafx.scene.paint.Color.web("#1e1e1e")); // фон сцены

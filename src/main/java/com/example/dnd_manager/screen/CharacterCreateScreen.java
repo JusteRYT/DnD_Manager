@@ -20,10 +20,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 
@@ -75,8 +72,21 @@ public class CharacterCreateScreen extends AbstractScreen {
         Button saveButton = AppButtonFactory.primary("Save & View Character");
         saveButton.setOnAction(event -> saveAndShowOverview());
 
-        form.getChildren().add(saveButton);
+        Button exitButton = AppButtonFactory.customButton("Exit", 100);
+        exitButton.setOnAction(event -> exitScreen());
+
+        HBox buttonBox = new HBox(10);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        buttonBox.getChildren().addAll(saveButton, spacer, exitButton);
+        form.getChildren().add(buttonBox);
         return form;
+    }
+
+    private void exitScreen() {
+        StartScreen startScreen = new StartScreen(stage, storageService);
+        stage.getScene().setRoot(startScreen.getView());
     }
 
     private void saveAndShowOverview() {

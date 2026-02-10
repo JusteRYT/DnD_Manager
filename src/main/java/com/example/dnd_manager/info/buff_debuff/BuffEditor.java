@@ -25,16 +25,18 @@ public class BuffEditor extends VBox {
 
     private final ObservableList<Buff> buffs = FXCollections.observableArrayList();
     private final VBox listContainer = new VBox(5);
+    private final Character character;
 
     public BuffEditor() {
-        this(FXCollections.observableArrayList());
+        this(null);
     }
 
     /**
      * Create editor with initial buffs (for EDIT mode) or empty (CREATE mode).
      */
-    public BuffEditor(ObservableList<Buff> initialBuffs) {
+    public BuffEditor(Character character) {
         setSpacing(10);
+        this.character = character;
 
         Label title = new Label("Buffs / Debuffs");
         title.setStyle("""
@@ -43,7 +45,7 @@ public class BuffEditor extends VBox {
                 -fx-font-size: 14px;
             """.formatted(AppTheme.TEXT_ACCENT));
 
-        buffs.addAll(initialBuffs);
+        buffs.addAll(character.getBuffs());
 
         // UI элементы
         TextField nameField = createStyledTextField();
@@ -114,7 +116,7 @@ public class BuffEditor extends VBox {
     }
 
     private void addBuffRow(Buff buff) {
-        BuffEditorRow row = new BuffEditorRow(buff, () -> removeBuff(buff));
+        BuffEditorRow row = new BuffEditorRow(buff, () -> removeBuff(buff), character.getName());
         listContainer.getChildren().add(row);
     }
 

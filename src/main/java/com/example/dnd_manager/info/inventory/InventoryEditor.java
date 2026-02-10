@@ -22,25 +22,27 @@ public class InventoryEditor extends VBox {
 
     private final ObservableList<InventoryItem> items = FXCollections.observableArrayList();
     private final VBox listContainer = new VBox(6);
+    private final Character character;
 
     private String iconPath;
 
     public InventoryEditor() {
-        this(FXCollections.observableArrayList());
+        this(null);
     }
 
     /**
      * Constructor for EDIT mode with initial items.
      *
-     * @param initialItems items to pre-fill editor
+     * @param character character
      */
-    public InventoryEditor(ObservableList<InventoryItem> initialItems) {
+    public InventoryEditor(Character character) {
+        this.character = character;
         setSpacing(10);
 
         Label title = new Label("Inventory");
         title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
 
-        items.addAll(initialItems);
+        items.addAll(character.getInventory());
 
         AppTextField nameField = new AppTextField("Item name");
         AppTextSection descriptionTextSection = new AppTextSection("", 4, "Description");
@@ -79,7 +81,7 @@ public class InventoryEditor extends VBox {
     }
 
     private void addItemRow(InventoryItem item) {
-        InventoryRow row = new InventoryRow(item, () -> removeItem(item));
+        InventoryRow row = new InventoryRow(item, () -> removeItem(item), character.getName());
         listContainer.getChildren().add(row);
     }
 

@@ -15,15 +15,11 @@ import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.SectionBox;
-import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 /**
@@ -69,9 +65,9 @@ public class CharacterEditScreen extends AbstractScreen{
         descriptionSection = new CharacterDescriptionSection(FormMode.EDIT, characterDescriptionData);
 
         // Buffs, Inventory, Skills
-        buffEditor = new BuffEditor(FXCollections.observableArrayList(character.getBuffs()));
-        inventoryEditor = new InventoryEditor(FXCollections.observableArrayList(character.getInventory()));
-        skillsEditor = new SkillsEditor(FXCollections.observableArrayList(character.getSkills()));
+        buffEditor = new BuffEditor(character);
+        inventoryEditor = new InventoryEditor(character);
+        skillsEditor = new SkillsEditor(character);
 
         form.getChildren().addAll(
                 new SectionBox(baseRow),
@@ -81,12 +77,26 @@ public class CharacterEditScreen extends AbstractScreen{
                 new SectionBox(skillsEditor)
         );
 
-        Button saveButton = AppButtonFactory.primary("Save Changes");
+        Button saveButton = AppButtonFactory.customButton("Save Changes", 200);
         saveButton.setOnAction(event -> saveAndClose());
 
-        form.getChildren().add(saveButton);
+        Button exitButton = AppButtonFactory.customButton("Exit", 100);
+        exitButton.setOnAction(event -> closeScreen());
+
+        HBox buttonBox = new HBox(10);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        buttonBox.getChildren().addAll(saveButton, spacer, exitButton);
+
+        form.getChildren().add(buttonBox);
 
         return form;
+    }
+
+    private void closeScreen() {
+        StartScreen startScreen = new StartScreen(stage, storageService);
+        stage.getScene().setRoot(startScreen.getView());
     }
 
     private HBox buildBaseInfoSection() {
