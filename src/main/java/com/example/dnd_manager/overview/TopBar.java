@@ -1,4 +1,5 @@
 package com.example.dnd_manager.overview;
+
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
@@ -15,6 +16,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
+
+import java.util.Objects;
 
 /**
  * Top bar with avatar, name/race/class and action buttons
@@ -36,8 +39,30 @@ public class TopBar extends HBox {
 
         Label metaLabel = new Label(character.getRace() + " • " + character.getCharacterClass());
         metaLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #c89b3c;");
+        // --- HP и Armor блок внутри infoBox ---
+        ImageView hpIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_heart.png")).toExternalForm()));
+        hpIcon.setFitWidth(16);
+        hpIcon.setFitHeight(16);
+        Label hpLabel = new Label(String.valueOf(character.getHp()));
+        hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold;");
 
-        VBox infoBox = new VBox(4, nameLabel, metaLabel);
+        HBox hpBox = new HBox(4, hpIcon, hpLabel);
+        hpBox.setAlignment(Pos.CENTER_LEFT);
+
+        ImageView armorIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_shield.png")).toExternalForm()));
+        armorIcon.setFitWidth(16);
+        armorIcon.setFitHeight(16);
+        Label armorLabel = new Label(String.valueOf(character.getArmor()));
+        armorLabel.setStyle("-fx-text-fill: #55aaff; -fx-font-weight: bold;");
+
+        HBox armorBox = new HBox(4, armorIcon, armorLabel);
+        armorBox.setAlignment(Pos.CENTER_LEFT);
+
+        // Объединяем HP и Armor в один HBox
+        HBox statsBox = new HBox(12, hpBox, armorBox);
+        statsBox.setAlignment(Pos.CENTER_LEFT);
+
+        VBox infoBox = new VBox(4, nameLabel, metaLabel, statsBox);
         infoBox.setAlignment(Pos.CENTER_LEFT);
 
         HBox leftBox = new HBox(12, avatar, infoBox);
@@ -46,13 +71,13 @@ public class TopBar extends HBox {
 
         // Right block: buttons
         Button showDescBtn = AppButtonFactory.customButton("", 50, 50, 0);
-        ImageView descIcon = new ImageView(new Image(getClass().getResource("/com/example/dnd_manager/icon/icon_description.png").toExternalForm()));
+        ImageView descIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_description.png")).toExternalForm()));
         descIcon.setFitWidth(24);
         descIcon.setFitHeight(24);
         showDescBtn.setGraphic(descIcon);
 
         Button backBtn = AppButtonFactory.customButton("", 50, 50, 0);
-        ImageView backIcon = new ImageView(new Image(getClass().getResource("/com/example/dnd_manager/icon/icon_back.png").toExternalForm()));
+        ImageView backIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_back.png")).toExternalForm()));
         backIcon.setFitWidth(24);
         backIcon.setFitHeight(24);
         backBtn.setGraphic(backIcon);

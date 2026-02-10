@@ -112,6 +112,8 @@ public class CharacterCreateScreen extends AbstractScreen {
         character.setName(baseInfo.name());
         character.setRace(baseInfo.race());
         character.setCharacterClass(baseInfo.characterClass());
+        character.setHp(baseInfo.hp());
+        character.setArmor(baseInfo.armor());
         character.setAvatarImage(avatarData.imagePath());
 
         // Text info

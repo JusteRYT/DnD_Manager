@@ -22,6 +22,8 @@ public class Character {
     private String name;
     private String race;
     private String characterClass;
+    private String hp;
+    private String armor;
 
     private String description;
     private String personality;

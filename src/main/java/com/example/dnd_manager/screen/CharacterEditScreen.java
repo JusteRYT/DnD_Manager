@@ -97,7 +97,9 @@ public class CharacterEditScreen extends AbstractScreen{
 
         BaseInfoData baseInfoData = new BaseInfoData(character.getName(),
                 character.getRace(),
-                character.getCharacterClass());
+                character.getCharacterClass(),
+                character.getHp(),
+                character.getArmor());
         baseInfoForm = new BaseInfoForm(FormMode.EDIT, baseInfoData);
 
         Stats stats = character.getStats();
@@ -146,7 +148,9 @@ public class CharacterEditScreen extends AbstractScreen{
         // Save
         storageService.saveCharacter(character);
 
+        StartScreen startScreen =
+                new StartScreen(stage, storageService);
         // Close or navigate back
-        stage.close();
+        stage.getScene().setRoot(startScreen.getView());
     }
 }

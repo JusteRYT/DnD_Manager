@@ -6,6 +6,8 @@ package com.example.dnd_manager.info.text.dto;
 public record BaseInfoData(
         String name,
         String race,
-        String characterClass
+        String characterClass,
+        String hp,
+        String armor
 ) {
 }
