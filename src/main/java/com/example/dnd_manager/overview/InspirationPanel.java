@@ -1,4 +1,3 @@
-
 package com.example.dnd_manager.overview;
 
 import com.example.dnd_manager.domain.Character;
@@ -15,15 +14,17 @@ import javafx.scene.layout.*;
 import java.util.Objects;
 
 /**
- * Panel to display and modify character's inspiration points.
- * Styled similar to currency panel with title and visible border.
+ * Panel to display and modify character's inspiration and mana points.
+ * Includes inspiration value and mana bar with current/max values.
  * Saves character automatically on change.
  */
 public class InspirationPanel extends VBox {
 
     private final Character character;
     private final StorageService storageService;
+
     private final Label inspirationLabel = new Label();
+    private final ManaBar manaBar;
 
     public InspirationPanel(Character character, StorageService storageService) {
         this.character = character;
@@ -39,6 +40,7 @@ public class InspirationPanel extends VBox {
                 -fx-background-color: #252526;
                 """);
 
+        // --- Inspiration section ---
         Label title = new Label("Inspiration");
         title.setStyle("""
                 -fx-text-fill: #c89b3c;
@@ -59,10 +61,10 @@ public class InspirationPanel extends VBox {
         icon.setPreserveRatio(true);
 
         inspirationLabel.setStyle("""
-                -fx-text-fill: #f2f2f2;
-                -fx-font-weight: bold;
-                -fx-font-family: "Consolas";
-                -fx-font-size: 14px;
+                        -fx-text-fill: #f2f2f2;
+                        -fx-font-weight: bold;
+                        -fx-font-family: "Consolas";
+                        -fx-font-size: 14px;
                 """);
 
         StackPane valueBox = new StackPane(inspirationLabel);
@@ -71,13 +73,14 @@ public class InspirationPanel extends VBox {
         valueBox.setMaxWidth(50);
         valueBox.setMinHeight(28);
         valueBox.setPrefHeight(28);
-        valueBox.setAlignment(Pos.CENTER);
+        valueBox.setAlignment(Pos.CENTER);   // центрируем текст
         valueBox.setStyle("""
-                -fx-background-color: #1e1e1e;
-                -fx-background-radius: 6;
-                -fx-padding: 2 8;
+                        -fx-background-color: #1e1e1e;
+                        -fx-background-radius: 6;
+                        -fx-padding: 2 8;
                 """);
 
+        // Кнопки без влияния на ширину valueBox
         var addBtn = AppButtonFactory.customButton("+", 28);
         addBtn.setOnAction(e -> changeInspiration(1));
 
@@ -90,6 +93,10 @@ public class InspirationPanel extends VBox {
 
         getChildren().addAll(title, row);
 
+        // --- Mana section ---
+        manaBar = new ManaBar(character, storageService);
+        getChildren().add(manaBar);
+
         refresh();
     }
 
@@ -101,5 +108,13 @@ public class InspirationPanel extends VBox {
 
     public void refresh() {
         inspirationLabel.setText(String.valueOf(character.getInspiration()));
+        manaBar.refresh();
+    }
+
+    /**
+     * Quick setter for max mana (optional currentMana can be provided)
+     */
+    public void setMaxMana(int maxMana, Integer currentMana) {
+        manaBar.setMaxMana(maxMana, currentMana);
     }
 }

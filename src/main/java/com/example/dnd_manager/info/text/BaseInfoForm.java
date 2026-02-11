@@ -18,6 +18,7 @@ public class BaseInfoForm extends VBox {
     private final TextField classField = new TextField();
     private final TextField hpField = new TextField();
     private final TextField armorField = new TextField();
+    private final TextField manaField = new TextField();
 
     private final FormMode mode;
 
@@ -26,15 +27,6 @@ public class BaseInfoForm extends VBox {
      */
     public BaseInfoForm() {
         this(FormMode.CREATE, null);
-    }
-
-    /**
-     * Constructor for EDIT mode.
-     *
-     * @param data initial data to edit
-     */
-    public BaseInfoForm(BaseInfoData data) {
-        this(FormMode.EDIT, data);
     }
 
     public BaseInfoForm(FormMode mode, BaseInfoData data) {
@@ -48,6 +40,7 @@ public class BaseInfoForm extends VBox {
         styleTextField(classField, "Class");
         styleTextField(hpField, "HP");
         styleTextField(armorField, "Armor");
+        styleTextField(manaField, "Mana");
 
         if (mode == FormMode.EDIT && data != null) {
             applyEditData(data);
@@ -55,7 +48,7 @@ public class BaseInfoForm extends VBox {
 
         configureByMode();
 
-        getChildren().addAll(nameField, raceField, classField, hpField, armorField);
+        getChildren().addAll(nameField, raceField, classField, hpField, armorField,  manaField);
     }
 
     /**
@@ -69,7 +62,8 @@ public class BaseInfoForm extends VBox {
                 raceField.getText().trim(),
                 classField.getText().trim(),
                 hpField.getText().trim(),
-                armorField.getText().trim()
+                armorField.getText().trim(),
+                manaField.getText().trim()
         );
     }
 
@@ -82,6 +76,7 @@ public class BaseInfoForm extends VBox {
         classField.setText(data.characterClass());
         hpField.setText(data.hp());
         armorField.setText(data.armor());
+        manaField.setText(data.mana());
     }
 
     /**

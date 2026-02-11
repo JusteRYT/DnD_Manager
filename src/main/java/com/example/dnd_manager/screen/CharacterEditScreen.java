@@ -109,7 +109,8 @@ public class CharacterEditScreen extends AbstractScreen{
                 character.getRace(),
                 character.getCharacterClass(),
                 character.getHp(),
-                character.getArmor());
+                character.getArmor(),
+                character.getMaxMana());
         baseInfoForm = new BaseInfoForm(FormMode.EDIT, baseInfoData);
 
         Stats stats = character.getStats();

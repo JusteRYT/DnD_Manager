@@ -8,6 +8,7 @@ public record BaseInfoData(
         String race,
         String characterClass,
         String hp,
-        String armor
+        String armor,
+        String mana
 ) {
 }
