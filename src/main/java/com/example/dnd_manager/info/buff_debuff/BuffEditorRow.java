@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.buff_debuff;
 
+import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import javafx.geometry.Pos;
@@ -21,7 +22,7 @@ public class BuffEditorRow extends HBox {
 
     private final Buff buff;
 
-    public BuffEditorRow(Buff buff, Runnable onRemove, String characterName) {
+    public BuffEditorRow(Buff buff, Runnable onRemove, Character character) {
         this.buff = buff;
 
         setSpacing(10);
@@ -39,10 +40,7 @@ public class BuffEditorRow extends HBox {
         iconView.setFitWidth(30);
         iconView.setFitHeight(30);
         iconView.setPreserveRatio(true);
-
-        if (buff.iconPath() != null && !buff.iconPath().isEmpty()) {
-            iconView.setImage(new Image(CharacterAssetResolver.resolve(characterName, buff.iconPath())));
-        }
+        iconView.setImage(chooseIcon(buff, character));
 
         // --- Info box ---
         VBox infoBox = new VBox(2);
@@ -60,5 +58,18 @@ public class BuffEditorRow extends HBox {
         removeButton.setOnAction(e -> onRemove.run());
 
         getChildren().addAll(iconView, infoBox, removeButton);
+    }
+
+    private Image chooseIcon(Buff buff, Character character) {
+        Image image = null;
+        if (buff.iconPath() != null && !buff.iconPath().isEmpty() && character != null) {
+            image = new Image(CharacterAssetResolver.resolve(character.getName(), buff.iconPath()));
+        } else {
+            if (buff.iconPath() != null && !buff.iconPath().isEmpty()) {
+                image = new Image("file:" + buff.iconPath());
+            }
+        }
+
+        return image;
     }
 }

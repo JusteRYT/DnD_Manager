@@ -118,7 +118,13 @@ public class BuffEditor extends VBox {
     }
 
     private void addBuffRow(Buff buff) {
-        BuffEditorRow row = new BuffEditorRow(buff, () -> removeBuff(buff), character.getName());
+        BuffEditorRow row;
+        if (character != null) {
+            row = new BuffEditorRow(buff, () -> removeBuff(buff), character);
+        } else {
+            row = new BuffEditorRow(buff, () -> removeBuff(buff), null);
+        }
+
         listContainer.getChildren().add(row);
     }
 

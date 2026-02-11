@@ -28,6 +28,7 @@ public class SkillsEditor extends VBox {
 
     private String iconPath;
     private final Character character;
+    private final AppTextSection descriptionSection;
 
     public SkillsEditor() {
         this(null);
@@ -41,16 +42,18 @@ public class SkillsEditor extends VBox {
     public SkillsEditor(Character character) {
         this.character = character;
         setSpacing(12);
-        setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + ";");
+        setStyle("-fx-background-color: " + AppTheme.BACKGROUND_SECONDARY + ";");
 
         if (character != null) {
             skills.addAll(character.getSkills());
         }
 
+        descriptionSection = createDescriptionSection();
+
         getChildren().addAll(
                 createTitle(),
                 createMainControls(),
-                createDescriptionSection(),
+                descriptionSection,
                 createEffectsSection(),
                 effectsPane,
                 cardsPane
@@ -194,7 +197,7 @@ public class SkillsEditor extends VBox {
 
         Skill skill = new Skill(
                 nameField.getText(),
-                "",
+                descriptionSection.getText(),
                 new ArrayList<>(currentEffects),
                 activationBox.getValue(),
                 iconPath
@@ -206,6 +209,7 @@ public class SkillsEditor extends VBox {
         nameField.clear();
         currentEffects.clear();
         effectsPane.getChildren().clear();
+        descriptionSection.clear();
         iconPath = null;
     }
 
@@ -216,7 +220,7 @@ public class SkillsEditor extends VBox {
         SkillCard card = new SkillCard(
                 skill,
                 () -> removeSkill(skill),
-                character != null ? character.getName() : "unknown"
+                character
         );
         cardsPane.getChildren().add(card);
     }
@@ -258,6 +262,7 @@ public class SkillsEditor extends VBox {
      * Applies current skills to character.
      */
     public void applyTo(Character character) {
+        character.getSkills().clear();
         character.getSkills().addAll(skills);
     }
 

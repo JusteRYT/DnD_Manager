@@ -83,7 +83,7 @@ public class InventoryEditor extends VBox {
     }
 
     private void addItemRow(InventoryItem item) {
-        InventoryRow row = new InventoryRow(item, () -> removeItem(item), character.getName());
+        InventoryRow row = new InventoryRow(item, () -> removeItem(item), character);
         listContainer.getChildren().add(row);
     }
 

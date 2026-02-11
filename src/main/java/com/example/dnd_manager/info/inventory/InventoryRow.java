@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.inventory;
 
+import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
@@ -23,7 +24,7 @@ public class InventoryRow extends HBox {
      * @param item inventory item model
      * @param onDelete delete callback
      */
-    public InventoryRow(InventoryItem item, Runnable onDelete, String characterName) {
+    public InventoryRow(InventoryItem item, Runnable onDelete, Character character) {
         this.item = item;
 
         setSpacing(10);
@@ -37,10 +38,8 @@ public class InventoryRow extends HBox {
         icon.setFitWidth(32);
         icon.setFitHeight(32);
         icon.setPreserveRatio(true);
+        icon.setImage(chooseIcon(item, character));
 
-        if (item.getIconPath() != null && !item.getIconPath().isBlank()) {
-            icon.setImage(new Image(CharacterAssetResolver.resolve(characterName, item.getIconPath())));
-        }
 
         Label name = new Label(item.getName());
         name.setStyle("""
@@ -64,4 +63,16 @@ public class InventoryRow extends HBox {
         getChildren().addAll(icon, textBox, deleteButton);
     }
 
+    private Image chooseIcon(InventoryItem item, Character character) {
+        Image image = null;
+        if (item.getIconPath() != null && !item.getIconPath().isEmpty() && character != null) {
+            image = new Image(CharacterAssetResolver.resolve(character.getName(), item.getIconPath()));
+        } else {
+            if (item.getIconPath() != null && !item.getIconPath().isEmpty()) {
+                image = new Image("file:" + item.getIconPath());
+            }
+        }
+
+        return image;
+    }
 }
