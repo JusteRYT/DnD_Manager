@@ -86,11 +86,11 @@ public class CurrencyPanel extends VBox {
 
     private VBox getVBox(Label title) {
         VBox coinsBox = new VBox(
-                new CoinRow("/com/example/dnd_manager/icon/icon_heart.png", goldText,
+                new CoinRow("/com/example/dnd_manager/icon/icon_gold.png", goldText,
                         () -> changeTotalCopper(COPPER_PER_GOLD), () -> changeTotalCopper(-COPPER_PER_GOLD)),
-                new CoinRow("/com/example/dnd_manager/icon/icon_heart.png", silverText,
+                new CoinRow("/com/example/dnd_manager/icon/icon_silver.png", silverText,
                         () -> changeTotalCopper(COPPER_PER_SILVER), () -> changeTotalCopper(-COPPER_PER_SILVER)),
-                new CoinRow("/com/example/dnd_manager/icon/icon_heart.png", copperText,
+                new CoinRow("/com/example/dnd_manager/icon/icon_cooper.png", copperText,
                         () -> changeTotalCopper(1), () -> changeTotalCopper(-1))
         );
         coinsBox.setSpacing(10);

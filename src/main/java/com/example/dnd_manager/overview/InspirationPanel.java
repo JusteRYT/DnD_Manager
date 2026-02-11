@@ -55,11 +55,11 @@ public class InspirationPanel extends VBox {
 
         ImageView icon = new ImageView(
                 new Image(Objects.requireNonNull(
-                        getClass().getResourceAsStream("/com/example/dnd_manager/icon/icon_heart.png")
+                        getClass().getResourceAsStream("/com/example/dnd_manager/icon/inspiration_icon.png")
                 ))
         );
-        icon.setFitWidth(26);
-        icon.setFitHeight(26);
+        icon.setFitWidth(28);
+        icon.setFitHeight(28);
         icon.setPreserveRatio(true);
 
         inspirationLabel.setStyle("""

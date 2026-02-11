@@ -102,7 +102,7 @@ public class TopBar extends HBox {
         showDescBtn.setGraphic(descIcon);
 
         Button editBtn = AppButtonFactory.customButton("", 50, 0);
-        ImageView editIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_description.png")).toExternalForm()));
+        ImageView editIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/edit_icon.png")).toExternalForm()));
         editIcon.setFitWidth(28);
         editIcon.setFitHeight(28);
         editBtn.setGraphic(editIcon);
@@ -118,10 +118,16 @@ public class TopBar extends HBox {
         ImageView backIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_back.png")).toExternalForm()));
         backIcon.setFitWidth(28);
         backIcon.setFitHeight(28);
+        backIcon.setPreserveRatio(true);
+        backIcon.setSmooth(false);
         backBtn.setGraphic(backIcon);
 
         // --- Increase level button with confirmation ---
-        Button increaseLevelBtn = AppButtonFactory.customButton("+", 50, 0);
+        Button increaseLevelBtn = AppButtonFactory.customButton("", 50, 0);
+        ImageView increaseLevelIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/level_up_icon.png")).toExternalForm()));
+        increaseLevelIcon.setFitWidth(28);
+        increaseLevelIcon.setFitHeight(28);
+        increaseLevelBtn.setGraphic(increaseLevelIcon);
         increaseLevelBtn.setOnAction(e -> showLevelUpDialog(character, storageService, levelValue));
 
         HBox rightBox = new HBox(10, showDescBtn, editBtn, increaseLevelBtn, backBtn);
