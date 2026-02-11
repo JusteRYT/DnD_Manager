@@ -1,16 +1,11 @@
 package com.example.dnd_manager.screen;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.overview.BuffsInventoryPanel;
-import com.example.dnd_manager.overview.StatsPanel;
-import com.example.dnd_manager.overview.TopBar;
+import com.example.dnd_manager.overview.*;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.tooltip.SkillsView;
 import javafx.geometry.Insets;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import lombok.Getter;
 
 /**
@@ -35,7 +30,7 @@ public class CharacterOverviewScreen extends BorderPane {
         TopBar topBar = new TopBar(character, this);
         setTop(topBar);
 
-        // Main content
+        // Main content grid (Stats слева, Buffs+Inventory справа)
         GridPane mainGrid = new GridPane();
         mainGrid.setHgap(15);
         mainGrid.setVgap(15);
@@ -44,18 +39,26 @@ public class CharacterOverviewScreen extends BorderPane {
         BuffsInventoryPanel buffsInventoryPanel = new BuffsInventoryPanel(character, storageService);
         StatsPanel statsPanel = new StatsPanel(character);
 
-        // Добавляем слева Buffs+Inventory, справа Stats
-        mainGrid.add(buffsInventoryPanel, 1, 0);
         mainGrid.add(statsPanel, 0, 0);
+        mainGrid.add(buffsInventoryPanel, 1, 0);
 
-        // Колонки: Buffs+Inventory = 50%, Stats = 50% ширины
         ColumnConstraints leftCol = new ColumnConstraints();
         leftCol.setPercentWidth(50);
         ColumnConstraints rightCol = new ColumnConstraints();
         rightCol.setPercentWidth(50);
         mainGrid.getColumnConstraints().addAll(leftCol, rightCol);
 
-        setCenter(mainGrid);
+        // Нижний блок: монеты и вдохновение
+        CurrencyPanel currencyPanel = new CurrencyPanel(character, storageService);
+
+
+        mainGrid.add(currencyPanel, 0, 1);
+
+        // Главный VBox: сверху mainGrid, снизу bottomPanels
+        VBox centerVBox = new VBox(15); // 15px между grid и нижними панелями
+        centerVBox.getChildren().addAll(mainGrid);
+
+        setCenter(centerVBox);
 
         // Skills bar
         HBox skillsBar = new HBox();

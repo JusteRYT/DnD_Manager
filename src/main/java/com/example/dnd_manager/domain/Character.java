@@ -36,4 +36,8 @@ public class Character {
 
     private String avatarImage;
 
+    private int totalCooper = 0;
+
+    private int inspiration = 0;
+
 }
