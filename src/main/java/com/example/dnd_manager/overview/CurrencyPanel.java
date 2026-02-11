@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.layout.VBox;
+import lombok.Getter;
 
 /**
  * Unified card panel with Currency (left) and Inspiration (right).
@@ -26,12 +27,15 @@ public class CurrencyPanel extends VBox {
     private static final int COPPER_PER_GOLD = SILVER_PER_GOLD * COPPER_PER_SILVER;
 
     private final InspirationPanel inspirationPanel;
+    @Getter
+    private final ManaBar manaBar;
 
     public CurrencyPanel(Character character, StorageService storageService) {
         this.character = character;
         this.storageService = storageService;
 
         this.inspirationPanel = new InspirationPanel(character, storageService);
+        this.manaBar = inspirationPanel.getManaBar();
 
         setSpacing(10);
 

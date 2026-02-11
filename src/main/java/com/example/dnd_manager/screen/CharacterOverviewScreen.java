@@ -16,6 +16,7 @@ import lombok.Getter;
 public class CharacterOverviewScreen extends BorderPane {
 
     private final StorageService storageService;
+    private final ManaBar manaBar;
 
     public CharacterOverviewScreen(String name, StorageService storageService) {
         this.storageService = storageService;
@@ -27,7 +28,7 @@ public class CharacterOverviewScreen extends BorderPane {
         setStyle("-fx-background-color: #1e1e1e;");
 
         // Top bar
-        TopBar topBar = new TopBar(character, this);
+        TopBar topBar = new TopBar(character, this, storageService);
         setTop(topBar);
 
         // Main content grid (Stats слева, Buffs+Inventory справа)
@@ -50,7 +51,7 @@ public class CharacterOverviewScreen extends BorderPane {
 
         // Нижний блок: монеты и вдохновение
         CurrencyPanel currencyPanel = new CurrencyPanel(character, storageService);
-
+        manaBar = currencyPanel.getManaBar();
 
         mainGrid.add(currencyPanel, 0, 1);
 

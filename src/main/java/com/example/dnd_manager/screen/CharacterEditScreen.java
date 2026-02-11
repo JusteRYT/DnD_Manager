@@ -110,7 +110,8 @@ public class CharacterEditScreen extends AbstractScreen{
                 character.getCharacterClass(),
                 character.getHp(),
                 character.getArmor(),
-                character.getMaxMana());
+                character.getMaxMana(),
+                character.getLevel());
         baseInfoForm = new BaseInfoForm(FormMode.EDIT, baseInfoData);
 
         Stats stats = character.getStats();
@@ -141,6 +142,11 @@ public class CharacterEditScreen extends AbstractScreen{
         character.setName(baseInfoForm.getData().name());
         character.setRace(baseInfoForm.getData().race());
         character.setCharacterClass(baseInfoForm.getData().characterClass());
+        character.setHp(baseInfoForm.getData().hp());
+        character.setArmor(baseInfoForm.getData().armor());
+        character.setMaxMana(baseInfoForm.getData().mana());
+        character.setCurrentMana(baseInfoForm.getData().mana());
+        character.setLevel(baseInfoForm.getData().level());
         character.setAvatarImage(avatarPicker.getData().imagePath());
 
         // Description

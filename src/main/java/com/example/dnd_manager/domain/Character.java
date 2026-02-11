@@ -26,6 +26,7 @@ public class Character {
     private String armor;
     private String currentMana;
     private String maxMana;
+    private String level;
 
     private String description;
     private String personality;

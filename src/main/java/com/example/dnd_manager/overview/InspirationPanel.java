@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import lombok.Getter;
 
 import java.util.Objects;
 
@@ -24,6 +25,7 @@ public class InspirationPanel extends VBox {
     private final StorageService storageService;
 
     private final Label inspirationLabel = new Label();
+    @Getter
     private final ManaBar manaBar;
 
     public InspirationPanel(Character character, StorageService storageService) {
@@ -111,10 +113,4 @@ public class InspirationPanel extends VBox {
         manaBar.refresh();
     }
 
-    /**
-     * Quick setter for max mana (optional currentMana can be provided)
-     */
-    public void setMaxMana(int maxMana, Integer currentMana) {
-        manaBar.setMaxMana(maxMana, currentMana);
-    }
 }

@@ -127,6 +127,7 @@ public class CharacterCreateScreen extends AbstractScreen {
         character.setAvatarImage(avatarData.imagePath());
         character.setCurrentMana(baseInfo.mana());
         character.setMaxMana(baseInfo.mana());
+        character.setLevel(baseInfo.level());
 
         // Text info
         character.setDescription(descriptionData.description());

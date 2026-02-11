@@ -19,6 +19,7 @@ public class BaseInfoForm extends VBox {
     private final TextField hpField = new TextField();
     private final TextField armorField = new TextField();
     private final TextField manaField = new TextField();
+    private final TextField levelField = new TextField();
 
     private final FormMode mode;
 
@@ -41,6 +42,7 @@ public class BaseInfoForm extends VBox {
         styleTextField(hpField, "HP");
         styleTextField(armorField, "Armor");
         styleTextField(manaField, "Mana");
+        styleTextField(levelField, "Level");
 
         if (mode == FormMode.EDIT && data != null) {
             applyEditData(data);
@@ -48,7 +50,7 @@ public class BaseInfoForm extends VBox {
 
         configureByMode();
 
-        getChildren().addAll(nameField, raceField, classField, hpField, armorField,  manaField);
+        getChildren().addAll(nameField, raceField, classField, hpField, armorField,  manaField,  levelField);
     }
 
     /**
@@ -63,7 +65,8 @@ public class BaseInfoForm extends VBox {
                 classField.getText().trim(),
                 hpField.getText().trim(),
                 armorField.getText().trim(),
-                manaField.getText().trim()
+                manaField.getText().trim(),
+                levelField.getText().trim()
         );
     }
 
@@ -77,6 +80,7 @@ public class BaseInfoForm extends VBox {
         hpField.setText(data.hp());
         armorField.setText(data.armor());
         manaField.setText(data.mana());
+        levelField.setText(data.level());
     }
 
     /**
