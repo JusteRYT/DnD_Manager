@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
 
 /**
  * Panel representing character's mana.
- * Includes current and max mana, plus buttons to adjust the value.
+ * Uses safe coloring to avoid ClassCastException warnings in JavaFX 17.
  */
 public class ManaBar extends VBox {
 
@@ -53,22 +53,17 @@ public class ManaBar extends VBox {
         manaProgress.setMaxWidth(Double.MAX_VALUE);
         manaProgress.setProgress(0);
 
-        manaLabel.setStyle("""
-                -fx-text-fill: #f2f2f2;
-                -fx-font-weight: bold;
-                -fx-font-family: "Consolas";
-                -fx-font-size: 14px;
-                """);
-
         manaProgress.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 manaProgress.applyCss();
+
                 Region track = (Region) manaProgress.lookup(".track");
                 if (track != null) {
                     track.setBackground(new Background(new BackgroundFill(
                             Color.web(AppTheme.BACKGROUND_SECONDARY), new CornerRadii(6), null
                     )));
                 }
+
                 Region bar = (Region) manaProgress.lookup(".bar");
                 if (bar != null) {
                     bar.setBackground(new Background(new BackgroundFill(
@@ -77,6 +72,13 @@ public class ManaBar extends VBox {
                 }
             }
         });
+
+        manaLabel.setStyle("""
+                -fx-text-fill: #f2f2f2;
+                -fx-font-weight: bold;
+                -fx-font-family: "Consolas";
+                -fx-font-size: 14px;
+                """);
 
         var addBtn = AppButtonFactory.customButton("+", 28);
         addBtn.setOnAction(e -> changeMana(1));
@@ -98,10 +100,9 @@ public class ManaBar extends VBox {
      */
     private void changeMana(int delta) {
         int current = parseOrZero(character.getCurrentMana());
-        int max = Math.max(1, parseOrZero(character.getMaxMana())); // избегаем деления на 0
+        int max = Math.max(1, parseOrZero(character.getMaxMana()));
 
-        int newMana = current + delta;
-        newMana = Math.max(0, Math.min(newMana, max));
+        int newMana = Math.max(0, Math.min(current + delta, max));
 
         character.setCurrentMana(String.valueOf(newMana));
         refresh();
@@ -109,7 +110,7 @@ public class ManaBar extends VBox {
     }
 
     /**
-     * Helper: safely parse int from string, returns 0 if invalid
+     * Safe integer parsing, returns 0 if invalid
      */
     private int parseOrZero(String value) {
         try {
@@ -129,15 +130,4 @@ public class ManaBar extends VBox {
         manaLabel.setText(current + " / " + max);
     }
 
-    /**
-     * Sets max mana and optionally current mana.
-     */
-    public void setMaxMana(int maxMana, Integer currentMana) {
-        character.setMaxMana(String.valueOf(maxMana));
-        if (currentMana != null) {
-            character.setCurrentMana(String.valueOf(Math.min(currentMana, maxMana)));
-        }
-        refresh();
-        storageService.saveCharacter(character);
-    }
 }

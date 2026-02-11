@@ -8,18 +8,22 @@ import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Modality;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.util.Objects;
 
 /**
- * Top bar with avatar, name/race/class, level and action buttons
+ * Top bar with avatar, name/race/class, level and action buttons.
+ * Level styled as recessed card with white "Level:" and orange number.
+ * Includes a button to increment level in the right block with confirmation dialog.
  */
 public class TopBar extends HBox {
 
@@ -28,98 +32,153 @@ public class TopBar extends HBox {
         setPadding(new Insets(10));
         setStyle("-fx-background-color: #1e1e1e;");
 
-        // Left block: avatar + name/race/class + level
+        // --- Avatar ---
         ImageView avatar = new ImageView(new Image(CharacterAssetResolver.resolve(character.getName(), character.getAvatarImage())));
-        avatar.setFitWidth(96);
-        avatar.setFitHeight(96);
+        avatar.setFitWidth(100);
+        avatar.setFitHeight(100);
 
+        // --- Name ---
         Label nameLabel = new Label(character.getName());
-        nameLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #ffffff;");
+        nameLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffffff;");
 
-        Label metaLabel = new Label(character.getRace() + " • " + character.getCharacterClass());
-        metaLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #c89b3c;");
-
-        // --- Level ---
-        Label levelLabel = new Label("Level");
-        levelLabel.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 14px;");
+        // --- Level card ---
+        Label levelText = new Label("Level:");
+        levelText.setStyle("-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 14px;");
 
         Label levelValue = new Label(String.valueOf(character.getLevel()));
-        levelValue.setStyle("-fx-text-fill: #f2f2f2; -fx-font-weight: bold; -fx-font-family: 'Consolas'; -fx-padding: 2 8; -fx-background-color: #1e1e1e; -fx-background-radius: 6;");
+        levelValue.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold; -fx-font-size: 14px;");
 
-        HBox levelBox = new HBox(4, levelLabel, levelValue);
-        levelBox.setAlignment(Pos.CENTER_LEFT);
+        HBox levelBox = new HBox(4, levelText, levelValue);
+        levelBox.setAlignment(Pos.CENTER);
+        levelBox.setPadding(new Insets(4, 8, 4, 8));
+        levelBox.setStyle("""
+                    -fx-background-color: #2b2b2b;
+                    -fx-background-radius: 6;
+                    -fx-border-color: #1a1a1a;
+                    -fx-border-radius: 6;
+                    -fx-border-width: 2;
+                """);
 
-        // --- HP и Armor блок ---
+        HBox nameLevelBox = new HBox(10, nameLabel, levelBox);
+        nameLevelBox.setAlignment(Pos.CENTER_LEFT);
+
+        // --- Meta info: race + class ---
+        Label metaLabel = new Label(character.getRace() + " • " + character.getCharacterClass());
+        metaLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #c89b3c;");
+
+        // --- HP ---
         ImageView hpIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_heart.png")).toExternalForm()));
-        hpIcon.setFitWidth(16);
-        hpIcon.setFitHeight(16);
+        hpIcon.setFitWidth(24);
+        hpIcon.setFitHeight(24);
         Label hpLabel = new Label(String.valueOf(character.getHp()));
-        hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold;");
-        HBox hpBox = new HBox(4, hpIcon, hpLabel);
+        hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold; -fx-font-size: 16px;");
+        HBox hpBox = new HBox(6, hpIcon, hpLabel);
         hpBox.setAlignment(Pos.CENTER_LEFT);
 
+        // --- Armor ---
         ImageView armorIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_shield.png")).toExternalForm()));
-        armorIcon.setFitWidth(16);
-        armorIcon.setFitHeight(16);
+        armorIcon.setFitWidth(24);
+        armorIcon.setFitHeight(24);
         Label armorLabel = new Label(String.valueOf(character.getArmor()));
-        armorLabel.setStyle("-fx-text-fill: #55aaff; -fx-font-weight: bold;");
-        HBox armorBox = new HBox(4, armorIcon, armorLabel);
+        armorLabel.setStyle("-fx-text-fill: #55aaff; -fx-font-weight: bold; -fx-font-size: 16px;");
+        HBox armorBox = new HBox(6, armorIcon, armorLabel);
         armorBox.setAlignment(Pos.CENTER_LEFT);
 
-        HBox statsBox = new HBox(12, hpBox, armorBox, levelBox);
+        HBox statsBox = new HBox(12, hpBox, armorBox);
         statsBox.setAlignment(Pos.CENTER_LEFT);
 
-        VBox infoBox = new VBox(4, nameLabel, metaLabel, statsBox);
+        VBox infoBox = new VBox(6, nameLevelBox, metaLabel, statsBox);
         infoBox.setAlignment(Pos.CENTER_LEFT);
 
         HBox leftBox = new HBox(12, avatar, infoBox);
         leftBox.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(leftBox, Priority.ALWAYS);
 
-        // Right block: buttons
+        // --- Right block: buttons ---
         Button showDescBtn = AppButtonFactory.customButton("", 50, 0);
         ImageView descIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_description.png")).toExternalForm()));
-        descIcon.setFitWidth(24);
-        descIcon.setFitHeight(24);
+        descIcon.setFitWidth(28);
+        descIcon.setFitHeight(28);
         showDescBtn.setGraphic(descIcon);
 
-        Button backBtn = AppButtonFactory.customButton("", 50, 0);
-        ImageView backIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_back.png")).toExternalForm()));
-        backIcon.setFitWidth(24);
-        backIcon.setFitHeight(24);
-        backBtn.setGraphic(backIcon);
-
-        // --- Edit button ---
         Button editBtn = AppButtonFactory.customButton("", 50, 0);
         ImageView editIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_description.png")).toExternalForm()));
-        editIcon.setFitWidth(24);
-        editIcon.setFitHeight(24);
+        editIcon.setFitWidth(28);
+        editIcon.setFitHeight(28);
         editBtn.setGraphic(editIcon);
         editBtn.setOnAction(e -> new EditStatsDialog(character, parentScreen, storageService)
                 .show(() -> {
                     hpLabel.setText(String.valueOf(character.getHp()));
                     armorLabel.setText(String.valueOf(character.getArmor()));
                     parentScreen.getManaBar().refresh();
+                    levelValue.setText(String.valueOf(character.getLevel()));
                 }));
 
-        HBox rightBox = new HBox(8, showDescBtn, editBtn, backBtn);
+        Button backBtn = AppButtonFactory.customButton("", 50, 0);
+        ImageView backIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_back.png")).toExternalForm()));
+        backIcon.setFitWidth(28);
+        backIcon.setFitHeight(28);
+        backBtn.setGraphic(backIcon);
+
+        // --- Increase level button with confirmation ---
+        Button increaseLevelBtn = AppButtonFactory.customButton("+", 50, 0);
+        increaseLevelBtn.setOnAction(e -> showLevelUpDialog(character, storageService, levelValue));
+
+        HBox rightBox = new HBox(10, showDescBtn, editBtn, increaseLevelBtn, backBtn);
         rightBox.setAlignment(Pos.CENTER_RIGHT);
 
         getChildren().addAll(leftBox, rightBox);
 
-        // Back button action
         backBtn.setOnAction(e -> {
             Stage stage = (Stage) parentScreen.getScene().getWindow();
             stage.getScene().setRoot(new StartScreen(stage, parentScreen.getStorageService()).getView());
         });
 
-        // Description tooltip
-        installStaticTooltip(showDescBtn, "Show full description", character, parentScreen);
+        installStaticTooltip(showDescBtn, character, parentScreen);
     }
 
-    private void installStaticTooltip(Button button, String text, Character character, CharacterOverviewScreen parentScreen) {
+    private static void showLevelUpDialog(Character character, StorageService storageService, Label levelValue) {
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Confirm Level Up");
+
+        Label message = new Label("Are you sure you want to increase the level?");
+        message.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 14px;");
+
+        Button yesBtn = AppButtonFactory.customButton("Yes", 60);
+        Button noBtn = AppButtonFactory.customButton("No", 60);
+
+        HBox buttons = new HBox(10, yesBtn, noBtn);
+        buttons.setAlignment(Pos.CENTER);
+
+        VBox layout = new VBox(15, message, buttons);
+        layout.setPadding(new Insets(15));
+        layout.setStyle("-fx-background-color: #1e1e1e;");
+        layout.setAlignment(Pos.CENTER);
+
+        dialog.setScene(new Scene(layout));
+        dialog.show();
+
+        yesBtn.setOnAction(ev -> {
+            int currentLevel;
+            try {
+                currentLevel = Integer.parseInt(character.getLevel());
+            } catch (NumberFormatException ex) {
+                currentLevel = 1;
+            }
+            currentLevel += 1;
+            character.setLevel(String.valueOf(currentLevel));
+            storageService.saveCharacter(character);
+            levelValue.setText(String.valueOf(currentLevel));
+            dialog.close();
+        });
+
+        noBtn.setOnAction(ev -> dialog.close());
+    }
+
+    private void installStaticTooltip(Button button, Character character, CharacterOverviewScreen parentScreen) {
         Popup popup = new Popup();
-        Label label = new Label(text);
+        Label label = new Label("Show full description");
         label.setStyle("-fx-background-color: #333333; -fx-text-fill: #ffffff; -fx-padding: 5 10 5 10; -fx-background-radius: 4;");
         popup.getContent().add(label);
         popup.setAutoHide(false);
@@ -127,9 +186,8 @@ public class TopBar extends HBox {
             var bounds = button.localToScreen(button.getBoundsInLocal());
             popup.show(button.getScene().getWindow(), bounds.getMaxX() + 5, bounds.getMinY());
         });
-        button.setOnMouseExited(e -> popup.hide()); // Действие кнопки
-        if (text.equals("Show full description")) {
-            button.setOnAction(e -> new FullDescriptionDialog(character, parentScreen).show());
-        }
+        button.setOnMouseExited(e -> popup.hide());
+        button.setOnAction(e -> new FullDescriptionDialog(character, parentScreen).show());
+
     }
 }

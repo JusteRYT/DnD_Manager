@@ -59,10 +59,15 @@ public class EditStatsDialog {
         AppTextField manaField = new AppTextField(character.getCurrentMana());
         VBox manaBox = new VBox(4, manaLabel, manaField.getField());
 
+        // level
+        Label levelLabel = new Label("Level:");
+        manaLabel.setStyle("-fx-text-fill: #3aa3c3; -fx-font-weight: bold;");
+        AppTextField levelField = new AppTextField(character.getLevel());
+        VBox LevelBox = new VBox(4, levelLabel, levelField.getField());
+
         // Save button
         Button saveBtn = AppButtonFactory.customButton("Save", 80);
         saveBtn.setOnAction(ev -> {
-            // если поле пустое, оставляем старое значение
             if (!hpField.getText().isBlank()) {
                 character.setHp(hpField.getText().trim());
             }
@@ -71,6 +76,10 @@ public class EditStatsDialog {
             }
             if (!manaField.getText().isBlank()) {
                 character.setMaxMana(manaField.getText().trim());
+            }
+
+            if (!levelField.getText().isBlank()) {
+                character.setLevel(levelField.getText().trim());
             }
 
             // Сохраняем в storage
@@ -82,7 +91,7 @@ public class EditStatsDialog {
             stage.close();
         });
 
-        content.getChildren().addAll(hpBox, armorBox, manaBox, saveBtn);
+        content.getChildren().addAll(hpBox, armorBox, manaBox, LevelBox, saveBtn);
 
         ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(content);
         StackPane root = new StackPane(scrollPane);
