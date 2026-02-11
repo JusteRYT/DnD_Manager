@@ -1,13 +1,10 @@
 package com.example.dnd_manager.repository;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 /**
  * Resolves character asset paths to file URLs.
  */
 public final class CharacterAssetResolver {
-
-    private static final String ROOT_DIR = "Character";
 
     private CharacterAssetResolver() {
     }
@@ -20,7 +17,10 @@ public final class CharacterAssetResolver {
      * @return file URL string
      */
     public static String resolve(String characterName, String relativePath) {
-        Path fullPath = Paths.get(ROOT_DIR, characterName, relativePath);
+        Path fullPath = CharacterStoragePathResolver
+                .getCharacterDir(characterName)
+                .resolve(relativePath);
+
         return fullPath.toUri().toString();
     }
 }

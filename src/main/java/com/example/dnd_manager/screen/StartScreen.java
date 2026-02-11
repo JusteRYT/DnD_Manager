@@ -1,5 +1,6 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.service.CharacterTransferServiceImpl;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
@@ -57,17 +58,23 @@ public class StartScreen {
         Button loadButton = AppButtonFactory.customButton(
                 "Load character", (int) (220 * SCALE), (int) (100 * SCALE), 25
         );
+        Button transferButton = AppButtonFactory.customButton(
+                "Import / Export", (int) (220 * SCALE), (int) (100 * SCALE), 25
+        );
+
 
         createButton.setOnAction(e -> openCharacterCreate());
         editButton.setOnAction(e -> openCharacterEdit());
         loadButton.setOnAction(e -> openCharacterLoad());
+        transferButton.setOnAction(e -> openCharacterTransfer());
 
         root.getChildren().addAll(
                 title,
                 diceImage,
                 createButton,
                 editButton,
-                loadButton
+                loadButton,
+                transferButton
         );
 
         return root;
@@ -140,5 +147,16 @@ public class StartScreen {
                     stage.getScene().setRoot(editScreen);
                 });
         stage.getScene().setRoot(selectionScreen);
+    }
+
+    private void openCharacterTransfer() {
+        CharacterImportExportScreen screen =
+                new CharacterImportExportScreen(
+                        stage,
+                        storageService,
+                        new CharacterTransferServiceImpl()
+                );
+
+        stage.getScene().setRoot(screen);
     }
 }
