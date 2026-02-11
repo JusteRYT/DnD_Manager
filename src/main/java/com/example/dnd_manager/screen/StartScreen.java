@@ -1,5 +1,6 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.service.CharacterTransferServiceImpl;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
@@ -15,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 
@@ -50,17 +52,22 @@ public class StartScreen {
         ImageView diceImage = buildDiceImage();
 
         Button createButton = AppButtonFactory.customButton(
-                "Create new character", (int) (220 * SCALE), (int) (100 * SCALE), 25
+                I18n.t("button.create"), (int) (220 * SCALE), (int) (100 * SCALE), 25
         );
         Button editButton = AppButtonFactory.customButton(
-                "Edit character", (int) (220 * SCALE), (int) (100 * SCALE), 25
+                I18n.t("button.edit"), (int) (220 * SCALE), (int) (100 * SCALE), 25
         );
         Button loadButton = AppButtonFactory.customButton(
-                "Load character", (int) (220 * SCALE), (int) (100 * SCALE), 25
+                I18n.t("button.load"), (int) (220 * SCALE), (int) (100 * SCALE), 25
         );
         Button transferButton = AppButtonFactory.customButton(
-                "Import / Export", (int) (220 * SCALE), (int) (100 * SCALE), 25
+                I18n.t("button.export"), (int) (220 * SCALE), (int) (100 * SCALE), 25
         );
+        Button languageBtn = AppButtonFactory.customButton(
+                I18n.t("button.language"), 100
+        );
+
+        languageBtn.setOnAction(e -> changeLanguage());
 
 
         createButton.setOnAction(e -> openCharacterCreate());
@@ -74,14 +81,15 @@ public class StartScreen {
                 createButton,
                 editButton,
                 loadButton,
-                transferButton
+                transferButton,
+                languageBtn
         );
 
         return root;
     }
 
     private Label buildTitle() {
-        Label title = new Label("DnD Manager");
+        Label title = new Label(I18n.t("title.start"));
         title.setStyle("""
                     -fx-text-fill: %s;
                     -fx-font-size: %dpx;
@@ -158,5 +166,14 @@ public class StartScreen {
                 );
 
         stage.getScene().setRoot(screen);
+    }
+
+    private void changeLanguage() {
+        if (I18n.isEnglish()) {
+            I18n.setLocale(Locale.forLanguageTag("ru"));
+        } else {
+            I18n.setLocale(Locale.ENGLISH);
+        }
+        stage.getScene().setRoot(new StartScreen(stage, storageService).getView());
     }
 }

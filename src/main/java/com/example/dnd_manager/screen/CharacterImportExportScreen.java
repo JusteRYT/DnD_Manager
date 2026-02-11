@@ -1,6 +1,7 @@
 package com.example.dnd_manager.screen;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.service.CharacterTransferService;
 import com.example.dnd_manager.store.StorageService;
@@ -54,13 +55,13 @@ public class CharacterImportExportScreen extends VBox {
         setAlignment(Pos.TOP_CENTER);
         setStyle("-fx-background-color: #1e1e1e;");
 
-        Label title = new Label("Import / Export Characters");
+        Label title = new Label(I18n.t("title.import_export"));
         title.setStyle("-fx-font-size: 24px; -fx-text-fill: #ffffff; -fx-font-weight: bold;");
         getChildren().add(title);
 
         // --- Import button aligned to right ---
         Button importBtn = AppButtonFactory.customButton(
-                "Import",
+                I18n.t("button.import"),
                 100,
                 AppTheme.BUTTON_PRIMARY,
                 AppTheme.BUTTON_PRIMARY_HOVER
@@ -78,7 +79,7 @@ public class CharacterImportExportScreen extends VBox {
         getChildren().add(scrollPane);
 
         // --- Back button ---
-        Button backBtn = AppButtonFactory.customButton("Back", 70);
+        Button backBtn = AppButtonFactory.customButton(I18n.t("button.back"), 70);
         backBtn.setOnAction(e ->
                 stage.getScene().setRoot(
                         new StartScreen(stage, storageService).getView()
@@ -97,7 +98,7 @@ public class CharacterImportExportScreen extends VBox {
         List<String> names = storageService.listCharacterNames();
 
         if (names.isEmpty()) {
-            Label emptyLabel = new Label("No characters found");
+            Label emptyLabel = new Label(I18n.t("label.no_characters"));
             emptyLabel.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 16px;");
             charactersList.getChildren().add(emptyLabel);
             return charactersList;
@@ -138,7 +139,7 @@ public class CharacterImportExportScreen extends VBox {
         leftBox.setAlignment(Pos.CENTER_LEFT);
 
         Button exportBtn = AppButtonFactory.customButton(
-                "Export",
+                I18n.t("button.export"),
                 80,
                 AppTheme.BUTTON_PRIMARY,
                 AppTheme.BUTTON_PRIMARY_HOVER
