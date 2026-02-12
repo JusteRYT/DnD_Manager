@@ -75,7 +75,7 @@ public class SkillCard extends VBox {
         // Remove button
         Button removeButton = AppButtonFactory.customButton("×", 40, AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
         removeButton.setOnAction(e -> onRemove.run());
-
+        removeButton.setFocusTraversable(false);
         getChildren().addAll(icon, name, meta, description, removeButton);
     }
 

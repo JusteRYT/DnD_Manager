@@ -56,7 +56,7 @@ public class BuffEditorRow extends HBox {
 
         Button removeButton = AppButtonFactory.customButton("✕", 30);
         removeButton.setOnAction(e -> onRemove.run());
-
+        removeButton.setFocusTraversable(false);
         getChildren().addAll(iconView, infoBox, removeButton);
     }
 

@@ -104,6 +104,7 @@ public class BuffEditor extends VBox {
             iconPath.set("");
         });
 
+        listContainer.setFocusTraversable(false);
         HBox controls = new HBox(10, nameField, typeBox, chooseIconButton, addButton);
         getChildren().addAll(title, notificationLabel, controls, descriptionField, listContainer);
 

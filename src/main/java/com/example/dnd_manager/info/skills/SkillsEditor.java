@@ -55,6 +55,7 @@ public class SkillsEditor extends VBox {
 
         descriptionSection = createDescriptionSection();
 
+        cardsPane.setFocusTraversable(false);
         getChildren().addAll(
                 createTitle(),
                 createMainControls(),

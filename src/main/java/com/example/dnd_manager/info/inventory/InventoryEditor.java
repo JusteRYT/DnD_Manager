@@ -70,6 +70,7 @@ public class InventoryEditor extends VBox {
 
         HBox controls = new HBox(10, nameField.getField(), iconButton, addButton);
 
+        listContainer.setFocusTraversable(false);
         getChildren().addAll(title, controls, descriptionTextSection, listContainer);
 
         // Создаем строки для initialItems
