@@ -31,4 +31,6 @@ public class MainApp extends Application {
         primaryStage.setMinHeight(INITIAL_HEIGHT);
         primaryStage.show();
     }
+
+    public static void main(String[] args) { launch(); }
 }
