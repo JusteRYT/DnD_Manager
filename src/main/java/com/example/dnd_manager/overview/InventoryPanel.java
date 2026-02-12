@@ -6,6 +6,7 @@ import com.example.dnd_manager.info.inventory.InventoryItemPopup;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppTheme;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -52,7 +53,7 @@ public class InventoryPanel extends VBox {
         addBtn.setOnAction(e -> new AddInventoryItemDialog(character, this::onItemCreated).show());
 
         deleteBtn = AppButtonFactory.deleteToggleButton("-", 30);
-        deleteBtn.setOnMouseClicked(e -> deleteMode = deleteBtn.getStyle().contains("#c44747"));
+        deleteBtn.setOnMouseClicked(e -> deleteMode = deleteBtn.getStyle().contains(AppTheme.BUTTON_DANGER));
 
         HBox header = new HBox(8, title, addBtn, deleteBtn);
         header.setAlignment(Pos.CENTER_LEFT);
@@ -86,7 +87,9 @@ public class InventoryPanel extends VBox {
         character.getInventory().remove(item);
         itemsPane.getChildren().remove(view);
         onCharacterUpdated.accept(character);
-        if (deleteMode) toggleDeleteMode();
+        if (deleteMode) {
+            toggleDeleteMode();
+        }
     }
 
     private void editItem(InventoryItem item, InventoryItemCell view) {
