@@ -1,4 +1,4 @@
-package com.example.dnd_manager.overview;
+package com.example.dnd_manager.overview.dialogs;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;

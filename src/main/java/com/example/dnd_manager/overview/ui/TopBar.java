@@ -1,7 +1,11 @@
-package com.example.dnd_manager.overview;
+package com.example.dnd_manager.overview.ui;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.overview.utils.ButtonPopupInstaller;
+import com.example.dnd_manager.overview.utils.PopupFactory;
+import com.example.dnd_manager.overview.dialogs.EditStatsDialog;
+import com.example.dnd_manager.overview.dialogs.FullDescriptionDialog;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
 import com.example.dnd_manager.screen.StartScreen;

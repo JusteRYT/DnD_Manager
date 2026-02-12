@@ -1,7 +1,8 @@
-package com.example.dnd_manager.overview;
+package com.example.dnd_manager.overview.panel;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.overview.ui.ManaBar;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;

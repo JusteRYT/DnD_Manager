@@ -1,4 +1,4 @@
-package com.example.dnd_manager.overview;
+package com.example.dnd_manager.overview.utils;
 
 import javafx.geometry.Bounds;
 import javafx.scene.Node;

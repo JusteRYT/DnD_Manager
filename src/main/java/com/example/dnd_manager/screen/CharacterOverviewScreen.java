@@ -1,7 +1,11 @@
 package com.example.dnd_manager.screen;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.overview.*;
+import com.example.dnd_manager.overview.panel.BuffsInventoryPanel;
+import com.example.dnd_manager.overview.panel.CurrencyPanel;
+import com.example.dnd_manager.overview.ui.ManaBar;
+import com.example.dnd_manager.overview.ui.TopBar;
+import com.example.dnd_manager.overview.utils.StatsPanel;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.tooltip.SkillsView;
 import javafx.geometry.Insets;

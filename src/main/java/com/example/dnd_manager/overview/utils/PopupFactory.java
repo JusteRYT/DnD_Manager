@@ -1,4 +1,4 @@
-package com.example.dnd_manager.overview;
+package com.example.dnd_manager.overview.utils;
 
 import javafx.scene.control.Label;
 

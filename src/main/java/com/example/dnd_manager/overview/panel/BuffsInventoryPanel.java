@@ -1,4 +1,4 @@
-package com.example.dnd_manager.overview;
+package com.example.dnd_manager.overview.panel;
 
 
 import com.example.dnd_manager.domain.Character;

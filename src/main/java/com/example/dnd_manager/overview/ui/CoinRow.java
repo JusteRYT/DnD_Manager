@@ -1,4 +1,4 @@
-package com.example.dnd_manager.overview;
+package com.example.dnd_manager.overview.ui;
 
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;

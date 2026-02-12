@@ -1,4 +1,4 @@
-package com.example.dnd_manager.overview;
+package com.example.dnd_manager.overview.utils;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.stats.StatsGridView;
