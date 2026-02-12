@@ -1,6 +1,7 @@
 package com.example.dnd_manager.overview;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
@@ -37,7 +38,7 @@ public class ManaBar extends VBox {
                 -fx-background-color: #252526;
                 """);
 
-        Label title = new Label("Mana");
+        Label title = new Label(I18n.t("manaField.name"));
         title.setStyle("""
                 -fx-text-fill: #3aa3c3;
                 -fx-font-size: 16px;

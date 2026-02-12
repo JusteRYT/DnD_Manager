@@ -1,6 +1,7 @@
 package com.example.dnd_manager.overview;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -63,7 +64,7 @@ public class CurrencyPanel extends VBox {
     }
 
     private VBox createCurrencyBox() {
-        Label title = new Label("Currency");
+        Label title = new Label(I18n.t("currencyPanel.title"));
         title.setStyle("""
             -fx-text-fill: #c89b3c;
             -fx-font-size: 16px;

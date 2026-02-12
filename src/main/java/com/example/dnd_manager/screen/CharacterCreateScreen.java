@@ -12,6 +12,7 @@ import com.example.dnd_manager.info.text.CharacterDescriptionSection;
 import com.example.dnd_manager.info.text.dto.AvatarData;
 import com.example.dnd_manager.info.text.dto.BaseInfoData;
 import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
@@ -47,7 +48,7 @@ public class CharacterCreateScreen extends AbstractScreen {
 
 
     protected Label buildTitle() {
-        Label title = new Label("Character Creation");
+        Label title = new Label(I18n.t("label.title.create_character"));
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: orange");
         BorderPane.setAlignment(title, Pos.CENTER);
         return title;
@@ -69,10 +70,10 @@ public class CharacterCreateScreen extends AbstractScreen {
                 new SectionBox(skillsEditor)
         );
 
-        Button saveButton = AppButtonFactory.primary("Save & View Character");
+        Button saveButton = AppButtonFactory.primary(I18n.t("button.saveAndView"));
         saveButton.setOnAction(event -> saveAndShowOverview());
 
-        Button exitButton = AppButtonFactory.customButton("Exit", 100);
+        Button exitButton = AppButtonFactory.customButton(I18n.t("button.exit"), 100);
         exitButton.setOnAction(event -> exitScreen());
 
         HBox buttonBox = new HBox(10);
@@ -164,7 +165,7 @@ public class CharacterCreateScreen extends AbstractScreen {
                     -fx-border-color: %s;
                 """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BORDER_MUTED));
 
-        Label titleStats = new Label("Stats");
+        Label titleStats = new Label(I18n.t("stats.label"));
         titleStats.setStyle("""
                     -fx-font-size: 16px;
                     -fx-font-weight: bold;

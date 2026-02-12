@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.skills;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
@@ -59,7 +60,7 @@ public class SkillCard extends VBox {
         name.setAlignment(Pos.CENTER);
 
         // Meta info
-        Label meta = new Label(skill.activationType() + " | Effects: " + skill.effectsSummary());
+        Label meta = new Label(skill.activationType() + I18n.t("label.skillCards.effect") + skill.effectsSummary());
         meta.setStyle("-fx-font-size: 11; -fx-text-fill: #888888;");
         meta.setWrapText(true);
         meta.setAlignment(Pos.CENTER);

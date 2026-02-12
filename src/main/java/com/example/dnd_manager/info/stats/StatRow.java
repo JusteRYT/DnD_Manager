@@ -20,7 +20,7 @@ public class StatRow extends HBox {
         setAlignment(Pos.CENTER_LEFT);
 
         Label nameLabel = new Label(statName.getName());
-        nameLabel.setPrefWidth(100);
+        nameLabel.setPrefWidth(150);
         nameLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
 
         valueLabel = new Label(String.valueOf(initialValue));

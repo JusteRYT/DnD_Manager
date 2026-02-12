@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.text;
 
 import com.example.dnd_manager.info.text.dto.BaseInfoData;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.FormMode;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Insets;
@@ -36,13 +37,13 @@ public class BaseInfoForm extends VBox {
         setSpacing(10);
         setPadding(new Insets(20, 0, 0, 0));
 
-        styleTextField(nameField, "Name");
-        styleTextField(raceField, "Race");
-        styleTextField(classField, "Class");
-        styleTextField(hpField, "HP");
-        styleTextField(armorField, "Armor");
-        styleTextField(manaField, "Mana");
-        styleTextField(levelField, "Level");
+        styleTextField(nameField, I18n.t("nameField.name"));
+        styleTextField(raceField, I18n.t("raceField.name"));
+        styleTextField(classField, I18n.t("classField.name"));
+        styleTextField(hpField, I18n.t("hpField.name"));
+        styleTextField(armorField, I18n.t("armorField.name"));
+        styleTextField(manaField, I18n.t("manaField.name"));
+        styleTextField(levelField, I18n.t("levelField.name"));
 
         if (mode == FormMode.EDIT && data != null) {
             applyEditData(data);

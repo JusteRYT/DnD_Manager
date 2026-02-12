@@ -1,6 +1,7 @@
 package com.example.dnd_manager.overview;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
@@ -43,7 +44,7 @@ public class InspirationPanel extends VBox {
                 """);
 
         // --- Inspiration section ---
-        Label title = new Label("Inspiration");
+        Label title = new Label(I18n.t("inspirationPanel.title"));
         title.setStyle("""
                 -fx-text-fill: #c89b3c;
                 -fx-font-size: 16px;
@@ -75,7 +76,7 @@ public class InspirationPanel extends VBox {
         valueBox.setMaxWidth(50);
         valueBox.setMinHeight(28);
         valueBox.setPrefHeight(28);
-        valueBox.setAlignment(Pos.CENTER);   // центрируем текст
+        valueBox.setAlignment(Pos.CENTER);
         valueBox.setStyle("""
                         -fx-background-color: #1e1e1e;
                         -fx-background-radius: 6;

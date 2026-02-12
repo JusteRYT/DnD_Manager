@@ -11,7 +11,7 @@ import java.util.List;
  * @param activationType how the skill is activated
  * @param iconPath path to skill icon
  */
-public record Skill(String name, String description, List<SkillEffect> effects, ActivationType activationType, String iconPath) {
+public record Skill(String name, String description, List<SkillEffect> effects, String activationType, String iconPath) {
 
     public String effectsSummary() {
         StringBuilder sb = new StringBuilder();

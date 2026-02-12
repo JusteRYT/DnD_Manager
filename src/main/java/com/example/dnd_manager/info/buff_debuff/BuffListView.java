@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.buff_debuff;
 
+import com.example.dnd_manager.lang.I18n;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -40,7 +41,7 @@ public class BuffListView extends VBox {
         icons.setPrefWrapLength(300);
 
         if (buffs.isEmpty()) {
-            Label empty = new Label("No active effects");
+            Label empty = new Label(I18n.t("buffListView.titleEmpty"));
             empty.setStyle("-fx-text-fill: #777;");
             icons.getChildren().add(empty);
         } else {

@@ -1,6 +1,7 @@
 package com.example.dnd_manager.overview;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
 import com.example.dnd_manager.theme.AppScrollPaneFactory;
 import javafx.geometry.Insets;
@@ -23,15 +24,15 @@ public class FullDescriptionDialog {
         this.character = character;
         this.stage = new Stage();
         stage.initOwner(parentScreen.getScene().getWindow());
-        stage.setTitle(character.getName() + " - Full Description");
+        stage.setTitle(character.getName() + I18n.t("dialogDescription.title"));
     }
 
     public void show() {
         // Контейнер с контентом
         VBox content = new VBox(15,
-                createTextBlock("Description", character.getDescription()),
-                createTextBlock("Personality", character.getPersonality()),
-                createTextBlock("Backstory", character.getBackstory())
+                createTextBlock(I18n.t("dialogDescription.textBlock.description"), character.getDescription()),
+                createTextBlock(I18n.t("dialogDescription.textBlock.personality"), character.getPersonality()),
+                createTextBlock(I18n.t("dialogDescription.textBlock.backstory"), character.getBackstory())
         );
         content.setPadding(new Insets(15));
         content.setStyle("-fx-background-color: #1e1e1e; -fx-background-radius: 8;");

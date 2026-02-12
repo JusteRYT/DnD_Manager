@@ -49,7 +49,6 @@ public class CharacterOverviewScreen extends BorderPane {
         rightCol.setPercentWidth(50);
         mainGrid.getColumnConstraints().addAll(leftCol, rightCol);
 
-        // Нижний блок: монеты и вдохновение
         CurrencyPanel currencyPanel = new CurrencyPanel(character, storageService);
         manaBar = currencyPanel.getManaBar();
 

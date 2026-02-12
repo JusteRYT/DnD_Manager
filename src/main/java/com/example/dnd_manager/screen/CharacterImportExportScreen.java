@@ -68,16 +68,6 @@ public class CharacterImportExportScreen extends VBox {
         );
         importBtn.setOnAction(e -> handleImport());
 
-        HBox importContainer = new HBox(importBtn);
-        importContainer.setAlignment(Pos.CENTER_RIGHT);
-        importContainer.setMaxWidth(Double.MAX_VALUE);
-        getChildren().add(importContainer);
-
-        // --- Character list ---
-        VBox charactersList = buildCharacterList();
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(charactersList);
-        getChildren().add(scrollPane);
-
         // --- Back button ---
         Button backBtn = AppButtonFactory.customButton(I18n.t("button.back"), 70);
         backBtn.setOnAction(e ->
@@ -85,7 +75,17 @@ public class CharacterImportExportScreen extends VBox {
                         new StartScreen(stage, storageService).getView()
                 )
         );
-        getChildren().add(backBtn);
+
+        HBox importContainer = new HBox(importBtn, backBtn);
+        importContainer.setAlignment(Pos.CENTER_RIGHT);
+        importContainer.setMaxWidth(Double.MAX_VALUE);
+        importContainer.setSpacing(10);
+        getChildren().add(importContainer);
+
+        // --- Character list ---
+        VBox charactersList = buildCharacterList();
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(charactersList);
+        getChildren().add(scrollPane);
     }
 
     /**

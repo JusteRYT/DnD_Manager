@@ -1,5 +1,6 @@
 package com.example.dnd_manager;
 
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.store.StorageService;
 import javafx.application.Application;
@@ -19,7 +20,7 @@ public class MainApp extends Application {
         StartScreen startScreen = new StartScreen(primaryStage, storageService);
 
         Scene scene = new Scene(startScreen.getView(), 1600, 900);
-        primaryStage.setTitle("D&D Character Manager");
+        primaryStage.setTitle(I18n.t("title.main"));
         primaryStage.setScene(scene);
         primaryStage.show();
     }

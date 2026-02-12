@@ -2,6 +2,7 @@ package com.example.dnd_manager.info.avatar;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.text.dto.AvatarData;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import javafx.geometry.Insets;
@@ -52,16 +53,16 @@ public class AvatarPicker extends VBox {
      * Initializes avatar image depending on mode.
      */
     private void initImage(String initialImageUrl, String name) {
-        imageView.setFitWidth(220);
-        imageView.setFitHeight(220);
+        imageView.setFitWidth(300);
+        imageView.setFitHeight(300);
         imageView.setPreserveRatio(true);
 
         imageView.setImage(new Image(CharacterAssetResolver.resolve(name, initialImageUrl)));
     }
 
     private void initImage() {
-        imageView.setFitWidth(220);
-        imageView.setFitHeight(220);
+        imageView.setFitWidth(300);
+        imageView.setFitHeight(300);
         imageView.setPreserveRatio(true);
         imageView.setImage(new Image(
                 Objects.requireNonNull(getClass().getResource(DEFAULT_AVATAR)).toExternalForm()
@@ -73,7 +74,7 @@ public class AvatarPicker extends VBox {
      * Initializes UI layout.
      */
     private void initLayout() {
-        Button uploadButton = AppButtonFactory.customButton("Upload photo", 120);
+        Button uploadButton = AppButtonFactory.primary(I18n.t("button.upload"));
         uploadButton.setOnAction(event -> chooseImage());
 
         setSpacing(10);

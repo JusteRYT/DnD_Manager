@@ -3,6 +3,7 @@ package com.example.dnd_manager.overview;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.inventory.InventoryItemPopup;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import javafx.animation.PauseTransition;
@@ -19,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.util.Duration;
 
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -43,7 +45,7 @@ public class InventoryPanel extends VBox {
         this.onCharacterUpdated = onCharacterUpdated;
         setSpacing(6);
 
-        Label title = new Label("INVENTORY");
+        Label title = new Label(I18n.t("inventoryPanel.title"));
         title.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         Button addBtn = AppButtonFactory.customButton("+", 24);
@@ -151,7 +153,7 @@ public class InventoryPanel extends VBox {
             // ===== Клик по иконке =====
             icon.setOnMouseClicked(e -> {
                 if (deleteMode) {
-                    onRemove.accept(item, this); // удаляем предмет
+                    onRemove.accept(item, this);
                 } else {
 
                 }
@@ -160,7 +162,7 @@ public class InventoryPanel extends VBox {
 
         public void refresh() {
             if (item.getIconPath() == null || item.getIconPath().isBlank()) {
-                icon.setImage(new Image(getClass().getResource("/com/example/dnd_manager/icon/images.png").toExternalForm()));
+                icon.setImage(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/images.png")).toExternalForm()));
             } else {
                 icon.setImage(new Image(CharacterAssetResolver.resolve(character.getName(), item.getIconPath())));
             }

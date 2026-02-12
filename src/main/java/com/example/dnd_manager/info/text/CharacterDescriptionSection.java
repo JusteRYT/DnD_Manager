@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.text;
 
 import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.FormMode;
 import com.example.dnd_manager.theme.AppTextSection;
 import javafx.scene.layout.VBox;
@@ -35,9 +36,9 @@ public class CharacterDescriptionSection extends VBox {
     ) {
         setSpacing(15);
 
-        description = new AppTextSection("Description");
-        personality = new AppTextSection("Personality");
-        backstory = new AppTextSection("Backstory");
+        description = new AppTextSection(I18n.t("label.textSection.description"));
+        personality = new AppTextSection(I18n.t("label.textSection.personality"));
+        backstory = new AppTextSection(I18n.t("label.textSection.backstory"));
 
         if (mode == FormMode.EDIT && initialData != null) {
             description.setText(initialData.description());

@@ -1,6 +1,7 @@
 package com.example.dnd_manager.screen;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
@@ -27,19 +28,19 @@ import java.util.function.Consumer;
  */
 public class CharacterSelectionScreen extends VBox {
 
-    public CharacterSelectionScreen(Stage stage, StorageService storageService, Consumer<Character> onCharacterSelected) {
+    public CharacterSelectionScreen(Stage stage, StorageService storageService, Consumer<Character> onCharacterSelected, boolean isEdit) {
         setSpacing(10);
         setPadding(new Insets(20));
         setStyle("-fx-background-color: #1e1e1e;");
         setAlignment(Pos.TOP_CENTER);
 
-        Label title = new Label("Select Character");
+        Label title = new Label(I18n.t("title.selectionScreen"));
         title.setStyle("-fx-font-size: 24px; -fx-text-fill: #ffffff; -fx-font-weight: bold;");
         getChildren().add(title);
 
         List<String> names = storageService.listCharacterNames();
         if (names.isEmpty()) {
-            Label emptyLabel = new Label("No characters found");
+            Label emptyLabel = new Label(I18n.t("label.selectionScreen"));
             emptyLabel.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 16px;");
             getChildren().add(emptyLabel);
             return;
@@ -79,8 +80,8 @@ public class CharacterSelectionScreen extends VBox {
 
             // --- RIGHT: delete button ---
             Button deleteBtn = AppButtonFactory.customButton(
-                    "Delete",
-                    70,
+                    I18n.t("button.delete"),
+                    0,
                     AppTheme.BUTTON_DANGER,
                     AppTheme.BUTTON_DANGER_HOVER
             );
@@ -92,6 +93,8 @@ public class CharacterSelectionScreen extends VBox {
                         node -> node.getUserData() == character
                 );
             });
+            deleteBtn.setVisible(isEdit);
+            deleteBtn.setManaged(isEdit);
 
             // --- ROW LAYOUT ---
             BorderPane characterRow = new BorderPane();
@@ -136,7 +139,7 @@ public class CharacterSelectionScreen extends VBox {
         getChildren().add(scrollPane);
 
         // --- Кнопка назад на стартовое окно ---
-        Button backBtn = AppButtonFactory.customButton("Back", 70);
+        Button backBtn = AppButtonFactory.primary(I18n.t("button.back"));
         backBtn.setOnAction(e -> stage.getScene().setRoot(new StartScreen(stage, storageService).getView()));
 
         getChildren().add(backBtn);

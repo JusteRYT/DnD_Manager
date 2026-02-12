@@ -1,6 +1,7 @@
 package com.example.dnd_manager.overview;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
 import com.example.dnd_manager.screen.StartScreen;
@@ -42,7 +43,7 @@ public class TopBar extends HBox {
         nameLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffffff;");
 
         // --- Level card ---
-        Label levelText = new Label("Level:");
+        Label levelText = new Label(I18n.t("topBar.level"));
         levelText.setStyle("-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 14px;");
 
         Label levelValue = new Label(String.valueOf(character.getLevel()));
@@ -146,13 +147,13 @@ public class TopBar extends HBox {
     private static void showLevelUpDialog(Character character, StorageService storageService, Label levelValue) {
         Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle("Confirm Level Up");
+        dialog.setTitle(I18n.t("dialogLevel.title"));
 
-        Label message = new Label("Are you sure you want to increase the level?");
+        Label message = new Label(I18n.t("dialogLevel.message"));
         message.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 14px;");
 
-        Button yesBtn = AppButtonFactory.customButton("Yes", 60);
-        Button noBtn = AppButtonFactory.customButton("No", 60);
+        Button yesBtn = AppButtonFactory.primary(I18n.t("button.yes"));
+        Button noBtn = AppButtonFactory.primary(I18n.t("button.no"));
 
         HBox buttons = new HBox(10, yesBtn, noBtn);
         buttons.setAlignment(Pos.CENTER);
@@ -162,7 +163,7 @@ public class TopBar extends HBox {
         layout.setStyle("-fx-background-color: #1e1e1e;");
         layout.setAlignment(Pos.CENTER);
 
-        dialog.setScene(new Scene(layout));
+        dialog.setScene(new Scene(layout, 400, 150));
         dialog.show();
 
         yesBtn.setOnAction(ev -> {
@@ -184,7 +185,7 @@ public class TopBar extends HBox {
 
     private void installStaticTooltip(Button button, Character character, CharacterOverviewScreen parentScreen) {
         Popup popup = new Popup();
-        Label label = new Label("Show full description");
+        Label label = new Label(I18n.t("dialogDescription.label"));
         label.setStyle("-fx-background-color: #333333; -fx-text-fill: #ffffff; -fx-padding: 5 10 5 10; -fx-background-radius: 4;");
         popup.getContent().add(label);
         popup.setAutoHide(false);

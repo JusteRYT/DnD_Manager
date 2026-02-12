@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.skills;
 
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Insets;
@@ -48,7 +49,7 @@ public class SkillCardView extends VBox {
         ImageView icon = new ImageView();
         icon.setFitWidth(ICON_SIZE);
         icon.setFitHeight(ICON_SIZE);
-        icon.setPreserveRatio(false); // принудительно квадрат
+        icon.setPreserveRatio(false);
         icon.setSmooth(true);
         if (skill.iconPath() != null && !skill.iconPath().isBlank()) {
             icon.setImage(new Image(CharacterAssetResolver.resolve(characterName, skill.iconPath())));
@@ -68,7 +69,7 @@ public class SkillCardView extends VBox {
         nameLabel.setWrapText(true);
 
         // ===== ACTIVATION =====
-        Label activationLabel = new Label("Activation: " + skill.activationType());
+        Label activationLabel = new Label(I18n.t("skillCardView.activation") + skill.activationType());
         activationLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #9cdcfe;");
         activationLabel.setPrefHeight(META_HEIGHT);
 
@@ -107,11 +108,13 @@ public class SkillCardView extends VBox {
         getChildren().addAll(iconContainer, nameLabel, activationLabel, effectsFlow, descriptionLabel);
     }
 
-    private String colorByEffect(TypeEffects type) {
-        return switch (type) {
-            case DAMAGE -> AppTheme.EFFECT_DAMAGE;
-            case HEAL -> AppTheme.EFFECT_HEAL;
-            default ->  AppTheme.EFFECT_OTHER;
-        };
+    private String colorByEffect(String type) {
+        if (type.equals(TypeEffects.DAMAGE.name())){
+            return AppTheme.EFFECT_DAMAGE;
+        } else if (type.equals(TypeEffects.HEAL.name())){
+            return AppTheme.EFFECT_HEAL;
+        } else {
+            return AppTheme.EFFECT_OTHER;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.dnd_manager.overview;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
@@ -33,7 +34,7 @@ public class EditStatsDialog {
         this.stage = new Stage();
         stage.initOwner(parentScreen.getScene().getWindow());
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle("Edit Stats - " + character.getName());
+        stage.setTitle(I18n.t("dialogEdit.title") + character.getName());
     }
 
     public void show(Runnable refreshCallback) {
@@ -42,31 +43,31 @@ public class EditStatsDialog {
         content.setStyle("-fx-background-color: #1e1e1e; -fx-background-radius: 8;");
 
         // HP
-        Label hpLabel = new Label("HP:");
+        Label hpLabel = new Label(I18n.t("hpField.name") + ":");
         hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold;");
         AppTextField hpField = new AppTextField(character.getHp());
         VBox hpBox = new VBox(4, hpLabel, hpField.getField());
 
         // Armor
-        Label armorLabel = new Label("Armor:");
+        Label armorLabel = new Label(I18n.t("armorField.name") + ":");
         armorLabel.setStyle("-fx-text-fill: #55aaff; -fx-font-weight: bold;");
         AppTextField armorField = new AppTextField(character.getArmor());
         VBox armorBox = new VBox(4, armorLabel, armorField.getField());
 
         // Mana
-        Label manaLabel = new Label("Mana:");
+        Label manaLabel = new Label(I18n.t("manaField.name") + ":");
         manaLabel.setStyle("-fx-text-fill: #3aa3c3; -fx-font-weight: bold;");
         AppTextField manaField = new AppTextField(character.getCurrentMana());
         VBox manaBox = new VBox(4, manaLabel, manaField.getField());
 
         // level
-        Label levelLabel = new Label("Level:");
+        Label levelLabel = new Label(I18n.t("levelField.name") + ":");
         manaLabel.setStyle("-fx-text-fill: #3aa3c3; -fx-font-weight: bold;");
         AppTextField levelField = new AppTextField(character.getLevel());
         VBox LevelBox = new VBox(4, levelLabel, levelField.getField());
 
         // Save button
-        Button saveBtn = AppButtonFactory.customButton("Save", 80);
+        Button saveBtn = AppButtonFactory.primary(I18n.t("button.save"));
         saveBtn.setOnAction(ev -> {
             if (!hpField.getText().isBlank()) {
                 character.setHp(hpField.getText().trim());
@@ -95,7 +96,7 @@ public class EditStatsDialog {
 
         ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(content);
         StackPane root = new StackPane(scrollPane);
-        Scene scene = new Scene(root, 300, 250);
+        Scene scene = new Scene(root, 500, 350);
         scene.setFill(javafx.scene.paint.Color.web("#1e1e1e"));
 
         stage.setScene(scene);

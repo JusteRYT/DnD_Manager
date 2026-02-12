@@ -20,7 +20,6 @@ public final class AppButtonFactory {
      */
     public static Button primary(String text) {
         Button button = new Button(text);
-        button.setPrefWidth(220);
         acceptColorTheme(button, DEFAULT_SIZE_FONT, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
 
         return button;
@@ -36,7 +35,9 @@ public final class AppButtonFactory {
 
     public static Button customButton(String text, int width, String primaryColor, String secondaryColor) {
         Button button = new Button(text);
-        button.setPrefWidth(width);
+        if (width != 0) {
+            button.setPrefWidth(width);
+        }
         acceptColorTheme(button, DEFAULT_SIZE_FONT, primaryColor, secondaryColor);
 
         return button;

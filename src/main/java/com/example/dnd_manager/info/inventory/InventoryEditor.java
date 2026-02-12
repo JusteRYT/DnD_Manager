@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.inventory;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -39,20 +40,20 @@ public class InventoryEditor extends VBox {
         this.character = character;
         setSpacing(10);
 
-        Label title = new Label("Inventory");
+        Label title = new Label(I18n.t("label.inventoryEditor"));
         title.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #c89b3c");
 
         if (character != null) {
             items.addAll(character.getInventory());
         }
 
-        AppTextField nameField = new AppTextField("Item name");
-        AppTextSection descriptionTextSection = new AppTextSection("", 4, "Description");
+        AppTextField nameField = new AppTextField(I18n.t("textField.inventoryName"));
+        AppTextSection descriptionTextSection = new AppTextSection("", 4, I18n.t("textSection.inventoryDescription"));
 
-        Button iconButton = AppButtonFactory.customButton("Add Icon", 100);
+        Button iconButton = AppButtonFactory.primary(I18n.t("button.addIcon"));
         iconButton.setOnAction(e -> iconPath = chooseIcon());
 
-        Button addButton = AppButtonFactory.customButton("Add Item", 100);
+        Button addButton = AppButtonFactory.primary(I18n.t("button.addItem"));
         addButton.setOnAction(event -> {
             InventoryItem item = new InventoryItem(
                     nameField.getText(),

@@ -5,6 +5,7 @@ import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.buff_debuff.BuffColumnStyle;
 import com.example.dnd_manager.info.buff_debuff.BuffListView;
 import com.example.dnd_manager.info.buff_debuff.BuffType;
+import com.example.dnd_manager.lang.I18n;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
@@ -19,13 +20,13 @@ public class BuffsView extends HBox {
               List<Buff> buffs = character.getBuffs();
 
         BuffListView buffsView = new BuffListView(
-                "BUFFS",
+                I18n.t("buffsView.titleBuff"),
                 buffs.stream().filter(b -> b.type() == BuffType.BUFF).toList(),
                 BuffColumnStyle.BUFF, character.getName()
         );
 
         BuffListView debuffsView = new BuffListView(
-                "DEBUFFS",
+                I18n.t("buffsView.titleDebuff"),
                 buffs.stream().filter(b -> b.type() == BuffType.DEBUFF).toList(),
                 BuffColumnStyle.DEBUFF,
                 character.getName()

@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.buff_debuff;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppComboBox;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -38,7 +39,7 @@ public class BuffEditor extends VBox {
         setSpacing(10);
         this.character = character;
 
-        Label title = new Label("Buffs / Debuffs");
+        Label title = new Label(I18n.t("label.buffsEditor"));
         title.setStyle("""
                 -fx-text-fill: %s;
                 -fx-font-weight: bold;
@@ -51,7 +52,7 @@ public class BuffEditor extends VBox {
 
         // UI элементы
         TextField nameField = createStyledTextField();
-        AppTextSection descriptionField = new AppTextSection("", 4, "Description");
+        AppTextSection descriptionField = new AppTextSection("", 4, I18n.t("textSection.promptText.descriptionBuffs"));
         AppComboBox<BuffType> typeBox = new AppComboBox<>();
         typeBox.getItems().addAll(BuffType.values());
         typeBox.setValue(BuffType.BUFF);
@@ -66,10 +67,10 @@ public class BuffEditor extends VBox {
         notificationLabel.setVisible(false);
 
         // Кнопка выбора иконки
-        Button chooseIconButton = AppButtonFactory.customButton("Icon", 60);
+        Button chooseIconButton = AppButtonFactory.primary(I18n.t("buttonText.icon"));
         chooseIconButton.setOnAction(e -> {
             FileChooser chooser = new FileChooser();
-            chooser.setTitle("Choose Buff Icon");
+            chooser.setTitle(I18n.t("chooser.labelText"));
             chooser.getExtensionFilters().add(
                     new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
             );
@@ -79,11 +80,11 @@ public class BuffEditor extends VBox {
             }
         });
 
-        var addButton = AppButtonFactory.customButton("Add", 60);
+        var addButton = AppButtonFactory.primary(I18n.t("button.add"));
         addButton.setOnAction(e -> {
             String name = nameField.getText().trim();
             if (name.isEmpty()) {
-                notificationLabel.setText("Name is required!");
+                notificationLabel.setText(I18n.t("notificationLabel.text"));
                 notificationLabel.setVisible(true);
                 return;
             }
@@ -135,7 +136,7 @@ public class BuffEditor extends VBox {
 
     private TextField createStyledTextField() {
         TextField field = new TextField();
-        field.setPromptText("Name");
+        field.setPromptText(I18n.t("buff.promptText.name"));
         field.setStyle("""
                 -fx-background-color: %s;
                 -fx-text-fill: %s;

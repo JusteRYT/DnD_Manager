@@ -19,7 +19,7 @@ public class StatsGridView extends GridPane {
 
         int row = 0;
         for (var entry : stats.entrySet()) {
-            Label name = new Label(entry.getKey().name());
+            Label name = new Label(entry.getKey().getName());
             name.setStyle("-fx-text-fill: #b0b0b0;");
 
             Label value = new Label(String.valueOf(entry.getValue()));

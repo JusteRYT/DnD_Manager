@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
+import java.util.Objects;
+
 /**
  * Represents a single effect of a skill.
  *
@@ -16,7 +18,7 @@ import lombok.Getter;
 @Getter
 public final class SkillEffect {
 
-    private final TypeEffects type;
+    private final String type;
     private final String customName;
     private final String value;
 
@@ -25,7 +27,7 @@ public final class SkillEffect {
      */
     @JsonCreator
     public SkillEffect(
-            @JsonProperty("type") TypeEffects type,
+            @JsonProperty("type") String type,
             @JsonProperty("customName") String customName,
             @JsonProperty("value") String value
     ) {
@@ -35,19 +37,19 @@ public final class SkillEffect {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Effect value must not be empty");
         }
-        if (type == TypeEffects.CUSTOM && (customName == null || customName.isBlank())) {
+        if (type.equals(TypeEffects.CUSTOM.getName()) && (customName == null || customName.isBlank())) {
             throw new IllegalArgumentException("Custom effect requires customName");
         }
 
         this.type = type;
-        this.customName = type == TypeEffects.CUSTOM ? customName : null;
+        this.customName = type.equals(TypeEffects.CUSTOM.getName()) ? customName : null;
         this.value = value;
     }
 
     /**
      * Factory method for unified creation.
      */
-    public static SkillEffect of(TypeEffects type, String name, String value) {
+    public static SkillEffect of(String type, String name, String value) {
         return new SkillEffect(type, name, value);
     }
 
@@ -56,7 +58,7 @@ public final class SkillEffect {
      */
     @JsonIgnore
     public String getDisplayName() {
-        return type == TypeEffects.CUSTOM ? customName : type.name();
+        return Objects.equals(type, TypeEffects.CUSTOM.getName()) ? customName : type;
     }
 
     @Override

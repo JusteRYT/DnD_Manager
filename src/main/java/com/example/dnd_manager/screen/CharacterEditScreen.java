@@ -11,6 +11,7 @@ import com.example.dnd_manager.info.text.BaseInfoForm;
 import com.example.dnd_manager.info.text.CharacterDescriptionSection;
 import com.example.dnd_manager.info.text.dto.BaseInfoData;
 import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
@@ -46,7 +47,7 @@ public class CharacterEditScreen extends AbstractScreen{
     }
 
     protected Label buildTitle() {
-        Label title = new Label("Edit Character");
+        Label title = new Label(I18n.t("title.editScreen"));
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: orange");
         BorderPane.setAlignment(title, Pos.CENTER);
         return title;
@@ -77,10 +78,10 @@ public class CharacterEditScreen extends AbstractScreen{
                 new SectionBox(skillsEditor)
         );
 
-        Button saveButton = AppButtonFactory.customButton("Save Changes", 200);
+        Button saveButton = AppButtonFactory.primary(I18n.t("button.editSave"));
         saveButton.setOnAction(event -> saveAndClose());
 
-        Button exitButton = AppButtonFactory.customButton("Exit", 100);
+        Button exitButton = AppButtonFactory.primary(I18n.t("button.exit"));
         exitButton.setOnAction(event -> closeScreen());
 
         HBox buttonBox = new HBox(10);

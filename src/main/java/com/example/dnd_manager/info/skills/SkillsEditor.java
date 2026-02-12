@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.skills;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -13,6 +14,10 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
+
+import static com.example.dnd_manager.info.skills.TypeEffects.DAMAGE;
+import static com.example.dnd_manager.info.skills.TypeEffects.HEAL;
 
 /**
  * Editor component for character skills with multiple effects.
@@ -66,7 +71,7 @@ public class SkillsEditor extends VBox {
      * Creates title label.
      */
     private Label createTitle() {
-        Label title = new Label("Skills");
+        Label title = new Label(I18n.t("label.skillsEditor"));
         title.setStyle("""
                 -fx-font-size: 14px;
                 -fx-font-weight: bold;
@@ -79,16 +84,18 @@ public class SkillsEditor extends VBox {
      * Creates main skill input controls.
      */
     private HBox createMainControls() {
-        AppTextField nameField = new AppTextField("Skill name");
+        AppTextField nameField = new AppTextField(I18n.t("textField.skillName"));
 
-        AppComboBox<ActivationType> activationBox = new AppComboBox<>();
-        activationBox.getItems().addAll(ActivationType.values());
-        activationBox.setValue(ActivationType.ACTION);
+        AppComboBox<String> activationBox = new AppComboBox<>();
+        for (ActivationType activationType : ActivationType.values()) {
+            activationBox.getItems().add(activationType.getName());
+        }
+        activationBox.setValue(ActivationType.ACTION.getName());
 
-        Button iconButton = AppButtonFactory.customButton("Choose icon", 110);
+        Button iconButton = AppButtonFactory.primary(I18n.t("button.addIcon"));
         iconButton.setOnAction(e -> iconPath = chooseIcon());
 
-        Button addSkillButton = AppButtonFactory.customButton("Add skill", 110);
+        Button addSkillButton = AppButtonFactory.primary(I18n.t("button.addSkill"));
         addSkillButton.setOnAction(e ->
                 handleAddSkill(nameField, activationBox)
         );
@@ -105,30 +112,32 @@ public class SkillsEditor extends VBox {
      * Creates description section.
      */
     private AppTextSection createDescriptionSection() {
-        return new AppTextSection("", 4, "Skill description");
+        return new AppTextSection("", 4, I18n.t("textSection.promptText.skillDescription"));
     }
 
     /**
      * Creates effects editor section.
      */
     private VBox createEffectsSection() {
-        AppComboBox<TypeEffects> effectTypeBox = new AppComboBox<>();
-        effectTypeBox.getItems().addAll(TypeEffects.values());
-        effectTypeBox.setValue(TypeEffects.DAMAGE);
+        AppComboBox<String> effectTypeBox = new AppComboBox<>();
+        for (TypeEffects effectType : TypeEffects.values()) {
+            effectTypeBox.getItems().add(effectType.getName());
+        }
+        effectTypeBox.setValue(DAMAGE.getName());
 
-        AppTextField valueField = new AppTextField("Value (1d6, 5, +2)");
-        AppTextField customTypeField = new AppTextField("Custom type");
+        AppTextField valueField = new AppTextField(I18n.t("textField.promptText.effectValue"));
+        AppTextField customTypeField = new AppTextField(I18n.t("textField.promptText.effectType"));
 
         customTypeField.getField().setVisible(false);
         customTypeField.getField().setManaged(false);
 
         effectTypeBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            boolean isCustom = newVal == TypeEffects.CUSTOM;
+            boolean isCustom = Objects.equals(newVal, TypeEffects.CUSTOM.getName());
             customTypeField.getField().setVisible(isCustom);
             customTypeField.getField().setManaged(isCustom);
         });
 
-        Button addEffectButton = AppButtonFactory.customButton("Add effect", 110);
+        Button addEffectButton = AppButtonFactory.primary(I18n.t("button.addEffect"));
         addEffectButton.setOnAction(e ->
                 handleAddEffect(effectTypeBox, customTypeField, valueField)
         );
@@ -146,7 +155,7 @@ public class SkillsEditor extends VBox {
     /**
      * Handles adding new effect.
      */
-    private void handleAddEffect(AppComboBox<TypeEffects> typeBox,
+    private void handleAddEffect(AppComboBox<String> typeBox,
                                  AppTextField customTypeField,
                                  AppTextField valueField) {
 
@@ -155,12 +164,12 @@ public class SkillsEditor extends VBox {
             return;
         }
 
-        TypeEffects type = typeBox.getValue();
-        String typeName = type == TypeEffects.CUSTOM
+        String type = typeBox.getValue();
+        String typeName = Objects.equals(type, TypeEffects.CUSTOM.getName())
                 ? customTypeField.getText().trim()
-                : type.name();
+                : type;
 
-        if (type == TypeEffects.CUSTOM && typeName.isEmpty()) {
+        if (Objects.equals(type, TypeEffects.CUSTOM.getName()) && typeName.isEmpty()) {
             return;
         }
 
@@ -189,7 +198,7 @@ public class SkillsEditor extends VBox {
      * Handles adding new skill.
      */
     private void handleAddSkill(AppTextField nameField,
-                                AppComboBox<ActivationType> activationBox) {
+                                AppComboBox<String> activationBox) {
 
         if (nameField.getText().isBlank() || currentEffects.isEmpty()) {
             return;
@@ -238,12 +247,14 @@ public class SkillsEditor extends VBox {
     /**
      * Returns effect background color based on effect type.
      */
-    private String effectBackground(TypeEffects type) {
-        return switch (type) {
-            case DAMAGE -> "#3b1f1f";
-            case HEAL -> "#1f3b2a";
-            default -> "#1f2f3b";
-        };
+    private String effectBackground(String type) {
+        if (type.equals(DAMAGE.getName())) {
+            return "#3b1f1f";
+        } else if (type.equals(HEAL.getName())) {
+            return "#1f3b2a";
+        } else {
+            return "#1f2f3b";
+        }
     }
 
     /**

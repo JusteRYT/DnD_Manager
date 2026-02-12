@@ -61,7 +61,7 @@ public class StartScreen {
                 I18n.t("button.load"), (int) (220 * SCALE), (int) (100 * SCALE), 25
         );
         Button transferButton = AppButtonFactory.customButton(
-                I18n.t("button.export"), (int) (220 * SCALE), (int) (100 * SCALE), 25
+                I18n.t("button.importExport"), (int) (220 * SCALE), (int) (100 * SCALE), 25
         );
         Button languageBtn = AppButtonFactory.customButton(
                 I18n.t("button.language"), 100
@@ -133,7 +133,7 @@ public class StartScreen {
                 character -> {
                     CharacterEditScreen editScreen = new CharacterEditScreen(stage, character, storageService);
                     stage.getScene().setRoot(editScreen.getView());
-                }
+                }, true
         );
 
         stage.getScene().setRoot(selectionScreen);
@@ -153,7 +153,7 @@ public class StartScreen {
                 character -> {
                     CharacterOverviewScreen editScreen = new CharacterOverviewScreen(character.getName(), storageService);
                     stage.getScene().setRoot(editScreen);
-                });
+                }, false);
         stage.getScene().setRoot(selectionScreen);
     }
 
