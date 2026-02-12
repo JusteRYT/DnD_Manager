@@ -16,7 +16,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Modality;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.util.Objects;
@@ -101,6 +100,9 @@ public class TopBar extends HBox {
         descIcon.setFitWidth(28);
         descIcon.setFitHeight(28);
         showDescBtn.setGraphic(descIcon);
+        showDescBtn.setOnAction(e ->
+                new FullDescriptionDialog(character, parentScreen).show()
+        );
 
         Button editBtn = AppButtonFactory.customButton("", 50, 0);
         ImageView editIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/edit_icon.png")).toExternalForm()));
@@ -141,7 +143,25 @@ public class TopBar extends HBox {
             stage.getScene().setRoot(new StartScreen(stage, parentScreen.getStorageService()).getView());
         });
 
-        installStaticTooltip(showDescBtn, character, parentScreen);
+        ButtonPopupInstaller.install(
+                showDescBtn,
+                PopupFactory.tooltip(I18n.t("button.showDescription"))
+        );
+
+        ButtonPopupInstaller.install(
+                editBtn,
+                PopupFactory.tooltip(I18n.t("button.editStatsPopup"))
+        );
+
+        ButtonPopupInstaller.install(
+                backBtn,
+                PopupFactory.tooltip(I18n.t("button.showExitPopup"))
+        );
+
+        ButtonPopupInstaller.install(
+                increaseLevelBtn,
+                PopupFactory.tooltip(I18n.t("button.levelIncrease"))
+        );
     }
 
     private static void showLevelUpDialog(Character character, StorageService storageService, Label levelValue) {
@@ -181,20 +201,5 @@ public class TopBar extends HBox {
         });
 
         noBtn.setOnAction(ev -> dialog.close());
-    }
-
-    private void installStaticTooltip(Button button, Character character, CharacterOverviewScreen parentScreen) {
-        Popup popup = new Popup();
-        Label label = new Label(I18n.t("dialogDescription.label"));
-        label.setStyle("-fx-background-color: #333333; -fx-text-fill: #ffffff; -fx-padding: 5 10 5 10; -fx-background-radius: 4;");
-        popup.getContent().add(label);
-        popup.setAutoHide(false);
-        button.setOnMouseEntered(e -> {
-            var bounds = button.localToScreen(button.getBoundsInLocal());
-            popup.show(button.getScene().getWindow(), bounds.getMaxX() + 5, bounds.getMinY());
-        });
-        button.setOnMouseExited(e -> popup.hide());
-        button.setOnAction(e -> new FullDescriptionDialog(character, parentScreen).show());
-
     }
 }
