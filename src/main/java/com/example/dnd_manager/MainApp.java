@@ -12,6 +12,10 @@ import javafx.stage.Stage;
  */
 public class MainApp extends Application {
 
+
+    private static final double INITIAL_WIDTH = 1600;
+    private static final double INITIAL_HEIGHT = 1200;
+
     @Override
     public void start(Stage primaryStage) {
         StorageService storageService = new StorageService();
@@ -19,9 +23,12 @@ public class MainApp extends Application {
 
         StartScreen startScreen = new StartScreen(primaryStage, storageService);
 
-        Scene scene = new Scene(startScreen.getView(), 1600, 900);
+        Scene scene = new Scene(startScreen.getView(), 1600, 1200);
         primaryStage.setTitle(I18n.t("title.main"));
         primaryStage.setScene(scene);
+        // --- Enforce minimum window size ---
+        primaryStage.setMinWidth(INITIAL_WIDTH);
+        primaryStage.setMinHeight(INITIAL_HEIGHT);
         primaryStage.show();
     }
 }
