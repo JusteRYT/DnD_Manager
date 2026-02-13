@@ -71,9 +71,7 @@ public class CharacterImportExportScreen extends VBox {
         // --- Back button ---
         Button backBtn = AppButtonFactory.customButton(I18n.t("button.back"), 70);
         backBtn.setOnAction(e ->
-                stage.getScene().setRoot(
-                        new StartScreen(stage, storageService).getView()
-                )
+                closeScreen()
         );
 
         HBox importContainer = new HBox(importBtn, backBtn);
@@ -112,6 +110,13 @@ public class CharacterImportExportScreen extends VBox {
         }
 
         return charactersList;
+    }
+
+    private void closeScreen() {
+        StartScreen startScreen = new StartScreen(stage, storageService);
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
+        scrollPane.setFitToHeight(true);
+        stage.getScene().setRoot(scrollPane);
     }
 
     /**

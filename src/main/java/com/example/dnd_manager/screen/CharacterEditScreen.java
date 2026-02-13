@@ -14,12 +14,14 @@ import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppScrollPaneFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.SectionBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
@@ -97,7 +99,9 @@ public class CharacterEditScreen extends AbstractScreen{
 
     private void closeScreen() {
         StartScreen startScreen = new StartScreen(stage, storageService);
-        stage.getScene().setRoot(startScreen.getView());
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
+        scrollPane.setFitToHeight(true);
+        stage.getScene().setRoot(scrollPane);
     }
 
     private HBox buildBaseInfoSection() {

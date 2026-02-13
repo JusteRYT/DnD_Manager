@@ -11,11 +11,13 @@ import com.example.dnd_manager.screen.CharacterOverviewScreen;
 import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -144,7 +146,7 @@ public class TopBar extends HBox {
 
         backBtn.setOnAction(e -> {
             Stage stage = (Stage) parentScreen.getScene().getWindow();
-            stage.getScene().setRoot(new StartScreen(stage, parentScreen.getStorageService()).getView());
+            closeScreen(stage, storageService);
         });
 
         ButtonPopupInstaller.install(
@@ -205,5 +207,12 @@ public class TopBar extends HBox {
         });
 
         noBtn.setOnAction(ev -> dialog.close());
+    }
+
+    private void closeScreen(Stage stage, StorageService storageService) {
+        StartScreen startScreen = new StartScreen(stage, storageService);
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
+        scrollPane.setFitToHeight(true);
+        stage.getScene().setRoot(scrollPane);
     }
 }

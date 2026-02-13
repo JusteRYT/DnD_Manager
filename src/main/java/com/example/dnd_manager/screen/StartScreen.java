@@ -5,6 +5,7 @@ import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.service.CharacterTransferServiceImpl;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppScrollPaneFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.ButtonSizeConfigurer;
 import javafx.geometry.Insets;
@@ -12,6 +13,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -188,12 +190,22 @@ public class StartScreen {
     }
 
     private void changeLanguage() {
+        // 1. Переключаем язык
         if (I18n.isEnglish()) {
             I18n.setLocale(Locale.forLanguageTag("ru"));
         } else {
             I18n.setLocale(Locale.ENGLISH);
         }
-        stage.getScene().setRoot(new StartScreen(stage, storageService).getView());
+
+        // 2. Создаем новый экран
+        StartScreen newScreen = new StartScreen(stage, storageService);
+
+        // 3. Оборачиваем его в ScrollPane (как в MainApp)
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(newScreen.getView());
+        scrollPane.setFitToHeight(true); // Важно сохранить настройку из MainApp
+
+        // 4. Устанавливаем ScrollPane как новый корень сцены
+        stage.getScene().setRoot(scrollPane);
     }
 
     /**

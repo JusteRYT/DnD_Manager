@@ -140,8 +140,15 @@ public class CharacterSelectionScreen extends VBox {
 
         // --- Кнопка назад на стартовое окно ---
         Button backBtn = AppButtonFactory.primary(I18n.t("button.back"));
-        backBtn.setOnAction(e -> stage.getScene().setRoot(new StartScreen(stage, storageService).getView()));
+        backBtn.setOnAction(e -> closeScreen(stage, storageService));
 
         getChildren().add(backBtn);
+    }
+
+    private void closeScreen(Stage stage, StorageService storageService) {
+        StartScreen startScreen = new StartScreen(stage, storageService);
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
+        scrollPane.setFitToHeight(true);
+        stage.getScene().setRoot(scrollPane);
     }
 }
