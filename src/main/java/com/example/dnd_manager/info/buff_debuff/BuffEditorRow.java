@@ -3,6 +3,7 @@ package com.example.dnd_manager.info.buff_debuff;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -54,7 +55,7 @@ public class BuffEditorRow extends HBox {
         infoBox.getChildren().addAll(title, description);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
 
-        Button removeButton = AppButtonFactory.customButton("✕", 30);
+        Button removeButton = AppButtonFactory.customButton("✕", 35, AppTheme.BUTTON_DANGER, AppTheme.BUTTON_DANGER_HOVER);
         removeButton.setOnAction(e -> onRemove.run());
         removeButton.setFocusTraversable(false);
         getChildren().addAll(iconView, infoBox, removeButton);

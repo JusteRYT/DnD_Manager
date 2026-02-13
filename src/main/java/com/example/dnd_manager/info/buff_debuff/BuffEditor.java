@@ -8,6 +8,7 @@ import com.example.dnd_manager.theme.AppTextSection;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -41,10 +42,10 @@ public class BuffEditor extends VBox {
 
         Label title = new Label(I18n.t("label.buffsEditor"));
         title.setStyle("""
-                -fx-text-fill: %s;
-                -fx-font-weight: bold;
-                -fx-font-size: 14px;
-            """.formatted(AppTheme.TEXT_ACCENT));
+                    -fx-text-fill: %s;
+                    -fx-font-weight: bold;
+                    -fx-font-size: 14px;
+                """.formatted(AppTheme.TEXT_ACCENT));
 
         if (character != null) {
             buffs.addAll(character.getBuffs());
@@ -61,10 +62,18 @@ public class BuffEditor extends VBox {
 
         Label notificationLabel = new Label();
         notificationLabel.setStyle("""
-                -fx-text-fill: %s;
-                -fx-font-size: 12px;
-            """.formatted(AppTheme.BUTTON_PRIMARY));
+                    -fx-text-fill: %s;
+                    -fx-font-size: 12px;
+                """.formatted(AppTheme.BUTTON_PRIMARY));
         notificationLabel.setVisible(false);
+
+        Label iconPathLabel = new Label();
+        iconPathLabel.setStyle("""
+                    -fx-text-fill: %s;
+                    -fx-font-size: 18px;
+                """.formatted(AppTheme.BUTTON_PRIMARY));
+        iconPathLabel.setPadding(new Insets(2, 0, 0, 0));
+        iconPathLabel.setVisible(false);
 
         // Кнопка выбора иконки
         Button chooseIconButton = AppButtonFactory.primary(I18n.t("buttonText.icon"));
@@ -77,6 +86,8 @@ public class BuffEditor extends VBox {
             File file = chooser.showOpenDialog(getScene().getWindow());
             if (file != null) {
                 iconPath.set(file.getAbsolutePath());
+                iconPathLabel.setText(I18n.t("labelBuff.chooseIconName") + file.getName());
+                iconPathLabel.setVisible(true);
             }
         });
 
@@ -89,6 +100,7 @@ public class BuffEditor extends VBox {
                 return;
             }
             notificationLabel.setVisible(false);
+            iconPathLabel.setVisible(false);
 
             Buff buff = new Buff(
                     name,
@@ -105,7 +117,7 @@ public class BuffEditor extends VBox {
         });
 
         listContainer.setFocusTraversable(false);
-        HBox controls = new HBox(10, nameField, typeBox, chooseIconButton, addButton);
+        HBox controls = new HBox(10, nameField, typeBox, chooseIconButton, addButton, iconPathLabel);
         getChildren().addAll(title, notificationLabel, controls, descriptionField, listContainer);
 
         // Если есть initialBuffs, создаем строки
@@ -139,14 +151,14 @@ public class BuffEditor extends VBox {
         TextField field = new TextField();
         field.setPromptText(I18n.t("buff.promptText.name"));
         field.setStyle("""
-                -fx-background-color: %s;
-                -fx-text-fill: %s;
-                -fx-prompt-text-fill: #aaaaaa;
-                -fx-border-color: %s;
-                -fx-border-radius: 6;
-                -fx-background-radius: 6;
-                -fx-padding: 4 6 4 6;
-            """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY, AppTheme.BORDER_MUTED));
+                    -fx-background-color: %s;
+                    -fx-text-fill: %s;
+                    -fx-prompt-text-fill: #aaaaaa;
+                    -fx-border-color: %s;
+                    -fx-border-radius: 6;
+                    -fx-background-radius: 6;
+                    -fx-padding: 4 6 4 6;
+                """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY, AppTheme.BORDER_MUTED));
         return field;
     }
 
