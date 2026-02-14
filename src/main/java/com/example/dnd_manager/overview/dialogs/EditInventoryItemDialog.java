@@ -54,7 +54,7 @@ public class EditInventoryItemDialog {
 
             item.setName(nameField.getText());
             item.setDescription(descriptionField.getText());
-            item.setIconPath(iconPath != null ? iconPath : "icon/images.png");
+            item.setIconPath(iconPath != null ? iconPath : "icon/no_image.png");
 
             onItemEdited.accept(item);
             stage.close();

@@ -98,7 +98,8 @@ public final class AppButtonFactory {
 
         // Цвета из твоей темы
         Color colorSecondary = Color.web(AppTheme.BACKGROUND_SECONDARY);
-        Color colorAccent = Color.web(AppTheme.BUTTON_PRIMARY);
+        Color baseGold = Color.web(AppTheme.BUTTON_PRIMARY);
+        Color colorAccent = baseGold.deriveColor(0, 1.2, 1.25, 1);
         Color colorTextNormal = Color.web(AppTheme.BUTTON_PRIMARY);
         Color colorTextHover = Color.web(AppTheme.BACKGROUND_PRIMARY);
 
@@ -107,12 +108,13 @@ public final class AppButtonFactory {
                     -fx-font-weight: bold;
                     -fx-font-size: 18px;
                     -fx-background-radius: 50;
+                    -fx-background-color: %s;
                     -fx-border-color: %s;
                     -fx-border-radius: 50;
                     -fx-border-width: 1.5;
                     -fx-cursor: hand;
                     -fx-padding: 0 0 2 0;
-                """.formatted(AppTheme.BUTTON_PRIMARY));
+                """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BUTTON_PRIMARY));
 
         // Начальное состояние
         button.setBackground(new Background(new BackgroundFill(colorSecondary, new CornerRadii(50), Insets.EMPTY)));
@@ -259,10 +261,6 @@ public final class AppButtonFactory {
         acceptColorTheme(button, DEFAULT_SIZE_FONT, primaryColor, secondaryColor);
 
         return button;
-    }
-
-    public static Button customButton(String text, int size, int fontSize) {
-        return customButton(text, size, size, fontSize);
     }
 
     public static Button customButton(String text, int width, int height, int fontSize) {

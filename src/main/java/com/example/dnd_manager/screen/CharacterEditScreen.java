@@ -28,7 +28,7 @@ import javafx.stage.Stage;
 /**
  * Screen for editing an existing D&D character.
  */
-public class CharacterEditScreen extends AbstractScreen{
+public class CharacterEditScreen extends AbstractScreen {
 
     private final Stage stage;
     private final Character character;
@@ -80,17 +80,16 @@ public class CharacterEditScreen extends AbstractScreen{
                 new SectionBox(skillsEditor)
         );
 
-        Button saveButton = AppButtonFactory.primary(I18n.t("button.editSave"));
+        Button saveButton = AppButtonFactory.actionSave(I18n.t("button.editSave"));
         saveButton.setOnAction(event -> saveAndClose());
 
-        Button exitButton = AppButtonFactory.primary(I18n.t("button.exit"));
+        Button exitButton = AppButtonFactory.actionExit(I18n.t("button.exit"), 80);
         exitButton.setOnAction(event -> closeScreen());
 
         HBox buttonBox = new HBox(10);
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
 
-        buttonBox.getChildren().addAll(saveButton, spacer, exitButton);
+        buttonBox.getChildren().addAll(exitButton, saveButton);
 
         form.getChildren().add(buttonBox);
 
@@ -125,11 +124,11 @@ public class CharacterEditScreen extends AbstractScreen{
         VBox statsSection = new VBox(10);
         statsSection.setPadding(new Insets(12));
         statsSection.setStyle("""
-                -fx-background-color: %s;
-                -fx-background-radius: 8;
-                -fx-border-radius: 8;
-                -fx-border-color: %s;
-            """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BORDER_MUTED));
+                    -fx-background-color: %s;
+                    -fx-background-radius: 8;
+                    -fx-border-radius: 8;
+                    -fx-border-color: %s;
+                """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BORDER_MUTED));
 
         statsSection.getChildren().addAll(statsEditor);
 

@@ -16,7 +16,7 @@ import java.util.Objects;
 public final class BuffIconViewFactory {
 
     private static final String DEFAULT_ICON_PATH =
-            "/com/example/dnd_manager/icon/images.png";
+            "/com/example/dnd_manager/icon/no_image.png";
 
     private BuffIconViewFactory() {
     }

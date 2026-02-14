@@ -17,7 +17,7 @@ import java.util.Objects;
 
 public class AvatarPicker extends VBox {
 
-    private static final String DEFAULT_AVATAR = "/com/example/dnd_manager/icon/images.png";
+    private static final String DEFAULT_AVATAR = "/com/example/dnd_manager/icon/user.png";
     private final ImageView imageView = new ImageView();
     private final double AVATAR_SIZE = 220;
 

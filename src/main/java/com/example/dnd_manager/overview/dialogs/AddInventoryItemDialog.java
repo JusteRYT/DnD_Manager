@@ -73,14 +73,14 @@ public class AddInventoryItemDialog {
                 // редактируем текущий объект
                 existingItem.setName(nameField.getText());
                 existingItem.setDescription(descriptionField.getText());
-                existingItem.setIconPath(iconPath != null ? iconPath : "icon/images.png");
+                existingItem.setIconPath(iconPath != null ? iconPath : "icon/no_image.png");
                 onItemAddedOrEdited.accept(existingItem);
             } else {
                 // создаём новый объект
                 InventoryItem item = new InventoryItem(
                         nameField.getText(),
                         descriptionField.getText(),
-                        iconPath != null ? iconPath : "icon/images.png"
+                        iconPath != null ? iconPath : "icon/no_image.png"
                 );
                 character.getInventory().add(item);
                 onItemAddedOrEdited.accept(item);

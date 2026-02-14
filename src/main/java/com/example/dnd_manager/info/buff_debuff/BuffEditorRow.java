@@ -14,6 +14,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 
+import java.util.Objects;
+
 import static com.example.dnd_manager.info.skills.SkillCard.getImage;
 
 /**
@@ -38,12 +40,6 @@ public class BuffEditorRow extends HBox {
                     -fx-padding: 8;
                 """;
 
-        // Стиль при наведении (акцентная рамка)
-        String hoverStyle = baseStyle + """
-                    -fx-border-color: #c89b3c;
-                    -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.1), 10, 0, 0, 0);
-                """;
-
         setStyle(baseStyle);
 
         // --- Icon ---
@@ -51,7 +47,12 @@ public class BuffEditorRow extends HBox {
         iconView.setFitWidth(30);
         iconView.setFitHeight(30);
         iconView.setPreserveRatio(true);
-        iconView.setImage(chooseIcon(buff, character));
+        if (character != null) {
+            iconView.setImage(chooseIcon(buff, character));
+        } else {
+            iconView.setImage(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/no_image.png")).toExternalForm()));
+        }
+
 
         // --- Info box ---
         VBox infoBox = new VBox(2);

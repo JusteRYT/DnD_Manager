@@ -2,6 +2,7 @@ package com.example.dnd_manager.info.buff_debuff;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppComboBox;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -17,12 +18,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BuffEditor extends VBox {
 
     private final ObservableList<Buff> buffs = FXCollections.observableArrayList();
-    private final VBox listContainer = new VBox(8); // Контейнер для списка строк
+    private final VBox listContainer = new VBox(8);
     private final Character character;
 
     public BuffEditor() {
@@ -102,6 +104,9 @@ public class BuffEditor extends VBox {
 
         addButton.setOnAction(e -> {
             String name = nameField.getText().trim();
+            if (character == null) {
+                iconPath.set(getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
+            }
             if (!name.isEmpty()) {
                 Buff buff = new Buff(name, descriptionField.getText(), typeBox.getValue(), iconPath.get());
                 addBuff(buff);

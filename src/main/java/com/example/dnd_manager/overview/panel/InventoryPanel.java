@@ -182,7 +182,7 @@ public class InventoryPanel extends VBox {
 
         public void refresh() {
             if (item.getIconPath() == null || item.getIconPath().isBlank()) {
-                icon.setImage(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/images.png")).toExternalForm()));
+                icon.setImage(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/no_image.png")).toExternalForm()));
             } else {
                 icon.setImage(new Image(CharacterAssetResolver.resolve(character.getName(), item.getIconPath())));
             }
