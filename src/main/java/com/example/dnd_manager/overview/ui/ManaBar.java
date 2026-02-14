@@ -38,7 +38,7 @@ public class ManaBar extends VBox {
                 -fx-background-color: #252526;
                 """);
 
-        Label title = new Label(I18n.t("manaField.name"));
+        Label title = new Label(I18n.t("manaField.name.overview"));
         title.setStyle("""
                 -fx-text-fill: #3aa3c3;
                 -fx-font-size: 16px;
@@ -81,6 +81,18 @@ public class ManaBar extends VBox {
                 -fx-font-size: 14px;
                 """);
 
+        manaProgress.setStyle("-fx-accent: #3aa3c3; -fx-control-inner-background: #1a1a1a; -fx-text-box-border: transparent;");
+
+        setStyle("""
+                -fx-border-color: #3aa3c3;
+                -fx-border-radius: 6;
+                -fx-border-width: 1;
+                -fx-background-radius: 6;
+                -fx-background-color: linear-gradient(to bottom, #252526, #1e1e1e);
+                -fx-effect: dropshadow(three-pass-box, rgba(58, 163, 195, 0.15), 10, 0, 0, 0);
+                -fx-padding: 12;
+                """);
+
         var addBtn = AppButtonFactory.customButton("+", 28);
         addBtn.setOnAction(e -> changeMana(1));
 
@@ -101,7 +113,7 @@ public class ManaBar extends VBox {
      */
     private void changeMana(int delta) {
         int current = parseOrZero(character.getCurrentMana());
-        int max = Math.max(1, parseOrZero(character.getMaxMana()));
+        int max = Math.max(0, parseOrZero(character.getMaxMana()));
 
         int newMana = Math.max(0, Math.min(current + delta, max));
 
@@ -126,7 +138,7 @@ public class ManaBar extends VBox {
      */
     public void refresh() {
         int current = parseOrZero(character.getCurrentMana());
-        int max = Math.max(1, parseOrZero(character.getMaxMana()));
+        int max = Math.max(0, parseOrZero(character.getMaxMana()));
         manaProgress.setProgress((double) current / max);
         manaLabel.setText(current + " / " + max);
     }

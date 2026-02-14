@@ -9,13 +9,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
-import javafx.scene.layout.VBox;
 import lombok.Getter;
 
-/**
- * Unified card panel with Currency (left) and Inspiration (right).
- * Each section has its own title and visible border.
- */
 public class CurrencyPanel extends VBox {
 
     private final Character character;
@@ -37,30 +32,26 @@ public class CurrencyPanel extends VBox {
         this.character = character;
         this.storageService = storageService;
 
+        // Инициализируем панель вдохновения (она содержит и ману)
         this.inspirationPanel = new InspirationPanel(character, storageService);
         this.manaBar = inspirationPanel.getManaBar();
 
-        setSpacing(10);
+        setSpacing(15); // Чуть больше воздуха между блоками
 
+        // Блок валюты
         VBox currencyBox = createCurrencyBox();
 
-        HBox contentBox = new HBox(12, currencyBox, inspirationPanel);
+        // Основной контейнер: Слева валюта, Справа вдохновение/мана
+        HBox contentBox = new HBox(15, currencyBox, inspirationPanel);
         contentBox.setAlignment(Pos.TOP_LEFT);
+
+        // Растягиваем элементы
         HBox.setHgrow(currencyBox, Priority.ALWAYS);
         HBox.setHgrow(inspirationPanel, Priority.ALWAYS);
-
         currencyBox.setMaxWidth(Double.MAX_VALUE);
         inspirationPanel.setMaxWidth(Double.MAX_VALUE);
 
-        VBox card = new VBox(contentBox);
-        card.setSpacing(12);
-        card.setPadding(new Insets(12));
-        card.setStyle("""
-            -fx-background-color: #252526;
-            -fx-background-radius: 8;
-            """);
-
-        getChildren().add(card);
+        getChildren().add(contentBox);
 
         refresh();
     }
@@ -68,27 +59,14 @@ public class CurrencyPanel extends VBox {
     private VBox createCurrencyBox() {
         Label title = new Label(I18n.t("currencyPanel.title"));
         title.setStyle("""
-            -fx-text-fill: #c89b3c;
+            -fx-text-fill: #ffd700; /* Ярко-золотой текст */
             -fx-font-size: 16px;
             -fx-font-weight: bold;
+            -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 2, 0, 0, 1);
             """);
 
-        VBox box = getVBox(title);
-        box.setSpacing(8);
-        box.setPadding(new Insets(8));
-        box.setStyle("""
-            -fx-border-color: #3a3a3a;
-            -fx-border-radius: 6;
-            -fx-border-width: 1;
-            -fx-background-radius: 6;
-            -fx-background-color: #252526;
-            """);
-
-        return box;
-    }
-
-    private VBox getVBox(Label title) {
-        VBox coinsBox = new VBox(
+        // Создаем строки с монетами
+        VBox coinsList = new VBox(10,
                 new CoinRow("/com/example/dnd_manager/icon/icon_gold.png", goldText,
                         () -> changeTotalCopper(COPPER_PER_GOLD), () -> changeTotalCopper(-COPPER_PER_GOLD)),
                 new CoinRow("/com/example/dnd_manager/icon/icon_silver.png", silverText,
@@ -96,9 +74,25 @@ public class CurrencyPanel extends VBox {
                 new CoinRow("/com/example/dnd_manager/icon/icon_cooper.png", copperText,
                         () -> changeTotalCopper(1), () -> changeTotalCopper(-1))
         );
-        coinsBox.setSpacing(10);
 
-        return new VBox(title, coinsBox);
+        return getVBox(title, coinsList);
+    }
+
+    private static VBox getVBox(Label title, VBox coinsList) {
+        VBox container = new VBox(10, title, coinsList);
+        container.setPadding(new Insets(12));
+
+        // --- ЗОЛОТОЙ СТИЛЬ ---
+        container.setStyle("""
+            -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
+            -fx-background-radius: 8;
+            -fx-border-color: #c89b3c; /* Золотая рамка */
+            -fx-border-radius: 8;
+            -fx-border-width: 1;
+            /* Золотое свечение */
+            -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.25), 15, 0, 0, 0);
+            """);
+        return container;
     }
 
     private void changeTotalCopper(int delta) {

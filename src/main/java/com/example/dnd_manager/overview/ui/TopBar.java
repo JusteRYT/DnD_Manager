@@ -36,23 +36,27 @@ public class TopBar extends HBox {
     public TopBar(Character character, CharacterOverviewScreen parentScreen, StorageService storageService) {
         setSpacing(10);
         setPadding(new Insets(10));
-        setStyle("-fx-background-color: #1e1e1e;");
+        setStyle("-fx-background-color: transparent;");
 
         // --- Avatar ---
         ImageView avatar = new ImageView(new Image(CharacterAssetResolver.resolve(character.getName(), character.getAvatarImage())));
-        avatar.setFitWidth(100);
-        avatar.setFitHeight(100);
+        avatar.setFitWidth(160);
+        avatar.setFitHeight(220);
+        avatar.setPreserveRatio(true);
+
+        // Обертка для аватара с рамкой
+        StackPane avatarContainer = getStackPane(avatar);
 
         // --- Name ---
         Label nameLabel = new Label(character.getName());
-        nameLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #ffffff;");
+        nameLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #ffffff;");
 
         // --- Level card ---
         Label levelText = new Label(I18n.t("topBar.level"));
-        levelText.setStyle("-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 14px;");
+        levelText.setStyle("-fx-text-fill: #ffffff; -fx-font-weight: bold; -fx-font-size: 18px;");
 
         Label levelValue = new Label(String.valueOf(character.getLevel()));
-        levelValue.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold; -fx-font-size: 14px;");
+        levelValue.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold; -fx-font-size: 18px;");
 
         HBox levelBox = new HBox(4, levelText, levelValue);
         levelBox.setAlignment(Pos.CENTER);
@@ -70,38 +74,53 @@ public class TopBar extends HBox {
 
         // --- Meta info: race + class ---
         Label metaLabel = new Label(character.getRace() + " • " + character.getCharacterClass());
-        metaLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #c89b3c;");
+        metaLabel.setStyle("""
+                    -fx-font-size: 20px; 
+                    -fx-text-fill: #c89b3c; 
+                    -fx-background-color: rgba(200, 155, 60, 0.1); 
+                    -fx-padding: 2 8 2 8; 
+                    -fx-background-radius: 4;
+                """);
 
         // --- HP ---
         ImageView hpIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_heart.png")).toExternalForm()));
-        hpIcon.setFitWidth(24);
-        hpIcon.setFitHeight(24);
+        hpIcon.setFitWidth(25);
+        hpIcon.setFitHeight(25);
         Label hpLabel = new Label(String.valueOf(character.getHp()));
-        hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold; -fx-font-size: 16px;");
+        hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold; -fx-font-size: 18px;");
         HBox hpBox = new HBox(6, hpIcon, hpLabel);
         hpBox.setAlignment(Pos.CENTER_LEFT);
 
         // --- Armor ---
         ImageView armorIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_shield.png")).toExternalForm()));
-        armorIcon.setFitWidth(24);
-        armorIcon.setFitHeight(24);
+        armorIcon.setFitWidth(25);
+        armorIcon.setFitHeight(25);
         Label armorLabel = new Label(String.valueOf(character.getArmor()));
-        armorLabel.setStyle("-fx-text-fill: #55aaff; -fx-font-weight: bold; -fx-font-size: 16px;");
+        armorLabel.setStyle("-fx-text-fill: #55aaff; -fx-font-weight: bold; -fx-font-size: 18px;");
         HBox armorBox = new HBox(6, armorIcon, armorLabel);
         armorBox.setAlignment(Pos.CENTER_LEFT);
 
         HBox statsBox = new HBox(12, hpBox, armorBox);
         statsBox.setAlignment(Pos.CENTER_LEFT);
+        statsBox.setPadding(new Insets(8, 0, 0, 0));
 
-        VBox infoBox = new VBox(6, nameLevelBox, metaLabel, statsBox);
-        infoBox.setAlignment(Pos.CENTER_LEFT);
+        VBox infoBox = new VBox(8, nameLevelBox, metaLabel, statsBox);
+        infoBox.setAlignment(Pos.TOP_LEFT);
+        infoBox.setPadding(new Insets(10, 0, 0, 0));
 
-        HBox leftBox = new HBox(12, avatar, infoBox);
+        HBox leftBox = new HBox(20, avatarContainer, infoBox);
         leftBox.setAlignment(Pos.CENTER_LEFT);
+        leftBox.setPadding(new Insets(15, 25, 15, 20));
         HBox.setHgrow(leftBox, Priority.ALWAYS);
 
+        leftBox.setStyle("""
+                    -fx-background-color: linear-gradient(to right, #252525, #1e1e1e);
+                    -fx-background-radius: 12;
+                    -fx-border-width: 0 1 0 0;
+                """);
+
         // --- Right block: buttons ---
-        Button showDescBtn = AppButtonFactory.customButton("", 50, 0);
+        Button showDescBtn = AppButtonFactory.hudIconButton(50);
         ImageView descIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_description.png")).toExternalForm()));
         descIcon.setFitWidth(28);
         descIcon.setFitHeight(28);
@@ -168,6 +187,36 @@ public class TopBar extends HBox {
                 increaseLevelBtn,
                 PopupFactory.tooltip(I18n.t("button.levelIncrease"))
         );
+    }
+
+    private static StackPane getStackPane(ImageView avatar) {
+        StackPane avatarContainer = new StackPane(avatar);
+        avatarContainer.setPadding(new Insets(3));
+
+        String baseStyle = """
+            -fx-background-color: #2b2b2b;
+            -fx-background-radius: 8;
+            -fx-border-color: #c89b3c;
+            -fx-border-radius: 8;
+            -fx-border-width: 2;
+            -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.3), 15, 0, 0, 0);
+            """;
+
+        String hoverStyle = """
+            -fx-background-color: #2b2b2b;
+            -fx-background-radius: 8;
+            -fx-border-color: #f5b741;
+            -fx-border-radius: 8;
+            -fx-border-width: 2;
+            -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.8), 25, 0, 0, 0);
+            """;
+
+        avatarContainer.setStyle(baseStyle);
+
+        avatarContainer.setOnMouseEntered(e -> avatarContainer.setStyle(hoverStyle));
+        avatarContainer.setOnMouseExited(e -> avatarContainer.setStyle(baseStyle));
+
+        return avatarContainer;
     }
 
     private static void showLevelUpDialog(Character character, StorageService storageService, Label levelValue) {

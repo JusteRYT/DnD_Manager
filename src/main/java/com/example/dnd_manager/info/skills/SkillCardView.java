@@ -1,120 +1,186 @@
 package com.example.dnd_manager.info.skills;
 
-import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.theme.AppTheme;
+import com.example.dnd_manager.theme.AppScrollPaneFactory;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import javafx.scene.text.TextFlow;
+import javafx.stage.Popup;
+import javafx.stage.Screen;
 import javafx.util.Duration;
 
-/**
- * UI card component for displaying detailed information about a skill.
- * Fixed-size blocks ensure all cards are aligned in a grid.
- */
 public class SkillCardView extends VBox {
 
-    private static final int CARD_WIDTH = 200;
-    private static final int CARD_HEIGHT = 260;
+    private static final int CARD_WIDTH = 180;
+    private static final int CARD_HEIGHT = 310;
+    private static final int ICON_SIZE = 70;
 
-    private static final int ICON_SIZE = 80;
-    private static final int NAME_HEIGHT = 30;
-    private static final int META_HEIGHT = 18;
-    private static final int DESCRIPTION_HEIGHT = 70;
+    private final Popup customPopup = new Popup();
+    private boolean isMouseInPopup = false;
+    private boolean isMouseInDesc = false;
+
+    private final Timeline glowTimeline = new Timeline();
+    private final Timeline appearanceTimer = new Timeline();
+    private final DropShadow glowEffect = new DropShadow(0, Color.color(0.78, 0.61, 0.24, 0.0));
+
+    private final Label briefDesc = new Label();
 
     public SkillCardView(Skill skill, String characterName) {
-        setSpacing(8);
-        setPadding(new Insets(10));
+        setSpacing(6);
+        setPadding(new Insets(15, 10, 15, 10));
         setAlignment(Pos.TOP_CENTER);
         setPrefSize(CARD_WIDTH, CARD_HEIGHT);
         setMinSize(CARD_WIDTH, CARD_HEIGHT);
-        setMaxSize(CARD_WIDTH, CARD_HEIGHT);
+        setMaxWidth(CARD_WIDTH);
 
-        setStyle("""
-                -fx-background-color: %s;
-                -fx-background-radius: 14;
-                -fx-border-radius: 14;
-                -fx-border-color: #3a3a3a;
-                """.formatted(AppTheme.BACKGROUND_SECONDARY));
+        glowEffect.setSpread(0.1);
+        setEffect(glowEffect);
 
-        // ===== ICON =====
+        setStyle("-fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1a1a1a);" +
+                "-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-width: 1.5; -fx-border-color: #4a4a4a;");
+
+        // --- 1. ICON ---
         ImageView icon = new ImageView();
-        icon.setFitWidth(ICON_SIZE);
-        icon.setFitHeight(ICON_SIZE);
-        icon.setPreserveRatio(false);
-        icon.setSmooth(true);
         if (skill.iconPath() != null && !skill.iconPath().isBlank()) {
             icon.setImage(new Image(CharacterAssetResolver.resolve(characterName, skill.iconPath())));
         }
+        icon.setFitWidth(ICON_SIZE); icon.setFitHeight(ICON_SIZE);
+        StackPane iconFrame = new StackPane(icon);
+        iconFrame.setMaxSize(ICON_SIZE + 4, ICON_SIZE + 4);
+        iconFrame.setStyle("-fx-border-color: #c89b3c; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-color: #1e1e1e;");
 
-        StackPane iconContainer = new StackPane(icon);
-        iconContainer.setPrefSize(ICON_SIZE, ICON_SIZE);
-        iconContainer.setMinSize(ICON_SIZE, ICON_SIZE);
-        iconContainer.setMaxSize(ICON_SIZE, ICON_SIZE);
-        iconContainer.setAlignment(Pos.CENTER);
-
-        // ===== NAME =====
-        Label nameLabel = new Label(skill.name());
-        nameLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #c89b3c;");
-        nameLabel.setAlignment(Pos.CENTER);
-        nameLabel.setPrefHeight(NAME_HEIGHT);
+        // --- 2. NAME ---
+        Label nameLabel = new Label(skill.name().toUpperCase());
+        nameLabel.setStyle("-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #c89b3c;");
         nameLabel.setWrapText(true);
+        nameLabel.setTextAlignment(TextAlignment.CENTER);
+        nameLabel.setAlignment(Pos.CENTER);
+        nameLabel.setMaxWidth(CARD_WIDTH - 20);
+        nameLabel.setMinHeight(Region.USE_PREF_SIZE);
 
-        // ===== ACTIVATION =====
-        Label activationLabel = new Label(I18n.t("skillCardView.activation") + skill.activationType());
-        activationLabel.setStyle("-fx-font-size: 13px; -fx-text-fill: #9cdcfe;");
-        activationLabel.setPrefHeight(META_HEIGHT);
-
-        // ===== EFFECTS =====
-        TextFlow effectsFlow = new TextFlow();
-        effectsFlow.setPrefHeight(META_HEIGHT);
-
-        for (int i = 0; i < skill.effects().size(); i++) {
-            SkillEffect effect = skill.effects().get(i);
-
-            Text text = new Text(effect.toString());
-            text.setStyle("-fx-font-size: 13px; -fx-fill: " + colorByEffect(effect.getType()) + ";");
-            effectsFlow.setTextAlignment(TextAlignment.CENTER);
-
-            effectsFlow.getChildren().add(text);
-
-            if (i < skill.effects().size() - 1) {
-                effectsFlow.getChildren().add(new Text("; "));
-            }
+        // --- 3. EFFECTS ---
+        FlowPane effectsPane = new FlowPane(5, 5);
+        effectsPane.setAlignment(Pos.CENTER);
+        for (SkillEffect effect : skill.effects()) {
+            Label eLabel = new Label(effect.toString());
+            String color = colorByEffect(effect.getType());
+            eLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: white; -fx-padding: 3 6; " +
+                    "-fx-background-color: " + color + "33; -fx-background-radius: 4; " +
+                    "-fx-border-color: " + color + "; -fx-border-width: 1;");
+            effectsPane.getChildren().add(eLabel);
         }
 
-        // ===== DESCRIPTION =====
-        Label descriptionLabel = new Label(skill.description());
-        descriptionLabel.setWrapText(true);
-        descriptionLabel.setPrefHeight(DESCRIPTION_HEIGHT);
-        descriptionLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: #d4d4d4;");
+        // --- 4. DESCRIPTION (Trigger Area) ---
+        Separator separator = new Separator();
+        separator.setOpacity(0.2);
+        VBox.setMargin(nameLabel, new Insets(5, 0, 5, 0));
 
-        Tooltip tooltip = new Tooltip(skill.description());
-        tooltip.setWrapText(true);
-        tooltip.setMaxWidth(CARD_WIDTH - 20);
-        tooltip.setShowDelay(Duration.millis(300));
-        tooltip.setHideDelay(Duration.millis(100));
-        Tooltip.install(descriptionLabel, tooltip);
+        briefDesc.setText(skill.description());
+        briefDesc.setStyle("-fx-font-size: 10px; -fx-text-fill: #888888; -fx-font-style: italic;");
+        briefDesc.setWrapText(true);
+        briefDesc.setTextAlignment(TextAlignment.CENTER);
+        briefDesc.setCursor(javafx.scene.Cursor.HAND); // Подсказываем, что здесь есть инфо
+        VBox.setVgrow(briefDesc, Priority.ALWAYS);
 
-        // Добавляем все элементы
-        getChildren().addAll(iconContainer, nameLabel, activationLabel, effectsFlow, descriptionLabel);
+        getChildren().addAll(iconFrame, nameLabel, effectsPane, separator, briefDesc);
+
+        setupCustomPopup(skill);
+        setupInteractions();
+    }
+
+    private void setupCustomPopup(Skill skill) {
+        VBox popupContent = new VBox(5);
+        popupContent.setPadding(new Insets(12));
+        // Более прозрачный и компактный вид
+        popupContent.setStyle("-fx-background-color: rgba(25, 25, 25, 0.85); " +
+                "-fx-border-color: rgba(200, 155, 60, 0.3); " + // Едва заметное золото
+                "-fx-border-width: 1; " +
+                "-fx-background-radius: 6; " +
+                "-fx-border-radius: 6;");
+        popupContent.setPrefWidth(280);
+        popupContent.setMaxHeight(300);
+
+        Label fullDesc = new Label(skill.description());
+        fullDesc.setStyle("-fx-font-size: 12px; -fx-text-fill: #dddddd; -fx-line-spacing: 1.5px;");
+        fullDesc.setWrapText(true);
+
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(fullDesc);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        popupContent.getChildren().add(scrollPane);
+        customPopup.getContent().add(popupContent);
+
+        popupContent.setOnMouseEntered(e -> isMouseInPopup = true);
+        popupContent.setOnMouseExited(e -> { isMouseInPopup = false; checkAndClosePopup(); });
+    }
+
+    private void setupInteractions() {
+        appearanceTimer.getKeyFrames().add(new KeyFrame(Duration.millis(350), ae -> showPopup()));
+
+        // Свечение всей карточки при наведении
+        setOnMouseEntered(e -> animateGlow(true));
+        setOnMouseExited(e -> animateGlow(false));
+
+        // Popup работает ТОЛЬКО по описанию
+        briefDesc.setOnMouseEntered(e -> {
+            isMouseInDesc = true;
+            appearanceTimer.playFromStart();
+        });
+
+        briefDesc.setOnMouseExited(e -> {
+            isMouseInDesc = false;
+            appearanceTimer.stop();
+            Timeline closeDelay = new Timeline(new KeyFrame(Duration.millis(150), ae -> checkAndClosePopup()));
+            closeDelay.play();
+        });
+    }
+
+    private void showPopup() {
+        if (!isMouseInDesc || customPopup.isShowing()) return;
+
+        // Позиционируем относительно текста описания
+        double x = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMaxX() + 5;
+        double y = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMinY() - 20;
+
+        if (x + 280 > Screen.getPrimary().getVisualBounds().getMaxX()) {
+            x = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMinX() - 285;
+        }
+        customPopup.show(this.getScene().getWindow(), x, y);
+    }
+
+    private void animateGlow(boolean show) {
+        glowTimeline.stop();
+        glowTimeline.getKeyFrames().clear();
+        KeyValue kvRadius = new KeyValue(glowEffect.radiusProperty(), show ? 30.0 : 0.0);
+        KeyValue kvColor = new KeyValue(glowEffect.colorProperty(),
+                show ? Color.color(0.78, 0.61, 0.24, 0.7) : Color.color(0.78, 0.61, 0.24, 0.0));
+        glowTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.4), kvRadius, kvColor));
+        glowTimeline.play();
+    }
+
+    private void checkAndClosePopup() {
+        if (!isMouseInDesc && !isMouseInPopup) {
+            customPopup.hide();
+        }
     }
 
     private String colorByEffect(String type) {
-        if (type.equals(TypeEffects.DAMAGE.name())){
-            return AppTheme.EFFECT_DAMAGE;
-        } else if (type.equals(TypeEffects.HEAL.name())){
-            return AppTheme.EFFECT_HEAL;
-        } else {
-            return AppTheme.EFFECT_OTHER;
-        }
+        return switch (type) {
+            case "DAMAGE" -> "#ff5555";
+            case "HEAL" -> "#55ff55";
+            default -> "#55ccff";
+        };
     }
 }

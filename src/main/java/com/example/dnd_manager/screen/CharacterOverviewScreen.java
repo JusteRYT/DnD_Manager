@@ -3,6 +3,7 @@ package com.example.dnd_manager.screen;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.overview.panel.BuffsInventoryPanel;
 import com.example.dnd_manager.overview.panel.CurrencyPanel;
+import com.example.dnd_manager.overview.panel.ResourcePanel;
 import com.example.dnd_manager.overview.ui.ManaBar;
 import com.example.dnd_manager.overview.ui.TopBar;
 import com.example.dnd_manager.overview.utils.StatsPanel;
@@ -30,6 +31,7 @@ public class CharacterOverviewScreen extends BorderPane {
 
         // --- Top Bar (Всегда сверху) ---
         TopBar topBar = new TopBar(character, this, storageService);
+        topBar.setPadding(new Insets(0,35,0,25));
         setTop(topBar);
 
         // --- Основной контент ---
@@ -40,12 +42,12 @@ public class CharacterOverviewScreen extends BorderPane {
 
         BuffsInventoryPanel buffsInventoryPanel = new BuffsInventoryPanel(character, storageService);
         StatsPanel statsPanel = new StatsPanel(character);
-        CurrencyPanel currencyPanel = new CurrencyPanel(character, storageService);
-        manaBar = currencyPanel.getManaBar();
+        ResourcePanel resourcePanel = new ResourcePanel(character, storageService);
+        manaBar = resourcePanel.getManaBar();
 
         mainGrid.add(statsPanel, 0, 0);
         mainGrid.add(buffsInventoryPanel, 1, 0, 1, 2);
-        mainGrid.add(currencyPanel, 0, 1);
+        mainGrid.add(resourcePanel, 0, 1);
 
         mainGrid.getRowConstraints().clear();
 

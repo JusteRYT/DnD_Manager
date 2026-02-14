@@ -4,6 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.skills.SkillCardView;
 import javafx.geometry.Insets;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 
 /**
  * Grid-based view for displaying skill cards.
@@ -23,8 +24,8 @@ public class SkillsView extends GridPane {
             int row = i / COLUMNS;
 
             SkillCardView card = new SkillCardView(character.getSkills().get(i), character.getName());
-            card.setPrefWidth(160);
-            card.setMinHeight(220);
+            card.setPrefWidth(Region.USE_COMPUTED_SIZE);
+            card.setMinWidth(210);
 
             add(card, column, row);
         }

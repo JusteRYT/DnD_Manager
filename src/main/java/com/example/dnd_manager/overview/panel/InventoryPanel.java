@@ -48,8 +48,9 @@ public class InventoryPanel extends VBox {
         this.onCharacterUpdated = onCharacterUpdated;
         setSpacing(6);
 
+
         Label title = new Label(I18n.t("inventoryPanel.title"));
-        title.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 14px; -fx-font-weight: bold;");
+        title.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 16px; -fx-font-weight: bold;");
 
         Button addBtn = AppButtonFactory.customButton("+", 24);
         addBtn.setOnAction(e -> new AddInventoryItemDialog(character, this::onItemCreated).show());
@@ -67,7 +68,14 @@ public class InventoryPanel extends VBox {
 
         character.getInventory().forEach(this::addItem);
 
-        setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
+        setStyle("""
+                -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
+                -fx-background-radius: 10;
+                -fx-border-color: #c89b3c;
+                -fx-border-radius: 10;
+                -fx-border-width: 1;
+                -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.15), 15, 0, 0, 0);
+                """);
         setPadding(new Insets(8));
         getChildren().addAll(header, itemsPane);
     }
@@ -126,7 +134,14 @@ public class InventoryPanel extends VBox {
             container.setPrefSize(ITEM_CELL_SIZE, ITEM_CELL_SIZE);
             container.setMinSize(ITEM_CELL_SIZE, ITEM_CELL_SIZE);
             container.setMaxSize(ITEM_CELL_SIZE, ITEM_CELL_SIZE);
-            container.setStyle("-fx-background-color: #1e1e1e; -fx-border-color: #3a3a3a; -fx-border-radius: 4; -fx-background-radius: 4;");
+            container.setStyle("""
+                    -fx-background-color: #1a1a1a;
+                    -fx-border-color: #3a3a3a;
+                    -fx-border-radius: 6;
+                    -fx-background-radius: 6;
+                    """);
+            container.setOnMouseEntered(e -> container.setStyle(container.getStyle() + "-fx-border-color: #c89b3c; -fx-effect: dropshadow(two-pass-box, rgba(200, 155, 60, 0.3), 5, 0, 0, 0);"));
+            container.setOnMouseExited(e -> container.setStyle(container.getStyle().replace("-fx-border-color: #c89b3c;", "-fx-border-color: #3a3a3a;").split("-fx-effect")[0]));
             container.setAlignment(Pos.CENTER);
 
             getChildren().add(container);

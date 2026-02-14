@@ -33,7 +33,7 @@ public class BuffListView extends VBox {
         Label title = new Label(titleText);
         title.setStyle("""
             -fx-text-fill: %s;
-            -fx-font-size: 13px;
+            -fx-font-size: 16px;
             -fx-font-weight: bold;
         """.formatted(style.accentColor()));
 
