@@ -2,6 +2,7 @@ package com.example.dnd_manager.info.avatar;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.text.dto.AvatarData;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -49,7 +50,7 @@ public class AvatarPicker extends VBox {
         imageContainer.getChildren().add(imageView);
 
         // Кнопка загрузки - теперь она выглядит как "шильдик" снизу
-        Button uploadBtn = new Button("UPLOAD PORTRAIT");
+        Button uploadBtn = new Button(I18n.t("button.upload"));
         uploadBtn.setStyle("""
         -fx-background-color: #333;
         -fx-text-fill: #aaa;

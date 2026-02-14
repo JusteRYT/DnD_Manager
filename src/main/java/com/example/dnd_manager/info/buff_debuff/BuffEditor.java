@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.buff_debuff;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.skills.ActivationType;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppComboBox;
@@ -60,9 +61,10 @@ public class BuffEditor extends VBox {
         AppTextField nameField = new AppTextField(I18n.t("buff.promptText.name"));
         AppTextSection descriptionField = new AppTextSection("", 3, I18n.t("textSection.promptText.descriptionBuffs"));
 
-        AppComboBox<BuffType> typeBox = new AppComboBox<>();
-        typeBox.getItems().addAll(BuffType.values());
-        typeBox.setValue(BuffType.BUFF);
+        AppComboBox<String> typeBox = new AppComboBox<>();
+
+        for (BuffType type : BuffType.values()) typeBox.getItems().add(type.getName());
+        typeBox.setValue(BuffType.BUFF.getName());
         typeBox.setPrefWidth(150);
 
         AtomicReference<String> iconPath = new AtomicReference<>("");
@@ -75,17 +77,17 @@ public class BuffEditor extends VBox {
 
         // Вспомогательная строка для типа и кнопки иконки
         HBox settingsRow = new HBox(15,
-                new VBox(5, createFieldLabel("TYPE"), typeBox),
-                new VBox(5, createFieldLabel("ICON_NAME"), iconPathLabel)
+                new VBox(5, createFieldLabel(I18n.t("textFieldLabel.type")), typeBox),
+                new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)
         );
         settingsRow.setAlignment(Pos.BOTTOM_LEFT);
 
         HBox buttonsRow = new HBox(15, addButton, chooseIconButton);
 
         inputCard.getChildren().addAll(
-                createFieldLabel("NAME"),
+                createFieldLabel(I18n.t("textFieldLabel.name")),
                 nameField.getField(),
-                createFieldLabel("DESCRIPTION"),
+                createFieldLabel(I18n.t("textFieldLabel.description")),
                 descriptionField,
                 settingsRow,
                 buttonsRow

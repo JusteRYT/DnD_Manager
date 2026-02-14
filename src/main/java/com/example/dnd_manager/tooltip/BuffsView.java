@@ -10,6 +10,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Panel displaying buffs and debuffs side by side.
@@ -21,13 +22,13 @@ public class BuffsView extends HBox {
 
         BuffListView buffsView = new BuffListView(
                 I18n.t("buffsView.titleBuff"),
-                buffs.stream().filter(b -> b.type() == BuffType.BUFF).toList(),
+                buffs.stream().filter(b -> Objects.equals(b.type(), BuffType.BUFF.getName())).toList(),
                 BuffColumnStyle.BUFF, character.getName()
         );
 
         BuffListView debuffsView = new BuffListView(
                 I18n.t("buffsView.titleDebuff"),
-                buffs.stream().filter(b -> b.type() == BuffType.DEBUFF).toList(),
+                buffs.stream().filter(b -> Objects.equals(b.type(), BuffType.DEBUFF.getName())).toList(),
                 BuffColumnStyle.DEBUFF,
                 character.getName()
         );

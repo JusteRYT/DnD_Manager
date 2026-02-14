@@ -70,12 +70,12 @@ public class SkillsEditor extends VBox {
         activationBox.setPrefWidth(180);
 
         HBox topRow = new HBox(15,
-                new VBox(5, createFieldLabel("SKILL NAME"), nameField.getField()),
-                new VBox(5, createFieldLabel("ACTIVATION"), activationBox)
+                new VBox(5, createFieldLabel(I18n.t("textFieldLabel.skillName")), nameField.getField()),
+                new VBox(5, createFieldLabel(I18n.t("textFieldLabel.activation")), activationBox)
         );
 
         descriptionSection = new AppTextSection("", 3, I18n.t("textSection.promptText.skillDescription"));
-        VBox descBox = new VBox(5, createFieldLabel("DESCRIPTION"), descriptionSection);
+        VBox descBox = new VBox(5, createFieldLabel(I18n.t("textFieldLabel.description")), descriptionSection);
 
         Label iconPathLabel = new Label();
         iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");
@@ -100,7 +100,7 @@ public class SkillsEditor extends VBox {
         addSkillButton.setOnAction(e -> handleAddSkill(nameField, activationBox, iconPathLabel, iconPath));
 
         HBox settingsRow = new HBox(15,
-                new VBox(5, createFieldLabel("ICON_NAME"), iconPathLabel)
+                new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)
         );
         HBox buttonsRow = new HBox(15, addSkillButton, iconButton);
 
@@ -137,7 +137,7 @@ public class SkillsEditor extends VBox {
         HBox effectInputs = new HBox(8, effectTypeBox, effectCustomField.getField(), effectValueField.getField(), addEffectBtn);
         effectInputs.setAlignment(Pos.CENTER_LEFT);
 
-        VBox section = new VBox(8, createFieldLabel("EFFECTS BUILDER"), effectInputs, effectsPane);
+        VBox section = new VBox(8, createFieldLabel(I18n.t("textFieldLabel.effectsBuilder")), effectInputs, effectsPane);
         section.setStyle("-fx-background-color: rgba(0,0,0,0.2); -fx-padding: 10; -fx-background-radius: 5;");
         return section;
     }

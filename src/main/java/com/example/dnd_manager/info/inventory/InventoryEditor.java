@@ -65,16 +65,16 @@ public class InventoryEditor extends VBox {
         addButton.setPrefWidth(150);
 
         HBox settingsRow = new HBox(15,
-                new VBox(5, createFieldLabel("ICON_NAME"), iconPathLabel)
+                new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)
         );
 
         settingsRow.setAlignment(Pos.BOTTOM_LEFT);
         HBox buttonsRow = new HBox(15, addButton, iconButton);
 
         inputCard.getChildren().addAll(
-                createFieldLabel("ITEM NAME"),
+                createFieldLabel(I18n.t("textFieldLabel.itemName")),
                 nameField.getField(),
-                createFieldLabel("DESCRIPTION"),
+                createFieldLabel(I18n.t("textFieldLabel.description")),
                 descriptionField,
                 settingsRow,
                 buttonsRow

@@ -29,7 +29,7 @@ public class BuffPopupView extends VBox {
             -fx-text-fill: #c89b3c;
         """);
 
-        Label type = new Label(buff.type().getName());
+        Label type = new Label(buff.type());
         type.setStyle("""
             -fx-text-fill: #9cdcfe;
             -fx-font-size: 12px;
