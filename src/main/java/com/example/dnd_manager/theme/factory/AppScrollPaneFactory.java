@@ -1,5 +1,6 @@
-package com.example.dnd_manager.theme;
+package com.example.dnd_manager.theme.factory;
 
+import com.example.dnd_manager.theme.AppTheme;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollBar;

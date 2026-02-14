@@ -3,7 +3,7 @@ package com.example.dnd_manager.overview.ui;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
-import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -93,10 +93,10 @@ public class ManaBar extends VBox {
                 -fx-padding: 12;
                 """);
 
-        var addBtn = AppButtonFactory.customButton("+", 28);
+        var addBtn = AppButtonFactory.createValueAdjustButton(true, 28, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
         addBtn.setOnAction(e -> changeMana(1));
 
-        var removeBtn = AppButtonFactory.customButton("–", 28,
+        var removeBtn = AppButtonFactory.createValueAdjustButton(false, 28,
                 AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
         removeBtn.setOnAction(e -> changeMana(-1));
 

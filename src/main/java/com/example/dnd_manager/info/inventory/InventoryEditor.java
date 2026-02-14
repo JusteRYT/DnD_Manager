@@ -2,7 +2,7 @@ package com.example.dnd_manager.info.inventory;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
 import javafx.collections.FXCollections;

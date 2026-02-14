@@ -4,7 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.text.dto.AvatarData;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

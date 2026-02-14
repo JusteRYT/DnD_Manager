@@ -3,7 +3,7 @@ package com.example.dnd_manager;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.store.StorageService;
-import com.example.dnd_manager.theme.AppScrollPaneFactory;
+import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.application.Application;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;

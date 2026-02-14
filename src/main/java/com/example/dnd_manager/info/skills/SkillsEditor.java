@@ -3,6 +3,7 @@ package com.example.dnd_manager.info.skills;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.*;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;

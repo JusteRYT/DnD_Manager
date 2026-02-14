@@ -10,8 +10,8 @@ import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
 import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.store.StorageService;
-import com.example.dnd_manager.theme.AppButtonFactory;
-import com.example.dnd_manager.theme.AppScrollPaneFactory;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -120,20 +120,12 @@ public class TopBar extends HBox {
                 """);
 
         // --- Right block: buttons ---
-        Button showDescBtn = AppButtonFactory.hudIconButton(50);
-        ImageView descIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_description.png")).toExternalForm()));
-        descIcon.setFitWidth(28);
-        descIcon.setFitHeight(28);
-        showDescBtn.setGraphic(descIcon);
+        Button showDescBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/icon_description.png");
         showDescBtn.setOnAction(e ->
                 new FullDescriptionDialog(character, parentScreen).show()
         );
 
-        Button editBtn = AppButtonFactory.customButton("", 50, 0);
-        ImageView editIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/edit_icon.png")).toExternalForm()));
-        editIcon.setFitWidth(28);
-        editIcon.setFitHeight(28);
-        editBtn.setGraphic(editIcon);
+        Button editBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/edit_icon.png");
         editBtn.setOnAction(e -> new EditStatsDialog(character, parentScreen, storageService)
                 .show(() -> {
                     hpLabel.setText(String.valueOf(character.getHp()));
@@ -142,26 +134,35 @@ public class TopBar extends HBox {
                     levelValue.setText(String.valueOf(character.getLevel()));
                 }));
 
-        Button backBtn = AppButtonFactory.customButton("", 50, 0);
-        ImageView backIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_back.png")).toExternalForm()));
-        backIcon.setFitWidth(28);
-        backIcon.setFitHeight(28);
-        backIcon.setPreserveRatio(true);
-        backIcon.setSmooth(false);
-        backBtn.setGraphic(backIcon);
+        Button backBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/icon_back.png");
 
         // --- Increase level button with confirmation ---
-        Button increaseLevelBtn = AppButtonFactory.customButton("", 50, 0);
-        ImageView increaseLevelIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/level_up_icon.png")).toExternalForm()));
-        increaseLevelIcon.setFitWidth(28);
-        increaseLevelIcon.setFitHeight(28);
-        increaseLevelBtn.setGraphic(increaseLevelIcon);
+        Button increaseLevelBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/level_up_icon.png");
         increaseLevelBtn.setOnAction(e -> showLevelUpDialog(character, storageService, levelValue));
 
-        HBox rightBox = new HBox(10, showDescBtn, editBtn, increaseLevelBtn, backBtn);
-        rightBox.setAlignment(Pos.CENTER_RIGHT);
+        HBox rightPanel = new HBox(15,
+                showDescBtn,
+                editBtn,
+                increaseLevelBtn,
+                backBtn
+        );
 
-        getChildren().addAll(leftBox, rightBox);
+        rightPanel.setAlignment(Pos.CENTER);
+        rightPanel.setPadding(new Insets(10, 20, 10, 20));
+        rightPanel.setMaxHeight(100);
+        rightPanel.setStyle("""
+                -fx-background-color: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
+                -fx-background-radius: 12;
+                -fx-border-color: rgba(200, 155, 60, 0.4); 
+                -fx-border-radius: 12;
+                -fx-border-width: 1.5;
+                -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 10, 0, 0, 4);
+                """);
+
+        HBox.setMargin(rightPanel, new Insets(15, 10, 10, 0));
+
+
+        getChildren().addAll(leftBox, rightPanel);
 
         backBtn.setOnAction(e -> {
             Stage stage = (Stage) parentScreen.getScene().getWindow();
@@ -194,22 +195,22 @@ public class TopBar extends HBox {
         avatarContainer.setPadding(new Insets(3));
 
         String baseStyle = """
-            -fx-background-color: #2b2b2b;
-            -fx-background-radius: 8;
-            -fx-border-color: #c89b3c;
-            -fx-border-radius: 8;
-            -fx-border-width: 2;
-            -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.3), 15, 0, 0, 0);
-            """;
+                -fx-background-color: #2b2b2b;
+                -fx-background-radius: 8;
+                -fx-border-color: #c89b3c;
+                -fx-border-radius: 8;
+                -fx-border-width: 2;
+                -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.3), 15, 0, 0, 0);
+                """;
 
         String hoverStyle = """
-            -fx-background-color: #2b2b2b;
-            -fx-background-radius: 8;
-            -fx-border-color: #f5b741;
-            -fx-border-radius: 8;
-            -fx-border-width: 2;
-            -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.8), 25, 0, 0, 0);
-            """;
+                -fx-background-color: #2b2b2b;
+                -fx-background-radius: 8;
+                -fx-border-color: #f5b741;
+                -fx-border-radius: 8;
+                -fx-border-width: 2;
+                -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.8), 25, 0, 0, 0);
+                """;
 
         avatarContainer.setStyle(baseStyle);
 

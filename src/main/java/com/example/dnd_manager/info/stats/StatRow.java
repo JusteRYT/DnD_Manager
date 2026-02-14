@@ -1,6 +1,6 @@
 package com.example.dnd_manager.info.stats;
 
-import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

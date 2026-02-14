@@ -3,7 +3,8 @@ package com.example.dnd_manager.overview.ui;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
-import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.AppTheme;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -53,14 +54,21 @@ public class InspirationBox extends VBox {
         StackPane valContainer = new StackPane(valLabel);
         valContainer.setStyle("-fx-background-color: #1a1a1a; -fx-background-radius: 5; -fx-min-width: 40;");
 
-        var add = AppButtonFactory.customButton("+", 24);
+        var add = AppButtonFactory.createValueAdjustButton(true, 24, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
         add.setOnAction(e -> {
             character.setInspiration(character.getInspiration() + 1);
             storageService.saveCharacter(character);
             valLabel.setText(String.valueOf(character.getInspiration()));
         });
 
-        row.getChildren().addAll(icon, valContainer, add);
+        var remove = AppButtonFactory.createValueAdjustButton(false, 24, AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
+        remove.setOnAction(e -> {
+            character.setInspiration(character.getInspiration() - 1);
+            storageService.saveCharacter(character);
+            valLabel.setText(String.valueOf(character.getInspiration()));
+        });
+
+        row.getChildren().addAll(icon, valContainer, add, remove);
 
         setStyle("""
                 -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);

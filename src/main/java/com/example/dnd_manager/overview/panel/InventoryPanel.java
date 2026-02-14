@@ -7,7 +7,7 @@ import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.AddInventoryItemDialog;
 import com.example.dnd_manager.overview.dialogs.EditInventoryItemDialog;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
@@ -52,10 +52,10 @@ public class InventoryPanel extends VBox {
         Label title = new Label(I18n.t("inventoryPanel.title"));
         title.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 16px; -fx-font-weight: bold;");
 
-        Button addBtn = AppButtonFactory.customButton("+", 24);
+        Button addBtn = AppButtonFactory.createValueAdjustButton(true, 24, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
         addBtn.setOnAction(e -> new AddInventoryItemDialog(character, this::onItemCreated).show());
 
-        deleteBtn = AppButtonFactory.deleteToggleButton("-", 30);
+        deleteBtn = AppButtonFactory.deleteToggleButton(24);
         deleteBtn.setOnMouseClicked(e -> deleteMode = deleteBtn.getStyle().contains(AppTheme.BUTTON_DANGER));
 
         HBox header = new HBox(8, title, addBtn, deleteBtn);

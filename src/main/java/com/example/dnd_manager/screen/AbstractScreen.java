@@ -1,6 +1,6 @@
 package com.example.dnd_manager.screen;
 
-import com.example.dnd_manager.theme.AppScrollPaneFactory;
+import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Insets;
 import javafx.scene.Node;

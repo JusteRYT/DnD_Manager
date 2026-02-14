@@ -3,7 +3,7 @@ package com.example.dnd_manager.overview.dialogs;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
-import com.example.dnd_manager.theme.AppScrollPaneFactory;
+import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;

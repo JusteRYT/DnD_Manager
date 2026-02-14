@@ -3,7 +3,7 @@ package com.example.dnd_manager.info.skills;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

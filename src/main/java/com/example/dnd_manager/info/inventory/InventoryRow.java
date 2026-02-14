@@ -2,7 +2,7 @@ package com.example.dnd_manager.info.inventory;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.theme.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;

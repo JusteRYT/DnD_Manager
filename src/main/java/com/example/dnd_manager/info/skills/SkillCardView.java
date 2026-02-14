@@ -1,7 +1,7 @@
 package com.example.dnd_manager.info.skills;
 
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.theme.AppScrollPaneFactory;
+import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
