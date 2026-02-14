@@ -3,62 +3,76 @@ package com.example.dnd_manager.info.text;
 import com.example.dnd_manager.info.text.dto.BaseInfoData;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.FormMode;
-import com.example.dnd_manager.theme.AppTheme;
+import com.example.dnd_manager.theme.AppTextField;
 import javafx.geometry.Insets;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-/**
- * Component for base character information.
- * Supports CREATE and EDIT modes.
- */
 public class BaseInfoForm extends VBox {
 
-    private final TextField nameField = new TextField();
-    private final TextField raceField = new TextField();
-    private final TextField classField = new TextField();
-    private final TextField hpField = new TextField();
-    private final TextField armorField = new TextField();
-    private final TextField manaField = new TextField();
-    private final TextField levelField = new TextField();
+    private final AppTextField nameField = new AppTextField(I18n.t("nameField.name"));
+    private final AppTextField raceField = new AppTextField(I18n.t("raceField.name"));
+    private final AppTextField classField = new AppTextField(I18n.t("classField.name"));
+    private final AppTextField hpField = new AppTextField(I18n.t("hpField.name"));
+    private final AppTextField armorField = new AppTextField(I18n.t("armorField.name"));
+    private final AppTextField manaField = new AppTextField(I18n.t("manaField.name"));
+    private final AppTextField levelField = new AppTextField(I18n.t("levelField.name"));
 
     private final FormMode mode;
 
-    /**
-     * Constructor for CREATE mode.
-     */
     public BaseInfoForm() {
         this(FormMode.CREATE, null);
     }
 
     public BaseInfoForm(FormMode mode, BaseInfoData data) {
         this.mode = mode;
+        setPadding(new Insets(20));
+        setSpacing(15);
 
-        setSpacing(10);
-        setPadding(new Insets(20, 0, 0, 0));
+        Label sectionTitle = new Label("BASIC INFORMATION");
+        sectionTitle.setStyle("-fx-font-size: 18px; " +
+                "-fx-text-fill: #c89b3c; " +
+                "-fx-font-weight: bold; " +
+                "-fx-letter-spacing: 1px;");
+        getChildren().add(sectionTitle);
 
-        styleTextField(nameField, I18n.t("nameField.name"));
-        styleTextField(raceField, I18n.t("raceField.name"));
-        styleTextField(classField, I18n.t("classField.name"));
-        styleTextField(hpField, I18n.t("hpField.name"));
-        styleTextField(armorField, I18n.t("armorField.name"));
-        styleTextField(manaField, I18n.t("manaField.name"));
-        styleTextField(levelField, I18n.t("levelField.name"));
+        GridPane grid = new GridPane();
+        grid.setHgap(20);
+        grid.setVgap(20);
 
-        if (mode == FormMode.EDIT && data != null) {
-            applyEditData(data);
-        }
+        // Layout
+        // Name: Row 0, spans 2 cols
+        add(grid, I18n.t("nameField.name"), nameField, 0, 0, 2);
+        add(grid, I18n.t("raceField.name"), raceField, 0, 1, 1);
+        add(grid, I18n.t("classField.name"), classField, 1, 1, 1);
+        add(grid, I18n.t("levelField.name"), levelField, 0, 2, 1);
+        add(grid, I18n.t("hpField.name"), hpField, 1, 2, 1);
+        add(grid, I18n.t("armorField.name"), armorField, 0, 3, 1);
+        add(grid, I18n.t("manaField.name"), manaField, 1, 3, 1);
 
-        configureByMode();
+        GridPane.setHgrow(nameField.getField(), Priority.ALWAYS);
+        GridPane.setHgrow(raceField.getField(), Priority.ALWAYS);
+        GridPane.setHgrow(classField.getField(), Priority.ALWAYS);
 
-        getChildren().addAll(nameField, raceField, classField, hpField, armorField,  manaField,  levelField);
+        getChildren().add(grid);
+
+        if (mode == FormMode.EDIT && data != null) applyEditData(data);
+        if (mode == FormMode.EDIT) nameField.getField().setDisable(true);
     }
 
-    /**
-     * Reads current form state as immutable data object.
-     *
-     * @return base info data
-     */
+    private void add(GridPane grid, String labelText, AppTextField appField, int col, int row, int colSpan) {
+        VBox container = new VBox(6);
+        Label label = new Label(labelText.toUpperCase());
+        label.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 12px; -fx-font-weight: bold;");
+
+        container.getChildren().addAll(label, appField.getField());
+        grid.add(container, col, row, colSpan, 1);
+    }
+
+
+
     public BaseInfoData getData() {
         return new BaseInfoData(
                 nameField.getText().trim(),
@@ -71,9 +85,6 @@ public class BaseInfoForm extends VBox {
         );
     }
 
-    /**
-     * Applies initial values for EDIT mode.
-     */
     private void applyEditData(BaseInfoData data) {
         nameField.setText(data.name());
         raceField.setText(data.race());
@@ -82,36 +93,5 @@ public class BaseInfoForm extends VBox {
         armorField.setText(data.armor());
         manaField.setText(data.mana());
         levelField.setText(data.level());
-    }
-
-    /**
-     * Configures form behavior based on mode.
-     */
-    private void configureByMode() {
-        if (mode == FormMode.EDIT) {
-            // Обычно имя персонажа — идентификатор
-            nameField.setDisable(true);
-        }
-    }
-
-    /**
-     * Applies theme styling to a text field.
-     */
-    private void styleTextField(TextField field, String promptText) {
-        field.setPrefWidth(500);
-        field.setPromptText(promptText);
-        field.setStyle("""
-            -fx-background-color: %s;
-            -fx-text-fill: %s;
-            -fx-prompt-text-fill: #aaaaaa;
-            -fx-border-color: %s;
-            -fx-border-radius: 6;
-            -fx-background-radius: 6;
-            -fx-padding: 6 8 6 8;
-        """.formatted(
-                AppTheme.BACKGROUND_SECONDARY,
-                AppTheme.TEXT_PRIMARY,
-                AppTheme.BORDER_MUTED
-        ));
     }
 }

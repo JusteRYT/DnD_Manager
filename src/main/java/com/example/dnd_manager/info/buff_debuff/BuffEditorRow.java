@@ -14,6 +14,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 
+import static com.example.dnd_manager.info.skills.SkillCard.getImage;
+
 /**
  * UI component representing a buff or debuff entry.
  * Includes an icon at the start and a remove button (cross) at the end.
@@ -28,13 +30,21 @@ public class BuffEditorRow extends HBox {
 
         setSpacing(10);
         setAlignment(Pos.CENTER_LEFT);
-        setStyle("""
-                    -fx-background-color: #2b2b2b;
+        String baseStyle = """
+                    -fx-background-color: linear-gradient(to right, #2b2b2b, #212121);
                     -fx-background-radius: 6;
                     -fx-border-radius: 6;
-                    -fx-border-color: #444444;
-                    -fx-padding: 6;
-                """);
+                    -fx-border-color: #3a3a3a;
+                    -fx-padding: 8;
+                """;
+
+        // Стиль при наведении (акцентная рамка)
+        String hoverStyle = baseStyle + """
+                    -fx-border-color: #c89b3c;
+                    -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.1), 10, 0, 0, 0);
+                """;
+
+        setStyle(baseStyle);
 
         // --- Icon ---
         ImageView iconView = new ImageView();
@@ -55,22 +65,13 @@ public class BuffEditorRow extends HBox {
         infoBox.getChildren().addAll(title, description);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
 
-        Button removeButton = AppButtonFactory.customButton("✕", 35, AppTheme.BUTTON_DANGER, AppTheme.BUTTON_DANGER_HOVER);
+        Button removeButton = AppButtonFactory.deleteButton(35);
         removeButton.setOnAction(e -> onRemove.run());
         removeButton.setFocusTraversable(false);
         getChildren().addAll(iconView, infoBox, removeButton);
     }
 
     private Image chooseIcon(Buff buff, Character character) {
-        Image image = null;
-        if (buff.iconPath() != null && !buff.iconPath().isEmpty() && character != null) {
-            image = new Image(CharacterAssetResolver.resolve(character.getName(), buff.iconPath()));
-        } else {
-            if (buff.iconPath() != null && !buff.iconPath().isEmpty()) {
-                image = new Image("file:" + buff.iconPath());
-            }
-        }
-
-        return image;
+        return getImage(character, buff.iconPath());
     }
 }

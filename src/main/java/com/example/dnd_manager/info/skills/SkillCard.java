@@ -1,15 +1,15 @@
 package com.example.dnd_manager.info.skills;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 
@@ -20,77 +20,77 @@ import lombok.Getter;
  */
 @Getter
 public class SkillCard extends VBox {
-
     private final Skill skill;
 
-    /**
-     * @param skill     skill model
-     * @param onRemove  callback invoked when remove button is pressed
-     * @param character character owning the skill (for resolving assets)
-     */
     public SkillCard(Skill skill, Runnable onRemove, Character character) {
         this.skill = skill;
-
-        setSpacing(6);
+        setSpacing(8);
         setAlignment(Pos.TOP_CENTER);
-        setStyle("""
-                -fx-border-color: gray;
-                -fx-padding: 10;
-                -fx-background-color: %s;
-                -fx-border-radius: 6;
-                -fx-background-radius: 6;
-                """.formatted(AppTheme.BACKGROUND_PRIMARY));
-        setPrefWidth(180);
+        setPrefWidth(190);
 
-        // Icon
-        ImageView icon = new ImageView();
-        icon.setFitWidth(60);
-        icon.setFitHeight(60);
-        icon.setPreserveRatio(true);
-        icon.setSmooth(true);
-        Image iconImage = chooseIcon(skill, character);
-        if (iconImage != null) {
-            icon.setImage(iconImage);
-        }
+        String baseStyle = """
+                    -fx-background-color: linear-gradient(to bottom, #2b2b2b, #1e1e1e);
+                    -fx-background-radius: 10;
+                    -fx-border-color: #3a3a3a;
+                    -fx-border-radius: 10;
+                    -fx-border-width: 1;
+                    -fx-padding: 12;
+                """;
 
-        // Name
-        Label name = new Label(skill.name());
-        name.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+        String hoverStyle = baseStyle + """
+                    -fx-border-color: #c89b3c;
+                    -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.2), 15, 0, 0, 0);
+                """;
+
+        setStyle(baseStyle);
+        setOnMouseEntered(e -> setStyle(hoverStyle));
+        setOnMouseExited(e -> setStyle(baseStyle));
+
+        // Иконка с эффектом свечения
+        ImageView iconView = new ImageView();
+        iconView.setFitWidth(55);
+        iconView.setFitHeight(55);
+        iconView.setPreserveRatio(true);
+        Image img = chooseIcon(skill, character);
+        if (img != null) iconView.setImage(img);
+        iconView.setStyle("-fx-effect: dropshadow(two-pass-box, black, 10, 0, 0, 0);");
+
+        Label name = new Label(skill.name().toUpperCase());
+        name.setStyle("-fx-font-weight: bold; -fx-text-fill: #c89b3c; -fx-font-size: 13px;");
         name.setWrapText(true);
-        name.setAlignment(Pos.CENTER);
 
-        // Meta info
-        Label meta = new Label(skill.activationType() + I18n.t("label.skillCards.effect") + skill.effectsSummary());
-        meta.setStyle("-fx-font-size: 11; -fx-text-fill: #888888;");
+        Label meta = new Label(skill.activationType() + " | " + skill.effectsSummary());
+        meta.setStyle("-fx-font-size: 10px; -fx-text-fill: #888;");
         meta.setWrapText(true);
-        meta.setAlignment(Pos.CENTER);
 
-        // Description
-        Label description = new Label(skill.description());
-        description.setWrapText(true);
-        description.setAlignment(Pos.CENTER);
-        description.setMaxWidth(160);
-        description.setStyle("-fx-font-size: 12;");
+        Label desc = new Label(skill.description());
+        desc.setStyle("-fx-font-size: 11px; -fx-text-fill: #ddd; -fx-font-style: italic;");
+        desc.setWrapText(true);
+        desc.setMaxHeight(60);
 
-        // Remove button
-        Button removeButton = AppButtonFactory.customButton("×", 40, AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
-        removeButton.setOnAction(e -> onRemove.run());
-        removeButton.setFocusTraversable(false);
-        getChildren().addAll(icon, name, meta, description, removeButton);
+        Button removeBtn = AppButtonFactory.deleteButton(30);
+        removeBtn.setOnAction(e -> onRemove.run());
+        removeBtn.setFocusTraversable(false);
+        getChildren().addAll(iconView, name, meta, desc, new Region() {{
+            VBox.setVgrow(this, Priority.ALWAYS);
+        }}, removeBtn);
     }
 
 
     private Image chooseIcon(Skill skill, Character character) {
+        return getImage(character, skill.iconPath());
+    }
+
+    public static Image getImage(Character character, String iconPath) {
         Image image = null;
-        if (skill.iconPath() != null && !skill.iconPath().isEmpty() && character != null) {
-            image = new Image(CharacterAssetResolver.resolve(character.getName(), skill.iconPath()));
+        if (iconPath != null && !iconPath.isEmpty() && character != null) {
+            image = new Image(CharacterAssetResolver.resolve(character.getName(), iconPath));
         } else {
-            if (skill.iconPath() != null && !skill.iconPath().isEmpty()) {
-                image = new Image("file:" + skill.iconPath());
+            if (iconPath != null && !iconPath.isEmpty()) {
+                image = new Image("file:" + iconPath);
             }
         }
 
         return image;
     }
-
 }

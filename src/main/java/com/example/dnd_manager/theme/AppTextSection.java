@@ -7,51 +7,35 @@ import javafx.scene.layout.VBox;
 
 /**
  * Styled container for displaying a text section.
- * Background and text colors follow the application theme.
- * Can be created with or without title and border.
+ * Полностью синхронизирован по стилю с AppTextField.
  */
 public class AppTextSection extends VBox {
 
     private final Label titleLabel;
     private final TextArea contentArea;
 
-    /**
-     * Creates a text section with a title and no initial content.
-     *
-     * @param title section title
-     */
     public AppTextSection(String title) {
         this(title, "");
     }
 
-    /**
-     * Creates a text section with a title and initial content.
-     *
-     * @param title   section title
-     * @param content section text content
-     */
     public AppTextSection(String title, String content) {
-        super(8);
+        super(8); // Отступ между заголовком и полем
         setPadding(new Insets(12));
 
-        titleLabel = new Label(title);
+        // Стилизуем заголовок в стиле DnD (как в BaseInfoForm)
+        titleLabel = new Label(title.toUpperCase());
         titleLabel.setStyle("""
-            -fx-text-fill: %s;
-            -fx-font-size: 14px;
+            -fx-text-fill: #c89b3c;
+            -fx-font-size: 12px;
             -fx-font-weight: bold;
-        """.formatted(AppTheme.TEXT_ACCENT));
+            -fx-letter-spacing: 1px;
+        """);
 
         contentArea = createStyledTextArea(content, 4, "");
 
         getChildren().addAll(titleLabel, contentArea);
     }
 
-    /**
-     * Creates a “plain” text area without title or border.
-     *
-     * @param initialText initial text content
-     * @param rows        preferred row count
-     */
     public AppTextSection(String initialText, int rows, String promptText) {
         super(0);
         setPadding(Insets.EMPTY);
@@ -67,47 +51,48 @@ public class AppTextSection extends VBox {
         area.setWrapText(true);
         area.setPrefRowCount(rows);
         area.setPromptText(promptText);
-        area.setStyle("""
-            -fx-control-inner-background: %s;
-            -fx-text-fill: %s;
-            -fx-font-size: 12px;
-            -fx-prompt-text-fill: #aaaaaa;
-        """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY));
+
+        // Добавляем -fx-control-inner-background: #1e1e1e;
+        // Это закрасит ту самую белую область
+        String baseStyle = """
+        -fx-background-color: #3a3a3a, #1e1e1e;
+        -fx-background-insets: 0, 1;
+        -fx-background-radius: 6;
+        -fx-control-inner-background: #1e1e1e;
+        -fx-text-fill: #eee;
+        -fx-prompt-text-fill: #444;
+        -fx-font-size: 13px;
+        -fx-focus-color: transparent;
+        -fx-faint-focus-color: transparent;
+    """;
+
+        area.setStyle(baseStyle);
+
+        area.focusedProperty().addListener((obs, old, newVal) -> {
+            if (newVal) {
+                area.setStyle(baseStyle.replace("-fx-background-color: #3a3a3a, #1e1e1e;",
+                        "-fx-background-color: #FFC107, #1e1e1e;")
+                        + "-fx-effect: dropshadow(three-pass-box, rgba(255,193,7,0.1), 10, 0, 0, 0);");
+            } else {
+                area.setStyle(baseStyle);
+            }
+        });
+
         return area;
     }
 
-    /**
-     * Updates the content text of the section.
-     *
-     * @param content new content text
-     */
     public void setText(String content) {
         contentArea.setText(content);
     }
 
-    /**
-     * Returns the current content text.
-     *
-     * @return content text
-     */
     public String getText() {
-        return contentArea.getText();
+        return contentArea.getText().trim();
     }
 
-    /**
-     * Updates the title text of the section.
-     *
-     * @param title new title text
-     */
     public void setTitle(String title) {
-        if (titleLabel != null) titleLabel.setText(title);
+        if (titleLabel != null) titleLabel.setText(title.toUpperCase());
     }
 
-    /**
-     * Returns the section title.
-     *
-     * @return section title
-     */
     public String getTitle() {
         return titleLabel != null ? titleLabel.getText() : null;
     }

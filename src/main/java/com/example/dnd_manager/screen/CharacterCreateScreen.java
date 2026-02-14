@@ -14,79 +14,177 @@ import com.example.dnd_manager.info.text.dto.BaseInfoData;
 import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
+import com.example.dnd_manager.theme.SectionBox;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
-import com.example.dnd_manager.theme.AppTheme;
-import com.example.dnd_manager.theme.SectionBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-
-/**
- * Screen for creating a new D&D character.
- */
 public class CharacterCreateScreen extends AbstractScreen {
 
     private final Stage stage;
     private final Stats stats = new Stats();
-    private CharacterDescriptionSection descriptionSection;
-    private BuffEditor buffEditor;
     private final StorageService storageService;
 
+    // Components
+    private AvatarPicker avatarPicker;
     private BaseInfoForm baseInfoForm;
+    private StatsEditor statsEditor;
+    private CharacterDescriptionSection descriptionSection;
+    private BuffEditor buffEditor;
     private InventoryEditor inventoryEditor;
     private SkillsEditor skillsEditor;
-    private AvatarPicker avatarPicker;
 
     public CharacterCreateScreen(Stage stage, StorageService storageService) {
         this.stage = stage;
         this.storageService = storageService;
     }
 
-
+    @Override
     protected Label buildTitle() {
         Label title = new Label(I18n.t("label.title.create_character"));
-        title.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: orange");
+        // Эпичный заголовок
+        title.setStyle("-fx-font-size: 36px; -fx-font-weight: 900; -fx-text-fill: #c89b3c;");
         BorderPane.setAlignment(title, Pos.CENTER);
         return title;
     }
 
+    @Override
     protected VBox buildForm() {
-        VBox form = new VBox(20);
+        VBox form = new VBox(30); // Больше пространства
+        form.setPadding(new Insets(30));
+        // Общий фон формы (можно сделать прозрачным, если фон родителя уже задан)
+        form.setStyle("-fx-background-color: transparent;");
 
+        // Инициализация
         descriptionSection = new CharacterDescriptionSection();
         buffEditor = new BuffEditor();
         inventoryEditor = new InventoryEditor();
         skillsEditor = new SkillsEditor();
 
+        // --- HERO SECTION (Верхняя карточка) ---
+        HBox heroCard = buildHeroCardSection();
+        applyMagicalBorder(heroCard);
+
+        // --- Other Sections ---
+        // Оборачиваем остальные секции в красивые панели
+        Pane descBox = wrapInPanel(descriptionSection);
+        Pane buffBox = wrapInPanel(buffEditor);
+        Pane invBox = wrapInPanel(inventoryEditor);
+        Pane skillBox = wrapInPanel(skillsEditor);
+
         form.getChildren().addAll(
-                new SectionBox(buildBaseInfoSection()),
-                new SectionBox(descriptionSection),
-                new SectionBox(buffEditor),
-                new SectionBox(inventoryEditor),
-                new SectionBox(skillsEditor)
+                heroCard,
+                descBox,
+                buffBox,
+                invBox,
+                skillBox
         );
 
-        Button saveButton = AppButtonFactory.primary(I18n.t("button.saveAndView"));
-        saveButton.setOnAction(event -> saveAndShowOverview());
-
-        Button exitButton = AppButtonFactory.customButton(I18n.t("button.exit"), 100);
-        exitButton.setOnAction(event -> exitScreen());
-
-        HBox buttonBox = new HBox(10);
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        buttonBox.getChildren().addAll(saveButton, spacer, exitButton);
+        // Кнопки
+        HBox buttonBox = buildActionButtons();
         form.getChildren().add(buttonBox);
+
         return form;
     }
 
+    private Pane wrapInPanel(Node content) {
+        SectionBox box = new SectionBox(content); // Предполагаю, что SectionBox - это VBox/Pane
+        applyMagicalBorder(box);
+        return box;
+    }
+
+    private HBox buildHeroCardSection() {
+        HBox container = new HBox(10);
+        container.setPadding(new Insets(10));
+
+        avatarPicker = new AvatarPicker();
+        baseInfoForm = new BaseInfoForm();
+        VBox statsSection = buildStatsSection();
+
+        HBox.setHgrow(baseInfoForm, Priority.ALWAYS);
+        container.getChildren().addAll(avatarPicker, baseInfoForm, statsSection);
+        return container;
+    }
+
+    private VBox buildStatsSection() {
+        VBox sectionBox = new VBox(15);
+        sectionBox.setPadding(new Insets(20));
+        sectionBox.setMinWidth(180);
+        sectionBox.setAlignment(Pos.TOP_CENTER);
+
+        sectionBox.setStyle("""
+                    -fx-background-color: #252526;
+                    -fx-background-radius: 0 8 8 0;
+                    -fx-border-color: transparent transparent transparent #333;
+                    -fx-border-width: 0 0 0 1;
+                """);
+
+        Label titleStats = new Label(I18n.t("stats.label"));
+        titleStats.setStyle("""
+                    -fx-font-size: 14px; 
+                    -fx-font-weight: bold; 
+                    -fx-text-fill: #FFC107; 
+                    -fx-letter-spacing: 2px;
+                    -fx-padding: 0 0 5 0;
+                    -fx-border-color: transparent transparent #FFC107 transparent;
+                    -fx-border-width: 0 0 1 0;
+                """);
+
+        statsEditor = new StatsEditor(stats, FormMode.CREATE);
+        statsEditor.setStyle("-fx-padding: 10 0 0 0;");
+
+        sectionBox.getChildren().addAll(titleStats, statsEditor);
+        return sectionBox;
+    }
+
+    private HBox buildActionButtons() {
+        Button saveButton = AppButtonFactory.actionSave(I18n.t("button.saveAndView"));
+        saveButton.setOnAction(event -> saveAndShowOverview());
+
+        Button exitButton = AppButtonFactory.actionExit(I18n.t("button.exit"), 100);
+        exitButton.setOnAction(event -> exitScreen());
+
+        HBox buttonBox = new HBox(20);
+        buttonBox.setAlignment(Pos.CENTER_RIGHT);
+        buttonBox.getChildren().addAll(exitButton, saveButton);
+        return buttonBox;
+    }
+
+    /**
+     * Основной эффект свечения для панелей
+     */
+    private void applyMagicalBorder(Node node) {
+        // Используем стиль из твоего ResourcePanel
+        node.setStyle(node.getStyle() + """
+                -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1e1e1e);
+                -fx-background-radius: 12;
+                -fx-border-color: #3a3a3a;
+                -fx-border-radius: 12;
+                -fx-border-width: 1;
+                """);
+
+        // Твое деликатное свечение
+        DropShadow softGlow = new DropShadow();
+        softGlow.setBlurType(BlurType.THREE_PASS_BOX);
+        softGlow.setColor(Color.web("#ffffff", 0.08));
+        softGlow.setRadius(15);
+        softGlow.setOffsetX(0);
+        softGlow.setOffsetY(0);
+
+        node.setEffect(softGlow);
+    }
+
+    // Методы логики (save, exit, getCharacter) остаются без изменений
     private void exitScreen() {
         StartScreen startScreen = new StartScreen(stage, storageService);
         ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
@@ -96,31 +194,17 @@ public class CharacterCreateScreen extends AbstractScreen {
 
     private void saveAndShowOverview() {
         Character character = getCharacter();
-
-        // Stats
         character.getStats().copyFrom(stats);
-
-        // Buffs
         character.getBuffs().addAll(buffEditor.getBuffs());
-
-        // Inventory
         character.getInventory().addAll(inventoryEditor.getItems());
-
-        // Skills
         character.getSkills().addAll(skillsEditor.getSkills());
-
-        // Сохраняем в JSON
         storageService.saveCharacter(character);
-
-        // Переходим на экран обзора
         CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(character, storageService);
         stage.getScene().setRoot(overviewScreen);
     }
 
     private Character getCharacter() {
         Character character = new Character();
-
-        // Base info
         BaseInfoData baseInfo = baseInfoForm.getData();
         AvatarData avatarData = avatarPicker.getData();
         CharacterDescriptionData descriptionData = descriptionSection.getData();
@@ -133,53 +217,9 @@ public class CharacterCreateScreen extends AbstractScreen {
         character.setCurrentMana(baseInfo.mana());
         character.setMaxMana(baseInfo.mana());
         character.setLevel(baseInfo.level());
-
-        // Text info
         character.setDescription(descriptionData.description());
         character.setPersonality(descriptionData.personality());
         character.setBackstory(descriptionData.backstory());
         return character;
-    }
-
-    private HBox buildBaseInfoSection() {
-        HBox row = new HBox(20);
-        row.setPadding(new Insets(10));
-
-        avatarPicker = new AvatarPicker();
-        baseInfoForm = new BaseInfoForm();
-        VBox statsSection = buildStatsSection();
-
-        HBox statsContainer = new HBox();
-        statsContainer.getChildren().add(statsSection);
-        statsContainer.setAlignment(Pos.TOP_RIGHT);
-        HBox.setHgrow(statsContainer, Priority.ALWAYS);
-
-        row.getChildren().addAll(avatarPicker, baseInfoForm, statsContainer);
-
-        return row;
-    }
-
-    private VBox buildStatsSection() {
-        VBox sectionBox = new VBox(10);
-        sectionBox.setPadding(new Insets(12));
-        sectionBox.setStyle("""
-                    -fx-background-color: %s;
-                    -fx-background-radius: 8;
-                    -fx-border-radius: 8;
-                    -fx-border-color: %s;
-                """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BORDER_MUTED));
-
-        Label titleStats = new Label(I18n.t("stats.label"));
-        titleStats.setStyle("""
-                    -fx-font-size: 16px;
-                    -fx-font-weight: bold;
-                    -fx-text-fill: %s;
-                """.formatted(AppTheme.TEXT_ACCENT));
-
-        StatsEditor statsEditor = new StatsEditor(stats, FormMode.CREATE);
-
-        sectionBox.getChildren().addAll(titleStats, statsEditor);
-
-        return sectionBox;
     }
 }

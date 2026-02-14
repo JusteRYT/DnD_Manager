@@ -3,86 +3,87 @@ package com.example.dnd_manager.theme;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.util.Callback;
 
-/**
- * ComboBox styled according to the application theme.
- *
- * @param <T> type of items
- */
 public class AppComboBox<T> extends ComboBox<T> {
 
-    /**
-     * Creates an empty AppComboBox with no items.
-     */
     public AppComboBox() {
         super();
         applyStyle();
+        setPrefHeight(41);
     }
 
-    /**
-     * Creates an AppComboBox with initial items.
-     *
-     * @param items initial items
-     */
-    public AppComboBox(javafx.collections.ObservableList<T> items) {
-        super(items);
-        applyStyle();
-    }
-
-    /**
-     * Applies color theme and styling to the ComboBox.
-     */
     private void applyStyle() {
-        // Main combo box style
-        setStyle("""
-            -fx-background-color: %s;
-            -fx-border-color: %s;
-            -fx-border-radius: 6;
+        String baseStyle = """
+            -fx-background-color: #3a3a3a, #1e1e1e;
+            -fx-background-insets: 0, 1;
             -fx-background-radius: 6;
-            -fx-text-fill: %s;
-        """.formatted(
-                AppTheme.BACKGROUND_SECONDARY,
-                AppTheme.BORDER_MUTED,
-                AppTheme.TEXT_PRIMARY
-        ));
+            -fx-border-radius: 6;
+            -fx-padding: 2 5 2 5; 
+            -fx-font-size: 12px;
+            -fx-text-fill: #eee;
+            -fx-focus-color: transparent;
+            -fx-faint-focus-color: transparent;
+        """;
 
-        // Dropdown cells styling
-        setCellFactory(new Callback<>() {
-            @Override
-            public ListCell<T> call(ListView<T> param) {
-                return new ListCell<>() {
-                    @Override
-                    protected void updateItem(T item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty || item == null) {
-                            setText(null);
-                            setStyle("");
-                        } else {
-                            setText(item.toString());
-                            setStyle("""
-                                -fx-background-color: %s;
-                                -fx-text-fill: %s;
-                            """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.TEXT_PRIMARY));
-                        }
-                    }
-                };
+        setStyle(baseStyle);
+
+        // Слушатель для золотой рамки
+        focusedProperty().addListener((obs, old, newVal) -> {
+            if (newVal) {
+                setStyle(baseStyle.replace("-fx-background-color: #3a3a3a, #1e1e1e;",
+                        "-fx-background-color: #FFC107, #1e1e1e;")
+                        + "-fx-effect: dropshadow(three-pass-box, rgba(255,193,7,0.1), 10, 0, 0, 0);");
+            } else {
+                setStyle(baseStyle);
             }
         });
 
-        // Button cell styling (selected item)
+        setCellFactory(lv -> {
+            ListCell<T> cell = new ListCell<>() {
+                @Override
+                protected void updateItem(T item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setStyle("-fx-background-color: #1e1e1e;");
+                    } else {
+                        setText(item.toString());
+                        setStyle("-fx-background-color: #1e1e1e; -fx-text-fill: #eee; -fx-padding: 8 12;");
+                    }
+                }
+            };
+
+            cell.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (newScene != null) {
+                    ListView<?> listView = (ListView<?>) cell.getListView();
+                    if (listView != null) {
+                        listView.setStyle("""
+                            -fx-background-color: #3a3a3a, #1e1e1e;
+                            -fx-background-insets: 0, 1;
+                            -fx-padding: 1;
+                        """);
+                    }
+                }
+            });
+
+            cell.setOnMouseEntered(e -> {
+                if (!cell.isEmpty()) cell.setStyle("-fx-background-color: #3a3a3a; -fx-text-fill: #FFC107; -fx-padding: 8 12;");
+            });
+            cell.setOnMouseExited(e -> {
+                if (!cell.isEmpty()) cell.setStyle("-fx-background-color: #1e1e1e; -fx-text-fill: #eee; -fx-padding: 8 12;");
+            });
+
+            return cell;
+        });
+
         setButtonCell(new ListCell<>() {
             @Override
             protected void updateItem(T item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
+                if (empty || item == null) setText(null);
+                else {
                     setText(item.toString());
-                    setStyle("""
-                        -fx-background-color: %s;
-                        -fx-text-fill: %s;
-                    """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.TEXT_PRIMARY));
+                    setStyle("-fx-text-fill: #eee;");
                 }
             }
         });

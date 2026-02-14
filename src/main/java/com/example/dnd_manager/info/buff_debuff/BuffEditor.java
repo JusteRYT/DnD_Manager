@@ -2,16 +2,16 @@ package com.example.dnd_manager.info.buff_debuff;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.AppComboBox;
+import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
-import com.example.dnd_manager.theme.AppTheme;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -19,14 +19,10 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
 
-/**
- * Editor component for character buffs and debuffs.
- * Supports CREATE and EDIT modes without сразу изменять Character.
- */
 public class BuffEditor extends VBox {
 
     private final ObservableList<Buff> buffs = FXCollections.observableArrayList();
-    private final VBox listContainer = new VBox(5);
+    private final VBox listContainer = new VBox(8); // Контейнер для списка строк
     private final Character character;
 
     public BuffEditor() {
@@ -37,93 +33,103 @@ public class BuffEditor extends VBox {
      * Create editor with initial buffs (for EDIT mode) or empty (CREATE mode).
      */
     public BuffEditor(Character character) {
-        setSpacing(10);
         this.character = character;
+        setSpacing(15);
+        setPadding(new Insets(10));
 
-        Label title = new Label(I18n.t("label.buffsEditor"));
-        title.setStyle("""
-                    -fx-text-fill: %s;
-                    -fx-font-weight: bold;
-                    -fx-font-size: 14px;
-                """.formatted(AppTheme.TEXT_ACCENT));
+        // 1. Заголовок секции
+        Label title = new Label(I18n.t("label.buffsEditor").toUpperCase());
+        title.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold; -fx-font-size: 13px; -fx-letter-spacing: 1.5px;");
 
         if (character != null) {
             buffs.addAll(character.getBuffs());
         }
 
-        // UI элементы
-        TextField nameField = createStyledTextField();
-        AppTextSection descriptionField = new AppTextSection("", 4, I18n.t("textSection.promptText.descriptionBuffs"));
+        // 2. Блок ввода (Input Card)
+        VBox inputCard = new VBox(12);
+        inputCard.setStyle("""
+                    -fx-background-color: linear-gradient(to right, #252526, #1e1e1e);
+                    -fx-padding: 15;
+                    -fx-background-radius: 8;
+                    -fx-border-color: #3a3a3a;
+                    -fx-border-radius: 8;
+                """);
+
+        AppTextField nameField = new AppTextField(I18n.t("buff.promptText.name"));
+        AppTextSection descriptionField = new AppTextSection("", 3, I18n.t("textSection.promptText.descriptionBuffs"));
+
         AppComboBox<BuffType> typeBox = new AppComboBox<>();
         typeBox.getItems().addAll(BuffType.values());
         typeBox.setValue(BuffType.BUFF);
+        typeBox.setPrefWidth(150);
 
         AtomicReference<String> iconPath = new AtomicReference<>("");
-
-        Label notificationLabel = new Label();
-        notificationLabel.setStyle("""
-                    -fx-text-fill: %s;
-                    -fx-font-size: 12px;
-                """.formatted(AppTheme.BUTTON_PRIMARY));
-        notificationLabel.setVisible(false);
-
         Label iconPathLabel = new Label();
-        iconPathLabel.setStyle("""
-                    -fx-text-fill: %s;
-                    -fx-font-size: 18px;
-                """.formatted(AppTheme.BUTTON_PRIMARY));
-        iconPathLabel.setPadding(new Insets(2, 0, 0, 0));
-        iconPathLabel.setVisible(false);
+        iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");
 
-        // Кнопка выбора иконки
-        Button chooseIconButton = AppButtonFactory.primary(I18n.t("buttonText.icon"));
+        Button chooseIconButton = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
+        Button addButton = AppButtonFactory.actionSave(I18n.t("button.addBuff"));
+        addButton.setPrefWidth(150);
+
+        // Вспомогательная строка для типа и кнопки иконки
+        HBox settingsRow = new HBox(15,
+                new VBox(5, createFieldLabel("TYPE"), typeBox),
+                new VBox(5, createFieldLabel("ICON_NAME"), iconPathLabel)
+        );
+        settingsRow.setAlignment(Pos.BOTTOM_LEFT);
+
+        HBox buttonsRow = new HBox(15, addButton, chooseIconButton);
+
+        inputCard.getChildren().addAll(
+                createFieldLabel("NAME"),
+                nameField.getField(),
+                createFieldLabel("DESCRIPTION"),
+                descriptionField,
+                settingsRow,
+                buttonsRow
+        );
+
+        // --- ЛОГИКА КНОПОК ---
         chooseIconButton.setOnAction(e -> {
             FileChooser chooser = new FileChooser();
-            chooser.setTitle(I18n.t("chooser.labelText"));
-            chooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg")
-            );
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
             File file = chooser.showOpenDialog(getScene().getWindow());
             if (file != null) {
                 iconPath.set(file.getAbsolutePath());
-                iconPathLabel.setText(I18n.t("labelBuff.chooseIconName") + file.getName());
-                iconPathLabel.setVisible(true);
+                iconPathLabel.setText(file.getName());
             }
         });
 
-        var addButton = AppButtonFactory.primary(I18n.t("button.add"));
         addButton.setOnAction(e -> {
             String name = nameField.getText().trim();
-            if (name.isEmpty()) {
-                notificationLabel.setText(I18n.t("notificationLabel.text"));
-                notificationLabel.setVisible(true);
-                return;
+            if (!name.isEmpty()) {
+                Buff buff = new Buff(name, descriptionField.getText(), typeBox.getValue(), iconPath.get());
+                addBuff(buff);
+
+                // Очистка
+                nameField.clear();
+                descriptionField.setText("");
+                iconPath.set("");
+                iconPathLabel.setText("");
             }
-            notificationLabel.setVisible(false);
-            iconPathLabel.setVisible(false);
-
-            Buff buff = new Buff(
-                    name,
-                    descriptionField.getText(),
-                    typeBox.getValue(),
-                    iconPath.get()
-            );
-
-            addBuff(buff);
-
-            nameField.clear();
-            descriptionField.setText("");
-            iconPath.set("");
         });
 
-        listContainer.setFocusTraversable(false);
-        HBox controls = new HBox(10, nameField, typeBox, chooseIconButton, addButton, iconPathLabel);
-        getChildren().addAll(title, notificationLabel, controls, descriptionField, listContainer);
+        // 3. Список добавленных баффов
+        listContainer.setPadding(new Insets(10, 0, 0, 0));
 
-        // Если есть initialBuffs, создаем строки
+        getChildren().addAll(title, inputCard, listContainer);
+
+        // Отрисовка существующих
         for (Buff buff : buffs) {
             addBuffRow(buff);
         }
+    }
+
+    // Вспомогательный метод для маленьких подписей
+    private Label createFieldLabel(String text) {
+        Label l = new Label(text);
+        l.setStyle("-fx-text-fill: #666; -fx-font-size: 10px; -fx-font-weight: bold;");
+        return l;
     }
 
     private void addBuff(Buff buff) {
@@ -132,47 +138,20 @@ public class BuffEditor extends VBox {
     }
 
     private void addBuffRow(Buff buff) {
-        BuffEditorRow row;
-        if (character != null) {
-            row = new BuffEditorRow(buff, () -> removeBuff(buff), character);
-        } else {
-            row = new BuffEditorRow(buff, () -> removeBuff(buff), null);
-        }
-
+        BuffEditorRow row = new BuffEditorRow(buff, () -> removeBuff(buff), character);
         listContainer.getChildren().add(row);
     }
 
     private void removeBuff(Buff buff) {
-        listContainer.getChildren().removeIf(node -> node instanceof BuffEditorRow row && row.getBuff() == buff);
+        listContainer.getChildren().removeIf(node -> node instanceof BuffEditorRow r && r.getBuff() == buff);
         buffs.remove(buff);
     }
 
-    private TextField createStyledTextField() {
-        TextField field = new TextField();
-        field.setPromptText(I18n.t("buff.promptText.name"));
-        field.setStyle("""
-                    -fx-background-color: %s;
-                    -fx-text-fill: %s;
-                    -fx-prompt-text-fill: #aaaaaa;
-                    -fx-border-color: %s;
-                    -fx-border-radius: 6;
-                    -fx-background-radius: 6;
-                    -fx-padding: 4 6 4 6;
-                """.formatted(AppTheme.BACKGROUND_PRIMARY, AppTheme.TEXT_PRIMARY, AppTheme.BORDER_MUTED));
-        return field;
-    }
-
-    /**
-     * Apply buffs to Character object.
-     */
     public void applyTo(Character character) {
         character.getBuffs().clear();
         character.getBuffs().addAll(buffs);
     }
 
-    /**
-     * Returns current buffs in editor (useful for CharacterCreateScreen).
-     */
     public ObservableList<Buff> getBuffs() {
         return FXCollections.unmodifiableObservableList(buffs);
     }

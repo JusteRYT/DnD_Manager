@@ -6,33 +6,32 @@ import com.example.dnd_manager.theme.*;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
+import lombok.Getter;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static com.example.dnd_manager.info.skills.TypeEffects.DAMAGE;
-import static com.example.dnd_manager.info.skills.TypeEffects.HEAL;
-
-/**
- * Editor component for character skills with multiple effects.
- * Supports CREATE and EDIT modes without directly changing Character.
- */
 public class SkillsEditor extends VBox {
 
+    @Getter
     private final ObservableList<Skill> skills = FXCollections.observableArrayList();
-    private final FlowPane cardsPane = new FlowPane(10, 10);
+    private final FlowPane cardsPane = new FlowPane(12, 12);
     private final ObservableList<SkillEffect> currentEffects = FXCollections.observableArrayList();
-
     private final FlowPane effectsPane = new FlowPane(6, 6);
 
-    private String iconPath;
+    private AppTextField effectValueField;
+    private AppTextField effectCustomField;
+    private AppComboBox<String> effectTypeBox;
+
+    private final AtomicReference<String> iconPath = new AtomicReference<>("");
     private final Character character;
     private final AppTextSection descriptionSection;
 
@@ -40,249 +39,201 @@ public class SkillsEditor extends VBox {
         this(null);
     }
 
-    /**
-     * Constructor for EDIT mode with initial skills.
-     *
-     * @param character pre-filled skills
-     */
     public SkillsEditor(Character character) {
         this.character = character;
-        setSpacing(12);
-        setStyle("-fx-background-color: " + AppTheme.BACKGROUND_SECONDARY + ";");
+        setSpacing(15);
+        setPadding(new Insets(10));
+
+        // 1. Заголовок
+        Label title = new Label(I18n.t("label.skillsEditor").toUpperCase());
+        title.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold; -fx-font-size: 13px; -fx-letter-spacing: 1.5px;");
 
         if (character != null) {
             skills.addAll(character.getSkills());
         }
 
-        descriptionSection = createDescriptionSection();
+        // 2. Главная карточка ввода
+        VBox inputCard = new VBox(15);
+        inputCard.setStyle("""
+                    -fx-background-color: linear-gradient(to right, #252526, #1e1e1e);
+                    -fx-padding: 15;
+                    -fx-background-radius: 8;
+                    -fx-border-color: #3a3a3a;
+                    -fx-border-radius: 8;
+                """);
 
-        cardsPane.setFocusTraversable(false);
-        getChildren().addAll(
-                createTitle(),
-                createMainControls(),
-                descriptionSection,
-                createEffectsSection(),
-                effectsPane,
-                cardsPane
+        // --- Верхняя часть: Имя и Тип активации ---
+        AppTextField nameField = new AppTextField(I18n.t("textField.skillName"));
+        AppComboBox<String> activationBox = new AppComboBox<>();
+        for (ActivationType type : ActivationType.values()) activationBox.getItems().add(type.getName());
+        activationBox.setValue(ActivationType.ACTION.getName());
+        activationBox.setPrefWidth(180);
+
+        HBox topRow = new HBox(15,
+                new VBox(5, createFieldLabel("SKILL NAME"), nameField.getField()),
+                new VBox(5, createFieldLabel("ACTIVATION"), activationBox)
         );
 
+        descriptionSection = new AppTextSection("", 3, I18n.t("textSection.promptText.skillDescription"));
+        VBox descBox = new VBox(5, createFieldLabel("DESCRIPTION"), descriptionSection);
+
+        Label iconPathLabel = new Label();
+        iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");
+
+        VBox effectsSection = createEnhancedEffectsSection();
+
+        Button iconButton = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
+
+        Button addSkillButton = AppButtonFactory.actionSave(I18n.t("button.addSkill"));
+        addSkillButton.setPrefWidth(200);
+
+        iconButton.setOnAction(e -> {
+            String path = chooseIcon();
+            if (path != null) {
+                iconPath.set(path);
+                iconPathLabel.setText(new File(path).getName());
+            }
+        });
+
+        addSkillButton.setOnAction(e -> handleAddSkill(nameField, activationBox, iconPathLabel));
+
+        HBox settingsRow = new HBox(15,
+                new VBox(5, createFieldLabel("ICON_NAME"), iconPathLabel)
+        );
+        HBox buttonsRow = new HBox(15, addSkillButton, iconButton);
+
+        inputCard.getChildren().addAll(topRow, descBox, effectsSection, settingsRow, buttonsRow);
+
+        cardsPane.setPadding(new Insets(10, 0, 0, 0));
+
+        getChildren().addAll(title, inputCard, cardsPane);
         skills.forEach(this::addSkillCard);
     }
 
-    /**
-     * Creates title label.
-     */
-    private Label createTitle() {
-        Label title = new Label(I18n.t("label.skillsEditor"));
-        title.setStyle("""
-                -fx-font-size: 14px;
-                -fx-font-weight: bold;
-                -fx-text-fill: %s;
-                """.formatted(AppTheme.TEXT_ACCENT));
-        return title;
-    }
+    private VBox createEnhancedEffectsSection() {
+        effectTypeBox = new AppComboBox<>();
+        for (TypeEffects type : TypeEffects.values()) effectTypeBox.getItems().add(type.getName());
+        effectTypeBox.setValue(TypeEffects.DAMAGE.getName());
 
-    /**
-     * Creates main skill input controls.
-     */
-    private HBox createMainControls() {
-        AppTextField nameField = new AppTextField(I18n.t("textField.skillName"));
+        effectValueField = new AppTextField(I18n.t("textField.promptText.effectValue"));
+        effectCustomField = new AppTextField(I18n.t("textField.promptText.effectType"));
 
-        AppComboBox<String> activationBox = new AppComboBox<>();
-        for (ActivationType activationType : ActivationType.values()) {
-            activationBox.getItems().add(activationType.getName());
-        }
-        activationBox.setValue(ActivationType.ACTION.getName());
+        effectCustomField.getField().setVisible(false);
+        effectCustomField.getField().setManaged(false);
 
-        Button iconButton = AppButtonFactory.primary(I18n.t("button.addIcon"));
-        iconButton.setOnAction(e -> iconPath = chooseIcon());
-
-        Button addSkillButton = AppButtonFactory.primary(I18n.t("button.addSkill"));
-        addSkillButton.setOnAction(e ->
-                handleAddSkill(nameField, activationBox)
-        );
-
-        return new HBox(10,
-                nameField.getField(),
-                activationBox,
-                iconButton,
-                addSkillButton
-        );
-    }
-
-    /**
-     * Creates description section.
-     */
-    private AppTextSection createDescriptionSection() {
-        return new AppTextSection("", 4, I18n.t("textSection.promptText.skillDescription"));
-    }
-
-    /**
-     * Creates effects editor section.
-     */
-    private VBox createEffectsSection() {
-        AppComboBox<String> effectTypeBox = new AppComboBox<>();
-        for (TypeEffects effectType : TypeEffects.values()) {
-            effectTypeBox.getItems().add(effectType.getName());
-        }
-        effectTypeBox.setValue(DAMAGE.getName());
-
-        AppTextField valueField = new AppTextField(I18n.t("textField.promptText.effectValue"));
-        AppTextField customTypeField = new AppTextField(I18n.t("textField.promptText.effectType"));
-
-        customTypeField.getField().setVisible(false);
-        customTypeField.getField().setManaged(false);
-
-        effectTypeBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+        effectTypeBox.valueProperty().addListener((obs, old, newVal) -> {
             boolean isCustom = Objects.equals(newVal, TypeEffects.CUSTOM.getName());
-            customTypeField.getField().setVisible(isCustom);
-            customTypeField.getField().setManaged(isCustom);
+            effectCustomField.getField().setVisible(isCustom);
+            effectCustomField.getField().setManaged(isCustom);
         });
 
-        Button addEffectButton = AppButtonFactory.primary(I18n.t("button.addEffect"));
-        addEffectButton.setOnAction(e ->
-                handleAddEffect(effectTypeBox, customTypeField, valueField)
-        );
+        Button addEffectBtn = AppButtonFactory.addEffectButton();
+        // Теперь используем поля класса
+        addEffectBtn.setOnAction(e -> handleAddEffect(effectTypeBox, effectCustomField, effectValueField));
 
-        HBox controls = new HBox(8,
-                effectTypeBox,
-                customTypeField.getField(),
-                valueField.getField(),
-                addEffectButton
-        );
 
-        return new VBox(6, controls);
+        HBox effectInputs = new HBox(8, effectTypeBox, effectCustomField.getField(), effectValueField.getField(), addEffectBtn);
+        effectInputs.setAlignment(Pos.CENTER_LEFT);
+
+        VBox section = new VBox(8, createFieldLabel("EFFECTS BUILDER"), effectInputs, effectsPane);
+        section.setStyle("-fx-background-color: rgba(0,0,0,0.2); -fx-padding: 10; -fx-background-radius: 5;");
+        return section;
     }
 
-    /**
-     * Handles adding new effect.
-     */
-    private void handleAddEffect(AppComboBox<String> typeBox,
-                                 AppTextField customTypeField,
-                                 AppTextField valueField) {
-
+    private void handleAddEffect(AppComboBox<String> typeBox, AppTextField customField, AppTextField valueField) {
         String value = valueField.getText().trim();
         if (value.isEmpty()) {
             return;
         }
 
-        String type = typeBox.getValue();
-        String typeName = Objects.equals(type, TypeEffects.CUSTOM.getName())
-                ? customTypeField.getText().trim()
-                : type;
-
-        if (Objects.equals(type, TypeEffects.CUSTOM.getName()) && typeName.isEmpty()) {
-            return;
+        String typeName;
+        if (Objects.equals(typeBox.getValue(), TypeEffects.CUSTOM.getName())) {
+            typeName = customField.getText().trim();
+        } else {
+            typeName = typeBox.getValue();
         }
 
-        SkillEffect effect = SkillEffect.of(type, typeName, value);
+        if (typeName == null || typeName.isEmpty()) return;
+
+        SkillEffect effect = SkillEffect.of(typeBox.getValue(), typeName, value);
         currentEffects.add(effect);
 
-        Label label = new Label(effect.toString());
-        label.setStyle("""
-                -fx-padding: 4 8 4 8;
-                -fx-border-color: %s;
-                -fx-background-color: %s;
-                -fx-text-fill: %s;
-                """.formatted(
-                AppTheme.BORDER_MUTED,
-                effectBackground(type),
-                AppTheme.TEXT_PRIMARY
-        ));
+        Label tag = new Label(effect.toString());
+        tag.setStyle(String.format("""
+                -fx-background-color: %s; 
+                -fx-text-fill: white; 
+                -fx-padding: 3 8; 
+                -fx-background-radius: 10; 
+                -fx-font-size: 11px; 
+                -fx-border-color: rgba(255,255,255,0.2);
+                -fx-border-radius: 10;
+                """, getEffectColor(typeBox.getValue())));
 
-        effectsPane.getChildren().add(label);
+        effectsPane.getChildren().add(tag);
 
         valueField.clear();
-        customTypeField.clear();
+        customField.clear();
     }
 
-    /**
-     * Handles adding new skill.
-     */
-    private void handleAddSkill(AppTextField nameField,
-                                AppComboBox<String> activationBox) {
+    private void handleAddSkill(AppTextField nameField, AppComboBox<String> activationBox, Label iconLabel) {
+        String name = nameField.getText().trim();
 
-        if (nameField.getText().isBlank() || currentEffects.isEmpty()) {
+        if (!effectValueField.getText().trim().isEmpty()) {
+            handleAddEffect(effectTypeBox, effectCustomField, effectValueField);
+        }
+
+        if (name.isEmpty() || currentEffects.isEmpty()) {
             return;
         }
 
         Skill skill = new Skill(
-                nameField.getText(),
+                name,
                 descriptionSection.getText(),
                 new ArrayList<>(currentEffects),
                 activationBox.getValue(),
-                iconPath
+                iconPath.get()
         );
 
         skills.add(skill);
         addSkillCard(skill);
 
         nameField.clear();
+        descriptionSection.clear();
         currentEffects.clear();
         effectsPane.getChildren().clear();
-        descriptionSection.clear();
-        iconPath = null;
+        iconPath.set("");
+        iconLabel.setText("");
     }
 
-    /**
-     * Adds visual skill card.
-     */
     private void addSkillCard(Skill skill) {
-        SkillCard card = new SkillCard(
-                skill,
-                () -> removeSkill(skill),
-                character
-        );
+        SkillCard card = new SkillCard(skill, () -> {
+            skills.remove(skill);
+            cardsPane.getChildren().removeIf(n -> n instanceof SkillCard sc && sc.getSkill() == skill);
+        }, character);
         cardsPane.getChildren().add(card);
     }
 
-    /**
-     * Removes skill from editor.
-     */
-    private void removeSkill(Skill skill) {
-        skills.remove(skill);
-        cardsPane.getChildren().removeIf(
-                node -> node instanceof SkillCard card && card.getSkill() == skill
-        );
+    private String getEffectColor(String type) {
+        if (type.equals(TypeEffects.DAMAGE.getName())) return "#722f37";
+        if (type.equals(TypeEffects.HEAL.getName())) return "#2e5a1c";
+        return "#3b444b";
     }
 
-    /**
-     * Returns effect background color based on effect type.
-     */
-    private String effectBackground(String type) {
-        if (type.equals(DAMAGE.getName())) {
-            return "#3b1f1f";
-        } else if (type.equals(HEAL.getName())) {
-            return "#1f3b2a";
-        } else {
-            return "#1f2f3b";
-        }
+    private Label createFieldLabel(String text) {
+        Label l = new Label(text);
+        l.setStyle("-fx-text-fill: #666; -fx-font-size: 10px; -fx-font-weight: bold;");
+        return l;
     }
 
-    /**
-     * Opens file chooser for icon selection.
-     */
     private String chooseIcon() {
         FileChooser chooser = new FileChooser();
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg")
-        );
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
         File file = chooser.showOpenDialog(getScene().getWindow());
         return file != null ? file.getAbsolutePath() : null;
     }
 
-    /**
-     * Applies current skills to character.
-     */
     public void applyTo(Character character) {
         character.getSkills().clear();
         character.getSkills().addAll(skills);
-    }
-
-    /**
-     * Returns immutable list of skills.
-     */
-    public ObservableList<Skill> getSkills() {
-        return FXCollections.unmodifiableObservableList(skills);
     }
 }
