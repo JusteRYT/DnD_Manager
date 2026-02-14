@@ -1,6 +1,8 @@
 package com.example.dnd_manager.info.inventory;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.skills.SkillCard;
+import com.example.dnd_manager.info.skills.SkillsEditor;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Pos;
@@ -76,16 +78,6 @@ public class InventoryRow extends HBox {
     }
 
     private Image chooseIcon(InventoryItem item, Character character) {
-        if (item.getIconPath() != null && !item.getIconPath().isEmpty()) {
-            try {
-                if (character != null) {
-                    return new Image(CharacterAssetResolver.resolve(character.getName(), item.getIconPath()));
-                }
-                return new Image("file:" + item.getIconPath());
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        return null;
+       return SkillCard.getImage(character, item.getIconPath());
     }
 }

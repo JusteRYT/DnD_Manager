@@ -29,9 +29,9 @@ public class BuffEditorRow extends HBox {
 
     public BuffEditorRow(Buff buff, Runnable onRemove, Character character) {
         this.buff = buff;
-
         setSpacing(10);
         setAlignment(Pos.CENTER_LEFT);
+
         String baseStyle = """
                     -fx-background-color: linear-gradient(to right, #2b2b2b, #212121);
                     -fx-background-radius: 6;
@@ -40,7 +40,14 @@ public class BuffEditorRow extends HBox {
                     -fx-padding: 8;
                 """;
 
+        String hoverStyle = baseStyle + """
+                    -fx-border-color: #c89b3c;
+                    -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.1), 10, 0, 0, 0);
+                """;
+
         setStyle(baseStyle);
+        this.setOnMouseEntered(e -> setStyle(hoverStyle));
+        this.setOnMouseExited(e -> setStyle(baseStyle));
 
         // --- Icon ---
         ImageView iconView = new ImageView();

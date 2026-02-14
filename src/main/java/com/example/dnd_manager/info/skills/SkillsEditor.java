@@ -231,13 +231,6 @@ public class SkillsEditor extends VBox {
         return l;
     }
 
-    private String chooseIcon() {
-        FileChooser chooser = new FileChooser();
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
-        File file = chooser.showOpenDialog(getScene().getWindow());
-        return file != null ? file.getAbsolutePath() : null;
-    }
-
     public void applyTo(Character character) {
         character.getSkills().clear();
         character.getSkills().addAll(skills);
