@@ -31,7 +31,6 @@ public class SkillsEditor extends VBox {
     private AppTextField effectCustomField;
     private AppComboBox<String> effectTypeBox;
 
-    private final AtomicReference<String> iconPath = new AtomicReference<>("");
     private final Character character;
     private final AppTextSection descriptionSection;
 
@@ -65,6 +64,7 @@ public class SkillsEditor extends VBox {
         // --- Верхняя часть: Имя и Тип активации ---
         AppTextField nameField = new AppTextField(I18n.t("textField.skillName"));
         AppComboBox<String> activationBox = new AppComboBox<>();
+        AtomicReference<String> iconPath = new AtomicReference<>("");
         for (ActivationType type : ActivationType.values()) activationBox.getItems().add(type.getName());
         activationBox.setValue(ActivationType.ACTION.getName());
         activationBox.setPrefWidth(180);
@@ -88,14 +88,16 @@ public class SkillsEditor extends VBox {
         addSkillButton.setPrefWidth(200);
 
         iconButton.setOnAction(e -> {
-            String path = chooseIcon();
-            if (path != null) {
-                iconPath.set(path);
-                iconPathLabel.setText(new File(path).getName());
+            FileChooser chooser = new FileChooser();
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
+            File file = chooser.showOpenDialog(getScene().getWindow());
+            if (file != null) {
+                iconPath.set(file.getAbsolutePath());
+                iconPathLabel.setText(file.getName());
             }
         });
 
-        addSkillButton.setOnAction(e -> handleAddSkill(nameField, activationBox, iconPathLabel));
+        addSkillButton.setOnAction(e -> handleAddSkill(nameField, activationBox, iconPathLabel, iconPath));
 
         HBox settingsRow = new HBox(15,
                 new VBox(5, createFieldLabel("ICON_NAME"), iconPathLabel)
@@ -175,7 +177,7 @@ public class SkillsEditor extends VBox {
         customField.clear();
     }
 
-    private void handleAddSkill(AppTextField nameField, AppComboBox<String> activationBox, Label iconLabel) {
+    private void handleAddSkill(AppTextField nameField, AppComboBox<String> activationBox, Label iconLabel, AtomicReference<String> iconPath) {
         String name = nameField.getText().trim();
 
         if (!effectValueField.getText().trim().isEmpty()) {
@@ -184,6 +186,10 @@ public class SkillsEditor extends VBox {
 
         if (name.isEmpty() || currentEffects.isEmpty()) {
             return;
+        }
+
+        if (iconLabel.getText().isEmpty()) {
+            iconPath.set(getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
         }
 
         Skill skill = new Skill(

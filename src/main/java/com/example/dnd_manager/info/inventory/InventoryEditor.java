@@ -86,12 +86,15 @@ public class InventoryEditor extends VBox {
             if (selected != null) {
                 iconPath.set(selected);
                 File file = new File(selected);
-                iconPathLabel.setText("Selected: " + file.getName());
+                iconPathLabel.setText(file.getName());
             }
         });
 
         addButton.setOnAction(event -> {
             String name = nameField.getText().trim();
+            if (character == null) {
+                iconPath.set(getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
+            }
             if (!name.isEmpty()) {
                 InventoryItem item = new InventoryItem(name, descriptionField.getText(), iconPath.get());
                 addItem(item);

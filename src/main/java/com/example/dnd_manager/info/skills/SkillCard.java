@@ -13,6 +13,8 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 
+import java.nio.file.Path;
+
 
 /**
  * Visual card representation of a skill.
@@ -51,8 +53,12 @@ public class SkillCard extends VBox {
         iconView.setFitWidth(55);
         iconView.setFitHeight(55);
         iconView.setPreserveRatio(true);
-        Image img = chooseIcon(skill, character);
-        if (img != null) iconView.setImage(img);
+        if (character != null) {
+            iconView.setImage(chooseIcon(skill, character));
+        } else {
+            iconView.setImage(new Image(getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm()));
+        }
+
         iconView.setStyle("-fx-effect: dropshadow(two-pass-box, black, 10, 0, 0, 0);");
 
         Label name = new Label(skill.name().toUpperCase());
@@ -82,15 +88,28 @@ public class SkillCard extends VBox {
     }
 
     public static Image getImage(Character character, String iconPath) {
-        Image image = null;
-        if (iconPath != null && !iconPath.isEmpty() && character != null) {
-            image = new Image(CharacterAssetResolver.resolve(character.getName(), iconPath));
-        } else {
-            if (iconPath != null && !iconPath.isEmpty()) {
-                image = new Image("file:" + iconPath);
-            }
+        if (iconPath == null || iconPath.isEmpty()) {
+            return new Image(SkillCard.class.getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
         }
 
-        return image;
+        try {
+            if (iconPath.startsWith("file:") || iconPath.startsWith("jar:") || iconPath.contains("://")) {
+                return new Image(iconPath);
+            }
+
+            Path path = Path.of(iconPath);
+            if (path.isAbsolute()) {
+                return new Image(path.toUri().toString());
+            }
+
+            if (character != null) {
+                return new Image(CharacterAssetResolver.resolve(character.getName(), iconPath));
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error loading image: " + iconPath + " -> " + e.getMessage());
+        }
+
+        return new Image(SkillCard.class.getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
     }
 }

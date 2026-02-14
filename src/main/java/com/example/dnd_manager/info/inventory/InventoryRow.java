@@ -47,7 +47,12 @@ public class InventoryRow extends HBox {
         iconView.setFitWidth(32);
         iconView.setFitHeight(32);
         iconView.setPreserveRatio(true);
-        iconView.setImage(chooseIcon(item, character));
+        if (character != null) {
+            iconView.setImage(chooseIcon(item, character));
+        } else {
+            iconView.setImage(new  Image(getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm()));
+        }
+
         iconView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 5, 0, 0, 0);");
 
         // Текстовый блок
