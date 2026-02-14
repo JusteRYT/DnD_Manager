@@ -172,8 +172,8 @@ public class StartScreen {
         CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(stage,
                 storageService,
                 character -> {
-                    CharacterOverviewScreen editScreen = new CharacterOverviewScreen(character.getName(), storageService);
-                    stage.getScene().setRoot(editScreen);
+                    CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(character, storageService);
+                    stage.getScene().setRoot(overviewScreen);
                 }, false);
         stage.getScene().setRoot(selectionScreen);
     }

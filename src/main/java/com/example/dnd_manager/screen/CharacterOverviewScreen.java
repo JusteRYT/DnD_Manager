@@ -20,11 +20,8 @@ public class CharacterOverviewScreen extends BorderPane {
     private final StorageService storageService;
     private final ManaBar manaBar;
 
-    public CharacterOverviewScreen(String name, StorageService storageService) {
+    public CharacterOverviewScreen(Character character, StorageService storageService) {
         this.storageService = storageService;
-
-        Character character = storageService.loadCharacter(name)
-                .orElseThrow(() -> new RuntimeException("Character not found: " + name));
 
         setStyle("-fx-background-color: #1e1e1e;");
 

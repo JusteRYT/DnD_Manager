@@ -1,8 +1,8 @@
 package com.example.dnd_manager.screen;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.domain.CharacterCard;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
@@ -12,137 +12,64 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.util.List;
 import java.util.function.Consumer;
 
-/**
- * Screen for selecting a character.
- * Supports any action on character selection via callback.
- */
 public class CharacterSelectionScreen extends VBox {
 
     public CharacterSelectionScreen(Stage stage, StorageService storageService, Consumer<Character> onCharacterSelected, boolean isEdit) {
-        setSpacing(10);
-        setPadding(new Insets(20));
-        setStyle("-fx-background-color: #1e1e1e;");
+        setSpacing(25);
+        setPadding(new Insets(30));
+        setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + ";");
         setAlignment(Pos.TOP_CENTER);
 
         Label title = new Label(I18n.t("title.selectionScreen"));
-        title.setStyle("-fx-font-size: 24px; -fx-text-fill: #ffffff; -fx-font-weight: bold;");
+        title.setStyle("-fx-font-size: 32px; -fx-text-fill: white; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 0, 2);");
         getChildren().add(title);
 
         List<String> names = storageService.listCharacterNames();
+
         if (names.isEmpty()) {
-            Label emptyLabel = new Label(I18n.t("label.selectionScreen"));
-            emptyLabel.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 16px;");
-            getChildren().add(emptyLabel);
-            return;
-        }
+            renderEmptyState();
+        } else {
+            // Используем FlowPane для плитки (слева направо)
+            FlowPane cardsGrid = new FlowPane();
+            cardsGrid.setHgap(25);
+            cardsGrid.setVgap(25);
+            cardsGrid.setAlignment(Pos.TOP_LEFT);
+            cardsGrid.setPadding(new Insets(20));
+            cardsGrid.setPrefWrapLength(1200);
 
-        VBox charactersList = new VBox(8);
-        charactersList.setAlignment(Pos.CENTER);
-
-        for (String name : names) {
-            Character character = storageService.loadCharacter(name).orElse(null);
-            if (character == null) {
-                continue;
+            for (String name : names) {
+                storageService.loadCharacter(name).ifPresent(character -> {
+                    CharacterCard card = new CharacterCard(character, onCharacterSelected, isEdit, () -> {
+                        cardsGrid.getChildren().removeIf(node -> node.getUserData() == character);
+                        storageService.deleteCharacter(character);
+                    });
+                    card.setUserData(character);
+                    cardsGrid.getChildren().add(card);
+                });
             }
 
-            // --- Avatar ---
-            ImageView avatar = new ImageView(new Image(
-                    CharacterAssetResolver.resolve(name, character.getAvatarImage())
-            ));
-            avatar.setFitWidth(48);
-            avatar.setFitHeight(48);
-
-            // --- Name ---
-            Label nameLabel = new Label(name);
-            nameLabel.setStyle("""
-                    -fx-text-fill: #ffffff;
-                    -fx-font-size: 16px;
-                    -fx-font-weight: bold;
-                    """);
-
-            // --- LEFT: avatar + name ---
-            HBox leftBox = new HBox(10, avatar, nameLabel);
-            leftBox.setAlignment(Pos.CENTER_LEFT);
-
-            // --- CENTER: reserved for future info ---
-            HBox centerBox = new HBox();
-            centerBox.setAlignment(Pos.CENTER);
-
-            // --- RIGHT: delete button ---
-            Button deleteBtn = AppButtonFactory.customButton(
-                    I18n.t("button.delete"),
-                    0,
-                    AppTheme.BUTTON_DANGER,
-                    AppTheme.BUTTON_DANGER_HOVER
-            );
-            deleteBtn.setFocusTraversable(false);
-            deleteBtn.setOnAction(e -> {
-                e.consume();
-                storageService.deleteCharacter(character);
-                charactersList.getChildren().removeIf(
-                        node -> node.getUserData() == character
-                );
-            });
-            deleteBtn.setVisible(isEdit);
-            deleteBtn.setManaged(isEdit);
-
-            // --- ROW LAYOUT ---
-            BorderPane characterRow = new BorderPane();
-            characterRow.setLeft(leftBox);
-            characterRow.setCenter(centerBox);
-            characterRow.setRight(deleteBtn);
-
-            BorderPane.setAlignment(deleteBtn, Pos.CENTER_RIGHT);
-            BorderPane.setMargin(deleteBtn, new Insets(0, 4, 0, 10));
-
-            characterRow.setPadding(new Insets(8));
-            characterRow.setUserData(character);
-
-            characterRow.setStyle("""
-                    -fx-background-color: #2e2e2e;
-                    -fx-background-radius: 6;
-                    """);
-
-            characterRow.setOnMouseEntered(e ->
-                    characterRow.setStyle("""
-                            -fx-background-color: #3e3e3e;
-                            -fx-background-radius: 6;
-                            """)
-            );
-
-            characterRow.setOnMouseExited(e ->
-                    characterRow.setStyle("""
-                            -fx-background-color: #2e2e2e;
-                            -fx-background-radius: 6;
-                            """)
-            );
-
-            characterRow.setOnMouseClicked(e ->
-                    onCharacterSelected.accept(character)
-            );
-
-            charactersList.getChildren().add(characterRow);
+            ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(cardsGrid);
+            scrollPane.setFitToWidth(true);
+            VBox.setVgrow(scrollPane, Priority.ALWAYS);
+            getChildren().add(scrollPane);
         }
 
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(charactersList);
-
-        getChildren().add(scrollPane);
-
-        // --- Кнопка назад на стартовое окно ---
         Button backBtn = AppButtonFactory.primary(I18n.t("button.back"));
+        backBtn.setPrefWidth(200);
         backBtn.setOnAction(e -> closeScreen(stage, storageService));
-
         getChildren().add(backBtn);
+    }
+
+    private void renderEmptyState() {
+        Label emptyLabel = new Label(I18n.t("label.selectionScreen"));
+        emptyLabel.setStyle("-fx-text-fill: #888888; -fx-font-size: 18px; -fx-font-style: italic;");
+        getChildren().add(emptyLabel);
     }
 
     private void closeScreen(Stage stage, StorageService storageService) {

@@ -113,7 +113,7 @@ public class CharacterCreateScreen extends AbstractScreen {
         storageService.saveCharacter(character);
 
         // Переходим на экран обзора
-        CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(character.getName(), storageService);
+        CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(character, storageService);
         stage.getScene().setRoot(overviewScreen);
     }
 
