@@ -5,6 +5,7 @@ import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.repository.IconStorageService;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
+import com.example.dnd_manager.theme.IntegerField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -46,14 +47,14 @@ public class AddInventoryItemDialog extends BaseDialog {
         AppTextSection descriptionField = new AppTextSection(
                 existingItem != null ? existingItem.getDescription() : "", 3, "Description"
         );
-        AppTextField countField = new AppTextField(
+        IntegerField countField = new IntegerField(
                 existingItem != null ? String.valueOf(existingItem.getCount()) : "1"
         );
 
-        Button iconBtn = AppButtonFactory.customButton("Choose icon", 120);
+        Button iconBtn = AppButtonFactory.addIcon("Choose icon");
         iconBtn.setOnAction(e -> iconPath = chooseIcon());
 
-        Button saveBtn = AppButtonFactory.customButton(existingItem == null ? "Add" : "Save", 120);
+        Button saveBtn = AppButtonFactory.actionSave(existingItem == null ? "Add" : "Save");
         saveBtn.setOnAction(e -> {
             if (nameField.getText().isBlank()) return;
             saveData(nameField.getText(), descriptionField.getText(), countField.getText());

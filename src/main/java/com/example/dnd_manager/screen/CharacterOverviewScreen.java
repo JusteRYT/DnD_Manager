@@ -7,10 +7,8 @@ import com.example.dnd_manager.overview.ui.ManaBar;
 import com.example.dnd_manager.overview.ui.TopBar;
 import com.example.dnd_manager.overview.utils.StatsPanel;
 import com.example.dnd_manager.store.StorageService;
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import com.example.dnd_manager.tooltip.SkillsView;
 import javafx.geometry.Insets;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import lombok.Getter;
@@ -63,23 +61,10 @@ public class CharacterOverviewScreen extends BorderPane {
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
-        // Собираем всё в VBox, который будет внутри ScrollPane
         VBox contentContainer = new VBox(15);
         contentContainer.setPadding(new Insets(15));
         contentContainer.getChildren().addAll(mainGrid, spacer, skillsBar);
 
-        // Позволяем контенту внутри VBox занимать всё свободное место
-
-
-        // --- Обертка в ScrollPane ---
-        // Используем твою фабрику для сохранения стиля
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(contentContainer);
-
-        // Эти настройки заставляют контент растягиваться под ширину окна,
-        // но позволяют появляться скроллу, если высота окна слишком мала.
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-
-        setCenter(scrollPane);
+        setCenter(contentContainer);
     }
 }

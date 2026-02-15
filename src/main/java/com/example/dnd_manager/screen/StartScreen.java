@@ -4,16 +4,14 @@
     import com.example.dnd_manager.lang.I18n;
     import com.example.dnd_manager.service.CharacterTransferServiceImpl;
     import com.example.dnd_manager.store.StorageService;
-    import com.example.dnd_manager.theme.factory.AppButtonFactory;
-    import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
     import com.example.dnd_manager.theme.AppTheme;
     import com.example.dnd_manager.theme.ButtonSizeConfigurer;
+    import com.example.dnd_manager.theme.factory.AppButtonFactory;
     import javafx.geometry.Insets;
     import javafx.geometry.Pos;
     import javafx.scene.Parent;
     import javafx.scene.control.Button;
     import javafx.scene.control.Label;
-    import javafx.scene.control.ScrollPane;
     import javafx.scene.image.Image;
     import javafx.scene.image.ImageView;
     import javafx.scene.layout.BorderPane;
@@ -159,9 +157,9 @@
             List<String> names = storageService.listCharacterNames();
             if (names.isEmpty()) return;
 
-            CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(stage,
-                    storageService,
+            CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(stage, storageService,
                     character -> {
+
                         CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(stage, character, storageService);
                         ScreenManager.setScreen(stage, overviewScreen);
                     }, false);
@@ -177,14 +175,12 @@
         }
 
         private void changeLanguage() {
-            // 1. Переключаем язык
             if (I18n.isEnglish()) {
                 I18n.setLocale(Locale.forLanguageTag("ru"));
             } else {
                 I18n.setLocale(Locale.ENGLISH);
             }
 
-            // 2. Создаем новый экран
             StartScreen newScreen = new StartScreen(stage, storageService);
             ScreenManager.setScreen(stage, newScreen.getView());
         }

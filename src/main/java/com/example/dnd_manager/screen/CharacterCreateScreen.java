@@ -16,13 +16,11 @@ import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.SectionBox;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
@@ -187,9 +185,7 @@ public class CharacterCreateScreen extends AbstractScreen {
     // Методы логики (save, exit, getCharacter) остаются без изменений
     private void exitScreen() {
         StartScreen startScreen = new StartScreen(stage, storageService);
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
-        scrollPane.setFitToHeight(true);
-        stage.getScene().setRoot(scrollPane);
+        ScreenManager.setScreen(stage, startScreen.getView());
     }
 
     private void saveAndShowOverview() {
@@ -203,7 +199,7 @@ public class CharacterCreateScreen extends AbstractScreen {
         character.getSkills().addAll(skillsEditor.getSkills());
         storageService.saveCharacter(character);
         CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(stage, character, storageService);
-        stage.getScene().setRoot(overviewScreen);
+        ScreenManager.setScreen(stage, overviewScreen);
     }
 
     private Character getCharacter() {

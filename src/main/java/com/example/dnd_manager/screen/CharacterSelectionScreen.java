@@ -4,15 +4,14 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.domain.CharacterCard;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import com.example.dnd_manager.theme.AppTheme;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.*;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -53,10 +52,7 @@ public class CharacterSelectionScreen extends VBox {
                 });
             }
 
-            ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(cardsGrid);
-            scrollPane.setFitToWidth(true);
-            VBox.setVgrow(scrollPane, Priority.ALWAYS);
-            getChildren().add(scrollPane);
+            getChildren().add(cardsGrid);
         }
 
         Button backBtn = AppButtonFactory.actionExit(I18n.t("button.exit"), 80);

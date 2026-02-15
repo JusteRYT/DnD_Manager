@@ -1,11 +1,9 @@
 package com.example.dnd_manager.screen;
 
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
@@ -21,12 +19,7 @@ public abstract class AbstractScreen {
         VBox form = buildForm();
         form.setPadding(new Insets(10, 10, 10, 10));
         form.setSpacing(15);
-
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(form);
-
-        scrollPane.setPadding(new Insets(5));
-
-        root.setCenter(scrollPane);
+        root.setCenter(form);
 
         return root;
     }

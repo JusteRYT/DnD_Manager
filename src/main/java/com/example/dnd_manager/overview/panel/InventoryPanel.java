@@ -7,15 +7,18 @@ import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.AddInventoryItemDialog;
 import com.example.dnd_manager.overview.dialogs.EditInventoryItemDialog;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import com.example.dnd_manager.theme.AppContextMenu;
 import com.example.dnd_manager.theme.AppTheme;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -28,10 +31,6 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-
-/**
- * Inventory panel with square item cells like a grid.
- */
 public class InventoryPanel extends VBox {
 
     private static final int ITEM_SIZE = 60;
@@ -41,29 +40,21 @@ public class InventoryPanel extends VBox {
     private final FlowPane itemsPane;
     private final Consumer<Character> onCharacterUpdated;
 
-    private boolean deleteMode = false;
-    private final Button deleteBtn;
-
     public InventoryPanel(Character character, Consumer<Character> onCharacterUpdated) {
         this.character = character;
         this.onCharacterUpdated = onCharacterUpdated;
         setSpacing(6);
-
 
         Label title = new Label(I18n.t("inventoryPanel.title"));
         title.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 16px; -fx-font-weight: bold;");
 
         Button addBtn = AppButtonFactory.createValueAdjustButton(true, 24, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
         addBtn.setOnAction(e -> {
-            // Получаем окно, в котором находится кнопка, и приводим его к типу Stage
             Stage owner = (Stage) addBtn.getScene().getWindow();
             new AddInventoryItemDialog(owner, character, null, this::onItemCreated).show();
         });
 
-        deleteBtn = AppButtonFactory.deleteToggleButton(24);
-        deleteBtn.setOnMouseClicked(e -> deleteMode = deleteBtn.getStyle().contains(AppTheme.BUTTON_DANGER));
-
-        HBox header = new HBox(8, title, addBtn, deleteBtn);
+        HBox header = new HBox(8, title, addBtn);
         header.setAlignment(Pos.CENTER_LEFT);
 
         VBox.setMargin(title, new Insets(0, 0, 4, 0));
@@ -85,10 +76,6 @@ public class InventoryPanel extends VBox {
         getChildren().addAll(header, itemsPane);
     }
 
-    private void toggleDeleteMode() {
-        deleteMode = !deleteMode;
-    }
-
     private void onItemCreated(InventoryItem item) {
         addItem(item);
         onCharacterUpdated.accept(character);
@@ -102,19 +89,19 @@ public class InventoryPanel extends VBox {
         character.getInventory().remove(item);
         itemsPane.getChildren().remove(view);
         onCharacterUpdated.accept(character);
-        if (deleteMode) {
-            toggleDeleteMode();
-        }
     }
 
     private void editItem(InventoryItem item, InventoryItemCell view) {
-        new EditInventoryItemDialog(character, item, updated -> {
+        Stage owner = (Stage) view.getScene().getWindow();
+        new EditInventoryItemDialog(owner, character, item, updated -> {
             view.refresh();
-            onCharacterUpdated.accept(character);
+            if (onCharacterUpdated != null) {
+                onCharacterUpdated.accept(character);
+            }
         }).show();
     }
 
-    private class InventoryItemCell extends StackPane {
+    private static class InventoryItemCell extends StackPane {
 
         private final Character character;
         private final InventoryItem item;
@@ -145,17 +132,25 @@ public class InventoryPanel extends VBox {
                     -fx-border-radius: 6;
                     -fx-background-radius: 6;
                     """);
+
+            // Подсветка при наведении
             container.setOnMouseEntered(e -> container.setStyle(container.getStyle() + "-fx-border-color: #c89b3c; -fx-effect: dropshadow(two-pass-box, rgba(200, 155, 60, 0.3), 5, 0, 0, 0);"));
             container.setOnMouseExited(e -> container.setStyle(container.getStyle().replace("-fx-border-color: #c89b3c;", "-fx-border-color: #3a3a3a;").split("-fx-effect")[0]));
             container.setAlignment(Pos.CENTER);
 
             getChildren().add(container);
-            refresh();
 
-            // ===== POPUP =====
+            // === КОНТЕКСТНОЕ МЕНЮ (ПКМ) ===
+            ContextMenu contextMenu = createContextMenu(onRemove, onEdit);
+
+            container.setOnMouseClicked(e -> {
+                if (e.getButton() == MouseButton.SECONDARY) {
+                    contextMenu.show(container, e.getScreenX(), e.getScreenY());
+                }
+            });
+
             popup = new Popup();
             popup.setAutoHide(true);
-            popup.setAutoFix(true);
             popup.getContent().add(new InventoryItemPopup(item));
 
             hoverDelay.setOnFinished(e -> {
@@ -175,14 +170,16 @@ public class InventoryPanel extends VBox {
                 }
             });
 
-            // ===== Клик по иконке =====
-            icon.setOnMouseClicked(e -> {
-                if (deleteMode) {
-                    onRemove.accept(item, this);
-                } else {
+            refresh();
+        }
 
-                }
-            });
+        private AppContextMenu createContextMenu(BiConsumer<InventoryItem, InventoryItemCell> onRemove,
+                                                 BiConsumer<InventoryItem, InventoryItemCell> onEdit) {
+            AppContextMenu menu = new AppContextMenu();
+            menu.addActionItem(I18n.t("button.edit"), () -> onEdit.accept(item, this));
+            menu.addDeleteItem(I18n.t("button.delete"), () -> onRemove.accept(item, this));
+
+            return menu;
         }
 
         public void refresh() {

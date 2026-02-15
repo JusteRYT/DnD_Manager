@@ -7,12 +7,10 @@ import com.example.dnd_manager.service.CharacterTransferService;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -105,11 +103,8 @@ public class CharacterImportExportScreen extends VBox {
             }
         }
 
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(cardsGrid);
-        scrollPane.setFitToWidth(true);
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
-        getChildren().addAll(headerStack, separatorBox, scrollPane);
+        getChildren().addAll(headerStack, separatorBox);
     }
 
     private void renderEmptyState(Pane container) {
@@ -143,8 +138,6 @@ public class CharacterImportExportScreen extends VBox {
 
     private void closeScreen() {
         StartScreen startScreen = new StartScreen(stage, storageService);
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
-        scrollPane.setFitToHeight(true);
-        stage.getScene().setRoot(scrollPane);
+        ScreenManager.setScreen(stage, startScreen.getView());
     }
 }

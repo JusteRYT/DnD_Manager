@@ -2,6 +2,7 @@ package com.example.dnd_manager.theme;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -12,9 +13,14 @@ public class CustomTitleBar extends HBox {
     private double yOffset = 0;
 
     public CustomTitleBar(Stage stage) {
-        setStyle("-fx-background-color: #1e1e1e; -fx-padding: 0 0 0 10; -fx-border-color: #3a3a3a; -fx-border-width: 0 0 1 0;");
-        setAlignment(Pos.CENTER_RIGHT);
+        setStyle("-fx-background-color: #1e1e1e; -fx-padding: 0 0 0 15; -fx-border-color: #3a3a3a; -fx-border-width: 0 0 1 0;");
+        setAlignment(Pos.CENTER_LEFT);
         setPrefHeight(35);
+
+        Label titleLabel = new Label();
+        titleLabel.textProperty().bind(stage.titleProperty());
+        titleLabel.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold; -fx-font-size: 13px;");
+        titleLabel.setMinWidth(Region.USE_PREF_SIZE);
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -34,7 +40,7 @@ public class CustomTitleBar extends HBox {
         btnMaximize.setOnAction(e -> stage.setMaximized(!stage.isMaximized()));
         btnClose.setOnAction(e -> stage.close());
 
-        getChildren().addAll(spacer, btnMinimize, btnMaximize, btnClose);
+        getChildren().addAll(titleLabel, spacer, btnMinimize, btnMaximize, btnClose);
 
         this.setOnMousePressed(event -> {
             xOffset = event.getSceneX();
@@ -51,9 +57,9 @@ public class CustomTitleBar extends HBox {
 
     private Button createTitleButton(String text, String color) {
         Button btn = new Button(text);
-
         btn.setPadding(javafx.geometry.Insets.EMPTY);
         btn.setPrefSize(46, 35);
+        btn.setFocusTraversable(false);
 
         btn.setStyle(String.format("""
             -fx-background-color: transparent;

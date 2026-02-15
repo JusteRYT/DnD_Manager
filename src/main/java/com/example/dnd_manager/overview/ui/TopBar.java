@@ -2,26 +2,27 @@ package com.example.dnd_manager.overview.ui;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.overview.utils.ButtonPopupInstaller;
-import com.example.dnd_manager.overview.utils.PopupFactory;
 import com.example.dnd_manager.overview.dialogs.EditStatsDialog;
 import com.example.dnd_manager.overview.dialogs.FullDescriptionDialog;
+import com.example.dnd_manager.overview.dialogs.LevelUpDialog;
+import com.example.dnd_manager.overview.utils.ButtonPopupInstaller;
+import com.example.dnd_manager.overview.utils.PopupFactory;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
+import com.example.dnd_manager.screen.ScreenManager;
 import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
-import javafx.stage.Modality;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.Objects;
@@ -121,24 +122,33 @@ public class TopBar extends HBox {
 
         // --- Right block: buttons ---
         Button showDescBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/icon_description.png");
-        showDescBtn.setOnAction(e ->
-                new FullDescriptionDialog(character, parentScreen).show()
-        );
+        showDescBtn.setOnAction(e -> {
+            Stage owner = (Stage) showDescBtn.getScene().getWindow();
+            new FullDescriptionDialog(owner, character).show();
+        });
 
         Button editBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/edit_icon.png");
-        editBtn.setOnAction(e -> new EditStatsDialog(character, parentScreen, storageService)
-                .show(() -> {
-                    hpLabel.setText(String.valueOf(character.getHp()));
-                    armorLabel.setText(String.valueOf(character.getArmor()));
-                    parentScreen.getManaBar().refresh();
-                    levelValue.setText(String.valueOf(character.getLevel()));
-                }));
+        editBtn.setOnAction(e -> {
+            Stage owner = (Stage) editBtn.getScene().getWindow();
+            EditStatsDialog dialog = new EditStatsDialog(
+                    owner,
+                    character,
+                    storageService,
+                    () -> {
+                        hpLabel.setText(String.valueOf(character.getHp()));
+                        armorLabel.setText(String.valueOf(character.getArmor()));
+                        parentScreen.getManaBar().refresh();
+                        levelValue.setText(String.valueOf(character.getLevel()));
+                    }
+            );
+            dialog.show();
+        });
 
         Button backBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/icon_back.png");
 
         // --- Increase level button with confirmation ---
         Button increaseLevelBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/level_up_icon.png");
-        increaseLevelBtn.setOnAction(e -> showLevelUpDialog(character, storageService, levelValue));
+        increaseLevelBtn.setOnAction(e -> showLevelUpDialog(increaseLevelBtn, character, storageService, levelValue));
 
         HBox rightPanel = new HBox(15,
                 showDescBtn,
@@ -220,49 +230,16 @@ public class TopBar extends HBox {
         return avatarContainer;
     }
 
-    private static void showLevelUpDialog(Character character, StorageService storageService, Label levelValue) {
-        Stage dialog = new Stage();
-        dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setTitle(I18n.t("dialogLevel.title"));
+    private static void showLevelUpDialog(Button sourceButton, Character character, StorageService storageService, Label levelValue) {
+        Stage owner = (Stage) sourceButton.getScene().getWindow();
 
-        Label message = new Label(I18n.t("dialogLevel.message"));
-        message.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 14px;");
-
-        Button yesBtn = AppButtonFactory.primary(I18n.t("button.yes"));
-        Button noBtn = AppButtonFactory.primary(I18n.t("button.no"));
-
-        HBox buttons = new HBox(10, yesBtn, noBtn);
-        buttons.setAlignment(Pos.CENTER);
-
-        VBox layout = new VBox(15, message, buttons);
-        layout.setPadding(new Insets(15));
-        layout.setStyle("-fx-background-color: #1e1e1e;");
-        layout.setAlignment(Pos.CENTER);
-
-        dialog.setScene(new Scene(layout, 400, 150));
-        dialog.show();
-
-        yesBtn.setOnAction(ev -> {
-            int currentLevel;
-            try {
-                currentLevel = character.getLevel();
-            } catch (NumberFormatException ex) {
-                currentLevel = 1;
-            }
-            currentLevel += 1;
-            character.setLevel(currentLevel);
-            storageService.saveCharacter(character);
-            levelValue.setText(String.valueOf(currentLevel));
-            dialog.close();
-        });
-
-        noBtn.setOnAction(ev -> dialog.close());
+        new LevelUpDialog(owner, character, storageService, () -> {
+            levelValue.setText(String.valueOf(character.getLevel()));
+        }).show();
     }
 
     private void closeScreen(Stage stage, StorageService storageService) {
         StartScreen startScreen = new StartScreen(stage, storageService);
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
-        scrollPane.setFitToHeight(true);
-        stage.getScene().setRoot(scrollPane);
+        ScreenManager.setScreen(stage, startScreen.getView());
     }
 }

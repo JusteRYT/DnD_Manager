@@ -22,7 +22,7 @@ public abstract class BaseDialog {
         this.stage = new Stage();
         this.stage.initOwner(owner);
         this.stage.initModality(Modality.APPLICATION_MODAL);
-        this.stage.initStyle(StageStyle.UNDECORATED); // Как в MainApp
+        this.stage.initStyle(StageStyle.UNDECORATED);
         this.stage.setTitle(title);
 
         // Главный контейнер с рамкой, как в MainApp
@@ -41,7 +41,7 @@ public abstract class BaseDialog {
         this.root.getChildren().addAll(titleBar, contentArea);
 
         Scene scene = new Scene(root, width, height);
-        scene.setFill(null); // Важно для прозрачности углов, если они есть
+        scene.setFill(null);
         this.stage.setScene(scene);
     }
 
