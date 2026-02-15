@@ -121,29 +121,58 @@ public class SkillCardView extends VBox {
     }
 
     private void setupCustomPopup(Skill skill) {
-        VBox popupContent = new VBox(5);
-        popupContent.setPadding(new Insets(12));
-        popupContent.setStyle("-fx-background-color: rgba(25, 25, 25, 0.85); " +
-                "-fx-border-color: rgba(200, 155, 60, 0.3); " +
-                "-fx-border-width: 1; " +
-                "-fx-background-radius: 6; " +
-                "-fx-border-radius: 6;");
-        popupContent.setPrefWidth(280);
-        popupContent.setMaxHeight(300);
+        VBox popupContent = new VBox(0);
+        popupContent.setPadding(new Insets(18)); // Чуть больше отступов для солидности
+
+        // Стили: Глубокий графит и мягкое золото
+        popupContent.setStyle(
+                "-fx-background-color: #1a1a1a; " +
+                        "-fx-border-color: #c89b3c; " +
+                        "-fx-border-width: 1.5; " +
+                        "-fx-background-radius: 10; " +
+                        "-fx-border-radius: 10;"
+        );
+
+        popupContent.setPrefWidth(380); // Немного расширим для удобства чтения
+        popupContent.setMaxWidth(380);
 
         Label fullDesc = new Label(skill.description());
-        fullDesc.setStyle("-fx-font-size: 12px; -fx-text-fill: #dddddd; -fx-line-spacing: 1.5px;");
+        fullDesc.setStyle("-fx-font-size: 14px; -fx-text-fill: #dcdcdc; -fx-line-spacing: 3px;");
         fullDesc.setWrapText(true);
+        fullDesc.setPrefWidth(340); // Ширина текста внутри (380 - 2*18 - запас)
+        fullDesc.setMaxWidth(340);
 
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(fullDesc);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        // ЛОГИКА: Проверяем длину текста
+        // Если описание короткое (примерно до 400 символов), выводим просто Label
+        if (skill.description().length() < 400) {
+            popupContent.getChildren().add(fullDesc);
+        } else {
+            // Если текста много — используем ScrollPane
+            ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(fullDesc);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        popupContent.getChildren().add(scrollPane);
+            // УСТАНОВКА ВЫСОТЫ: Чтобы не было "2 строк", ставим комфортную высоту для длинного текста
+            scrollPane.setPrefHeight(600); // Теперь тут будет честных ~25-30 строк
+            scrollPane.setMaxHeight(750); // Лимит, после которого пойдет прокрутка
+
+            scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-padding: 0;");
+
+            popupContent.getChildren().add(scrollPane);
+        }
+
+        customPopup.getContent().clear();
         customPopup.getContent().add(popupContent);
 
+        // Добавляем тень
+        popupContent.setEffect(new javafx.scene.effect.DropShadow(25, Color.BLACK));
+
         popupContent.setOnMouseEntered(e -> isMouseInPopup = true);
-        popupContent.setOnMouseExited(e -> { isMouseInPopup = false; checkAndClosePopup(); });
+        popupContent.setOnMouseExited(e -> {
+            isMouseInPopup = false;
+            checkAndClosePopup();
+        });
     }
 
     private void setupInteractions() {
@@ -168,12 +197,27 @@ public class SkillCardView extends VBox {
     private void showPopup() {
         if (!isMouseInDesc || customPopup.isShowing()) return;
 
-        double x = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMaxX() + 5;
-        double y = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMinY() - 20;
+        double popupWidth = 380;
+        // Уменьшаем зазор между карточкой и попапом
+        double gap = 8;
 
-        if (x + 280 > Screen.getPrimary().getVisualBounds().getMaxX()) {
-            x = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMinX() - 285;
+        // Координата X: берем край карточки и добавляем небольшой зазор
+        double x = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMaxX() + gap;
+
+        // Координата Y: чуть меньше смещение вверх (было -150),
+        // чтобы середина высокого окна была ближе к курсору
+        double y = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMinY() - 80;
+
+        // Если справа места нет — перекидываем влево
+        if (x + popupWidth > Screen.getPrimary().getVisualBounds().getMaxX()) {
+            x = this.localToScreen(this.getBoundsInLocal()).getMinX() - popupWidth - gap;
         }
+
+        // Защита от вылета за верхнюю границу экрана
+        if (y < 20) {
+            y = 20;
+        }
+
         customPopup.show(this.getScene().getWindow(), x, y);
     }
 
