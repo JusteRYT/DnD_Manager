@@ -104,7 +104,7 @@ public class CharacterImportExportScreen extends VBox {
         }
 
 
-        getChildren().addAll(headerStack, separatorBox);
+        getChildren().addAll(headerStack, separatorBox, cardsGrid);
     }
 
     private void renderEmptyState(Pane container) {
