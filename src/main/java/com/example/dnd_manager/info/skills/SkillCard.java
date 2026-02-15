@@ -53,11 +53,7 @@ public class SkillCard extends VBox {
         iconView.setFitWidth(55);
         iconView.setFitHeight(55);
         iconView.setPreserveRatio(true);
-        if (character != null) {
-            iconView.setImage(chooseIcon(skill, character));
-        } else {
-            iconView.setImage(new Image(getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm()));
-        }
+        iconView.setImage(chooseIcon(skill, character));
 
         iconView.setStyle("-fx-effect: dropshadow(two-pass-box, black, 10, 0, 0, 0);");
 

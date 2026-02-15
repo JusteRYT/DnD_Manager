@@ -52,11 +52,7 @@ public class BuffEditorRow extends HBox {
         iconView.setFitWidth(30);
         iconView.setFitHeight(30);
         iconView.setPreserveRatio(true);
-        if (character != null) {
-            iconView.setImage(chooseIcon(buff, character));
-        } else {
-            iconView.setImage(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/no_image.png")).toExternalForm()));
-        }
+        iconView.setImage(chooseIcon(buff, character));
 
 
         // --- Info box ---
