@@ -3,6 +3,7 @@
     import com.example.dnd_manager.info.version.AppInfo;
     import com.example.dnd_manager.lang.I18n;
     import com.example.dnd_manager.overview.dialogs.AppErrorDialog;
+    import com.example.dnd_manager.service.CharacterImageIntegrityService;
     import com.example.dnd_manager.service.CharacterTransferServiceImpl;
     import com.example.dnd_manager.store.StorageService;
     import com.example.dnd_manager.theme.AppTheme;
@@ -41,6 +42,8 @@
         public StartScreen(Stage stage, StorageService storageService) {
             this.stage = stage;
             this.storageService = storageService;
+            CharacterImageIntegrityService imageService = new CharacterImageIntegrityService(storageService);
+            imageService.validateAndRepairAllCharacters();
         }
 
         /**

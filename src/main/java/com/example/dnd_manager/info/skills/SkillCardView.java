@@ -55,7 +55,8 @@ public class SkillCardView extends VBox {
         if (skill.iconPath() != null && !skill.iconPath().isBlank()) {
             icon.setImage(new Image(CharacterAssetResolver.resolve(characterName, skill.iconPath())));
         }
-        icon.setFitWidth(ICON_SIZE); icon.setFitHeight(ICON_SIZE);
+        icon.setFitWidth(ICON_SIZE);
+        icon.setFitHeight(ICON_SIZE);
         StackPane iconFrame = new StackPane(icon);
         iconFrame.setMaxSize(ICON_SIZE + 4, ICON_SIZE + 4);
         iconFrame.setStyle("-fx-border-color: #c89b3c; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-color: #1e1e1e;");
@@ -69,15 +70,18 @@ public class SkillCardView extends VBox {
         nameLabel.setMaxWidth(CARD_WIDTH - 20);
         nameLabel.setMinHeight(Region.USE_PREF_SIZE);
 
-        // --- 3. EFFECTS ---
+        // --- 3. EFFECTS (FIXED) ---
         FlowPane effectsPane = new FlowPane(5, 5);
         effectsPane.setAlignment(Pos.CENTER);
+
+        // ВАЖНО: Указываем ширину, после которой FlowPane должен переносить элементы
+        effectsPane.setPrefWrapLength(CARD_WIDTH - 20);
+        effectsPane.setMaxWidth(CARD_WIDTH - 20);
+
         for (SkillEffect effect : skill.effects()) {
-            Label eLabel = new Label(effect.toString());
-            String color = colorByEffect(effect.getType());
-            eLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: white; -fx-padding: 3 6; " +
-                    "-fx-background-color: " + color + "33; -fx-background-radius: 4; " +
-                    "-fx-border-color: " + color + "; -fx-border-width: 1;");
+            // ВАЖНО: Берем DisplayName (он вернет кастомное имя или тип) + Значение
+            Label eLabel = getLabel(effect);
+
             effectsPane.getChildren().add(eLabel);
         }
 
@@ -90,7 +94,7 @@ public class SkillCardView extends VBox {
         briefDesc.setStyle("-fx-font-size: 10px; -fx-text-fill: #888888; -fx-font-style: italic;");
         briefDesc.setWrapText(true);
         briefDesc.setTextAlignment(TextAlignment.CENTER);
-        briefDesc.setCursor(javafx.scene.Cursor.HAND); // Подсказываем, что здесь есть инфо
+        briefDesc.setCursor(javafx.scene.Cursor.HAND);
         VBox.setVgrow(briefDesc, Priority.ALWAYS);
 
         getChildren().addAll(iconFrame, nameLabel, effectsPane, separator, briefDesc);
@@ -99,12 +103,28 @@ public class SkillCardView extends VBox {
         setupInteractions();
     }
 
+    private Label getLabel(SkillEffect effect) {
+        String labelText = effect.getDisplayName() + " " + effect.getValue();
+
+        Label eLabel = new Label(labelText);
+        String color = colorByEffect(effect.getType());
+
+        eLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: white; -fx-padding: 3 6; " +
+                "-fx-background-color: " + color + "33; -fx-background-radius: 4; " +
+                "-fx-border-color: " + color + "; -fx-border-width: 1;");
+
+        // Заставляем лейбл не быть шире карточки, если текст очень длинный
+        eLabel.setMaxWidth(CARD_WIDTH - 25);
+        eLabel.setWrapText(true); // Разрешаем перенос внутри самого лейбла, если одно слово супер длинное
+        eLabel.setTextAlignment(TextAlignment.CENTER);
+        return eLabel;
+    }
+
     private void setupCustomPopup(Skill skill) {
         VBox popupContent = new VBox(5);
         popupContent.setPadding(new Insets(12));
-        // Более прозрачный и компактный вид
         popupContent.setStyle("-fx-background-color: rgba(25, 25, 25, 0.85); " +
-                "-fx-border-color: rgba(200, 155, 60, 0.3); " + // Едва заметное золото
+                "-fx-border-color: rgba(200, 155, 60, 0.3); " +
                 "-fx-border-width: 1; " +
                 "-fx-background-radius: 6; " +
                 "-fx-border-radius: 6;");
@@ -129,11 +149,9 @@ public class SkillCardView extends VBox {
     private void setupInteractions() {
         appearanceTimer.getKeyFrames().add(new KeyFrame(Duration.millis(350), ae -> showPopup()));
 
-        // Свечение всей карточки при наведении
         setOnMouseEntered(e -> animateGlow(true));
         setOnMouseExited(e -> animateGlow(false));
 
-        // Popup работает ТОЛЬКО по описанию
         briefDesc.setOnMouseEntered(e -> {
             isMouseInDesc = true;
             appearanceTimer.playFromStart();
@@ -150,7 +168,6 @@ public class SkillCardView extends VBox {
     private void showPopup() {
         if (!isMouseInDesc || customPopup.isShowing()) return;
 
-        // Позиционируем относительно текста описания
         double x = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMaxX() + 5;
         double y = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMinY() - 20;
 
@@ -177,6 +194,7 @@ public class SkillCardView extends VBox {
     }
 
     private String colorByEffect(String type) {
+        if (type == null) return "#55ccff";
         return switch (type) {
             case "DAMAGE" -> "#ff5555";
             case "HEAL" -> "#55ff55";
