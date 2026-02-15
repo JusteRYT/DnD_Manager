@@ -55,7 +55,7 @@ public class AvatarPicker extends VBox {
         -fx-background-color: #333;
         -fx-text-fill: #aaa;
         -fx-font-family: 'Cinzel', serif;
-        -fx-font-size: 10px;
+        -fx-font-size: 12px;
         -fx-border-color: #4a4a4a;
         -fx-border-radius: 5;
         -fx-cursor: hand;

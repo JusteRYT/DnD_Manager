@@ -245,12 +245,12 @@ public class TopBar extends HBox {
         yesBtn.setOnAction(ev -> {
             int currentLevel;
             try {
-                currentLevel = Integer.parseInt(character.getLevel());
+                currentLevel = character.getLevel();
             } catch (NumberFormatException ex) {
                 currentLevel = 1;
             }
             currentLevel += 1;
-            character.setLevel(String.valueOf(currentLevel));
+            character.setLevel(currentLevel);
             storageService.saveCharacter(character);
             levelValue.setText(String.valueOf(currentLevel));
             dialog.close();

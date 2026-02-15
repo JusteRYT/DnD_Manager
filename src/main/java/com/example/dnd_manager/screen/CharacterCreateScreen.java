@@ -193,6 +193,9 @@ public class CharacterCreateScreen extends AbstractScreen {
     }
 
     private void saveAndShowOverview() {
+        if (!baseInfoForm.validate()) {
+            return;
+        }
         Character character = getCharacter();
         character.getStats().copyFrom(stats);
         character.getBuffs().addAll(buffEditor.getBuffs());

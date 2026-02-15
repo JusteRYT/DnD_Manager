@@ -22,11 +22,11 @@ public class Character {
     private String name;
     private String race;
     private String characterClass;
-    private String hp;
-    private String armor;
-    private String currentMana;
-    private String maxMana;
-    private String level;
+    private int hp;
+    private int armor;
+    private int currentMana;
+    private int maxMana;
+    private int level;
 
     private String description;
     private String personality;
@@ -40,7 +40,6 @@ public class Character {
     private String avatarImage;
 
     private int totalCooper = 0;
-
     private int inspiration = 0;
 
 }

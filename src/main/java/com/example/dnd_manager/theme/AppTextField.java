@@ -46,6 +46,25 @@ public class AppTextField {
         });
     }
 
+    public void allowOnlyInteger() {
+        field.setTextFormatter(new javafx.scene.control.TextFormatter<>(change -> {
+
+            if (change.getControlNewText().matches("\\d*")) {
+                return change;
+            }
+
+            return null;
+        }));
+    }
+
+    public int getInt() {
+        if (getText().isEmpty()) {
+            return 0;
+        }
+
+        return Integer.parseInt(getText());
+    }
+
     public String getText() {
         return field.getText().trim();
     }

@@ -62,6 +62,10 @@ public class AddInventoryItemDialog {
                 existingItem != null ? existingItem.getDescription() : "", 4, "Description"
         );
 
+        AppTextField countField = new AppTextField(
+                existingItem != null ? String.valueOf(existingItem.getCount()) : "0"
+        );
+
         Button iconBtn = AppButtonFactory.customButton("Choose icon", 120);
         iconBtn.setOnAction(e -> iconPath = chooseIcon(stage));
 
@@ -73,6 +77,7 @@ public class AddInventoryItemDialog {
                 // редактируем текущий объект
                 existingItem.setName(nameField.getText());
                 existingItem.setDescription(descriptionField.getText());
+                existingItem.setCount(Integer.parseInt(countField.getText()));
                 existingItem.setIconPath(iconPath != null ? iconPath : "icon/no_image.png");
                 onItemAddedOrEdited.accept(existingItem);
             } else {
@@ -92,6 +97,7 @@ public class AddInventoryItemDialog {
         VBox root = new VBox(10,
                 nameField.getField(),
                 descriptionField,
+                countField.getField(),
                 new HBox(10, iconBtn, saveBtn)
         );
         root.setPadding(new Insets(15));

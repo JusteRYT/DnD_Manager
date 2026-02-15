@@ -112,12 +112,12 @@ public class ManaBar extends VBox {
      * Changes current mana by delta. Current mana is clamped between 0 and maxMana.
      */
     private void changeMana(int delta) {
-        int current = parseOrZero(character.getCurrentMana());
-        int max = Math.max(0, parseOrZero(character.getMaxMana()));
+        int current = character.getCurrentMana();
+        int max = Math.max(0, character.getMaxMana());
 
         int newMana = Math.max(0, Math.min(current + delta, max));
 
-        character.setCurrentMana(String.valueOf(newMana));
+        character.setCurrentMana(newMana);
         refresh();
         storageService.saveCharacter(character);
     }
@@ -137,8 +137,8 @@ public class ManaBar extends VBox {
      * Updates progress bar and label.
      */
     public void refresh() {
-        int current = parseOrZero(character.getCurrentMana());
-        int max = Math.max(0, parseOrZero(character.getMaxMana()));
+        int current = character.getCurrentMana();
+        int max = Math.max(0, character.getMaxMana());
         manaProgress.setProgress((double) current / max);
         manaLabel.setText(current + " / " + max);
     }

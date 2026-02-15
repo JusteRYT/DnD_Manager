@@ -13,6 +13,8 @@ public class InventoryItem {
     private  String name;
     private  String description;
     private  String iconPath;
+    private int count;
+
 
     public InventoryItem() {
 
@@ -22,6 +24,14 @@ public class InventoryItem {
         this.name = name;
         this.description = description;
         this.iconPath = iconPath;
+        this.count = 1;
+    }
+
+    public InventoryItem(String name, String description, String iconPath, int count) {
+        this.name = name;
+        this.description = description;
+        this.iconPath = iconPath;
+        this.count = count;
     }
 
 }

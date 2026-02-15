@@ -1,9 +1,7 @@
 package com.example.dnd_manager.info.buff_debuff;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.skills.ActivationType;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppComboBox;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -19,7 +17,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BuffEditor extends VBox {
@@ -27,20 +24,17 @@ public class BuffEditor extends VBox {
     private final ObservableList<Buff> buffs = FXCollections.observableArrayList();
     private final VBox listContainer = new VBox(8);
     private final Character character;
+    private final Label nameRequiredLabel = new Label(I18n.t("labelField.nameRequired"));
 
     public BuffEditor() {
         this(null);
     }
 
-    /**
-     * Create editor with initial buffs (for EDIT mode) or empty (CREATE mode).
-     */
     public BuffEditor(Character character) {
         this.character = character;
         setSpacing(15);
         setPadding(new Insets(10));
 
-        // 1. Заголовок секции
         Label title = new Label(I18n.t("label.buffsEditor").toUpperCase());
         title.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold; -fx-font-size: 13px; -fx-letter-spacing: 1.5px;");
 
@@ -48,7 +42,6 @@ public class BuffEditor extends VBox {
             buffs.addAll(character.getBuffs());
         }
 
-        // 2. Блок ввода (Input Card)
         VBox inputCard = new VBox(12);
         inputCard.setStyle("""
                     -fx-background-color: linear-gradient(to right, #252526, #1e1e1e);
@@ -59,10 +52,15 @@ public class BuffEditor extends VBox {
                 """);
 
         AppTextField nameField = new AppTextField(I18n.t("buff.promptText.name"));
+
+        configureNameValidation(nameField);
+        VBox nameBox = new VBox(2, nameField.getField(), nameRequiredLabel);
+        nameBox.setMinHeight(45);
+        nameBox.setAlignment(Pos.TOP_LEFT);
+
         AppTextSection descriptionField = new AppTextSection("", 3, I18n.t("textSection.promptText.descriptionBuffs"));
 
         AppComboBox<String> typeBox = new AppComboBox<>();
-
         for (BuffType type : BuffType.values()) typeBox.getItems().add(type.getName());
         typeBox.setValue(BuffType.BUFF.getName());
         typeBox.setPrefWidth(150);
@@ -75,7 +73,6 @@ public class BuffEditor extends VBox {
         Button addButton = AppButtonFactory.actionSave(I18n.t("button.addBuff"));
         addButton.setPrefWidth(150);
 
-        // Вспомогательная строка для типа и кнопки иконки
         HBox settingsRow = new HBox(15,
                 new VBox(5, createFieldLabel(I18n.t("textFieldLabel.type")), typeBox),
                 new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)
@@ -86,14 +83,13 @@ public class BuffEditor extends VBox {
 
         inputCard.getChildren().addAll(
                 createFieldLabel(I18n.t("textFieldLabel.name")),
-                nameField.getField(),
+                nameBox,
                 createFieldLabel(I18n.t("textFieldLabel.description")),
                 descriptionField,
                 settingsRow,
                 buttonsRow
         );
 
-        // --- ЛОГИКА КНОПОК ---
         chooseIconButton.setOnAction(e -> {
             FileChooser chooser = new FileChooser();
             chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
@@ -105,34 +101,60 @@ public class BuffEditor extends VBox {
         });
 
         addButton.setOnAction(e -> {
-            String name = nameField.getText().trim();
-            if (character == null) {
-                iconPath.set(getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
-            }
-            if (!name.isEmpty()) {
-                Buff buff = new Buff(name, descriptionField.getText(), typeBox.getValue(), iconPath.get());
+            if (validateName(nameField)) {
+                String name = nameField.getText().trim();
+                String icon = iconPath.get();
+                if (icon == null || icon.isEmpty()) {
+                    icon = getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm();
+                }
+
+                Buff buff = new Buff(name, descriptionField.getText(), typeBox.getValue(), icon);
                 addBuff(buff);
 
-                // Очистка
                 nameField.clear();
                 descriptionField.setText("");
                 iconPath.set("");
                 iconPathLabel.setText("");
+                nameRequiredLabel.setVisible(false);
+                nameRequiredLabel.setManaged(false);
             }
         });
 
-        // 3. Список добавленных баффов
         listContainer.setPadding(new Insets(10, 0, 0, 0));
-
         getChildren().addAll(title, inputCard, listContainer);
 
-        // Отрисовка существующих
         for (Buff buff : buffs) {
             addBuffRow(buff);
         }
     }
 
-    // Вспомогательный метод для маленьких подписей
+    private void configureNameValidation(AppTextField nameField) {
+        nameRequiredLabel.setStyle("""
+            -fx-text-fill: #ff6b6b;
+            -fx-font-size: 10px;
+            -fx-font-weight: bold;
+            """);
+
+        nameRequiredLabel.setVisible(false);
+        nameRequiredLabel.setManaged(false);
+        nameRequiredLabel.setPadding(new Insets(0, 0, 0, 5));
+
+        // Скрываем ошибку сразу при вводе текста
+        nameField.getField().textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.isBlank()) {
+                nameRequiredLabel.setVisible(false);
+                nameRequiredLabel.setManaged(false);
+            }
+        });
+    }
+
+    private boolean validateName(AppTextField field) {
+        boolean valid = !field.getText().isBlank();
+        nameRequiredLabel.setVisible(!valid);
+        nameRequiredLabel.setManaged(!valid);
+        return valid;
+    }
+
     private Label createFieldLabel(String text) {
         Label l = new Label(text);
         l.setStyle("-fx-text-fill: #666; -fx-font-size: 10px; -fx-font-weight: bold;");

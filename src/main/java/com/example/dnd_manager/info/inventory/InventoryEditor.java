@@ -4,6 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
+import com.example.dnd_manager.theme.IntegerField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,6 +22,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class InventoryEditor extends VBox {
 
+    private final Label nameRequiredLabel = new Label(I18n.t("labelField.nameRequired"));
+
     @Getter
     private final ObservableList<InventoryItem> items = FXCollections.observableArrayList();
     private final VBox listContainer = new VBox(8);
@@ -35,7 +38,6 @@ public class InventoryEditor extends VBox {
         setSpacing(15);
         setPadding(new Insets(10));
 
-        // 1. Заголовок секции (в стиле Stats/Buffs)
         Label title = new Label(I18n.t("label.inventoryEditor").toUpperCase());
         title.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold; -fx-font-size: 13px; -fx-letter-spacing: 1.5px;");
 
@@ -43,7 +45,6 @@ public class InventoryEditor extends VBox {
             items.addAll(character.getInventory());
         }
 
-        // 2. Блок ввода (Input Card) с градиентом
         VBox inputCard = new VBox(12);
         inputCard.setStyle("""
                     -fx-background-color: linear-gradient(to right, #252526, #1e1e1e);
@@ -54,7 +55,14 @@ public class InventoryEditor extends VBox {
                 """);
 
         AppTextField nameField = new AppTextField(I18n.t("textField.inventoryName"));
+        configureNameValidation(nameField);
+
+        VBox nameBox = new VBox(2, nameField.getField(), nameRequiredLabel);
+        nameBox.setMinHeight(45);
+        nameBox.setAlignment(Pos.TOP_LEFT);
+
         AppTextSection descriptionField = new AppTextSection("", 3, I18n.t("textSection.inventoryDescription"));
+        IntegerField countField = new IntegerField(I18n.t("textField.inventoryCountPrompt"));
 
         AtomicReference<String> iconPath = new AtomicReference<>("");
         Label iconPathLabel = new Label();
@@ -67,20 +75,21 @@ public class InventoryEditor extends VBox {
         HBox settingsRow = new HBox(15,
                 new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)
         );
-
         settingsRow.setAlignment(Pos.BOTTOM_LEFT);
+
         HBox buttonsRow = new HBox(15, addButton, iconButton);
 
         inputCard.getChildren().addAll(
                 createFieldLabel(I18n.t("textFieldLabel.itemName")),
-                nameField.getField(),
+                nameBox,
                 createFieldLabel(I18n.t("textFieldLabel.description")),
                 descriptionField,
+                createFieldLabel(I18n.t("textField.inventoryCount")),
+                countField.getField(),
                 settingsRow,
                 buttonsRow
         );
 
-        // Логика кнопок
         iconButton.setOnAction(e -> {
             String selected = chooseIcon();
             if (selected != null) {
@@ -91,30 +100,58 @@ public class InventoryEditor extends VBox {
         });
 
         addButton.setOnAction(event -> {
-            String name = nameField.getText().trim();
-            if (character == null) {
-                iconPath.set(getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
-            }
-            if (!name.isEmpty()) {
-                InventoryItem item = new InventoryItem(name, descriptionField.getText(), iconPath.get());
+            if (validateName(nameField)) {
+                String name = nameField.getText().trim();
+
+                String finalIcon = iconPath.get();
+                if (finalIcon == null || finalIcon.isEmpty()) {
+                    finalIcon = getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm();
+                }
+
+                InventoryItem item = new InventoryItem(name, descriptionField.getText(), finalIcon, countField.getInt());
                 addItem(item);
 
-                // Очистка
                 nameField.setText("");
                 descriptionField.setText("");
                 iconPath.set("");
                 iconPathLabel.setText("");
+                nameRequiredLabel.setVisible(false);
+                nameRequiredLabel.setManaged(false);
             }
         });
 
-        // 3. Список предметов
         listContainer.setPadding(new Insets(10, 0, 0, 0));
-
         getChildren().addAll(title, inputCard, listContainer);
 
         for (InventoryItem item : items) {
             addItemRow(item);
         }
+    }
+
+    private void configureNameValidation(AppTextField nameField) {
+        nameRequiredLabel.setStyle("""
+            -fx-text-fill: #ff6b6b;
+            -fx-font-size: 10px;
+            -fx-font-weight: bold;
+            """);
+
+        nameRequiredLabel.setVisible(false);
+        nameRequiredLabel.setManaged(false);
+        nameRequiredLabel.setPadding(new Insets(0, 0, 0, 5));
+
+        nameField.getField().textProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal.isBlank()) {
+                nameRequiredLabel.setVisible(false);
+                nameRequiredLabel.setManaged(false);
+            }
+        });
+    }
+
+    private boolean validateName(AppTextField field) {
+        boolean valid = !field.getText().isBlank();
+        nameRequiredLabel.setVisible(!valid);
+        nameRequiredLabel.setManaged(!valid);
+        return valid;
     }
 
     private Label createFieldLabel(String text) {
