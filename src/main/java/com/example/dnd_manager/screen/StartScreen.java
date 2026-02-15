@@ -2,6 +2,7 @@
 
     import com.example.dnd_manager.info.version.AppInfo;
     import com.example.dnd_manager.lang.I18n;
+    import com.example.dnd_manager.overview.dialogs.AppErrorDialog;
     import com.example.dnd_manager.service.CharacterTransferServiceImpl;
     import com.example.dnd_manager.store.StorageService;
     import com.example.dnd_manager.theme.AppTheme;
@@ -139,7 +140,10 @@
 
         private void openCharacterEdit() {
             List<String> names = storageService.listCharacterNames();
-            if (names.isEmpty()) return;
+            if (names.isEmpty()) {
+                showError(I18n.t("error.no_characters_title"), I18n.t("error.no_characters_msg"));
+                return;
+            }
 
             CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(
                     stage,
@@ -155,11 +159,13 @@
 
         private void openCharacterLoad() {
             List<String> names = storageService.listCharacterNames();
-            if (names.isEmpty()) return;
+            if (names.isEmpty()) {
+                showError(I18n.t("error.no_characters_title"), I18n.t("error.no_characters_msg"));
+                return;
+            }
 
             CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(stage, storageService,
                     character -> {
-
                         CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(stage, character, storageService);
                         ScreenManager.setScreen(stage, overviewScreen);
                     }, false);
@@ -203,5 +209,10 @@
             footer.setPadding(new Insets(5, 10, 5, 10));
 
             return footer;
+        }
+
+        private void showError(String title, String message) {
+            AppErrorDialog dialog = new AppErrorDialog(stage, title, message);
+            dialog.show();
         }
     }
