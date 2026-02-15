@@ -53,11 +53,14 @@ public class CharacterOverviewScreen extends BorderPane {
         rightCol.setPercentWidth(50);
         mainGrid.getColumnConstraints().setAll(leftCol, rightCol);
 
+        SkillsView skillsView = new SkillsView(character);
         // Панель скиллов
-        HBox skillsBar = new HBox();
+        VBox skillsBar = new VBox();
         skillsBar.setPadding(new Insets(10));
         skillsBar.setStyle("-fx-background-color: #2b2b2b; -fx-background-radius: 6;");
-        skillsBar.getChildren().add(new SkillsView(character));
+
+        HBox.setHgrow(skillsView, Priority.ALWAYS);
+        skillsBar.getChildren().add(skillsView);
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);

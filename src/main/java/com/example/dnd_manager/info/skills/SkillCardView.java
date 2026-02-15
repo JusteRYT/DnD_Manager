@@ -198,22 +198,15 @@ public class SkillCardView extends VBox {
         if (!isMouseInDesc || customPopup.isShowing()) return;
 
         double popupWidth = 380;
-        // Уменьшаем зазор между карточкой и попапом
         double gap = 8;
 
-        // Координата X: берем край карточки и добавляем небольшой зазор
         double x = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMaxX() + gap;
-
-        // Координата Y: чуть меньше смещение вверх (было -150),
-        // чтобы середина высокого окна была ближе к курсору
         double y = briefDesc.localToScreen(briefDesc.getBoundsInLocal()).getMinY() - 80;
 
-        // Если справа места нет — перекидываем влево
         if (x + popupWidth > Screen.getPrimary().getVisualBounds().getMaxX()) {
             x = this.localToScreen(this.getBoundsInLocal()).getMinX() - popupWidth - gap;
         }
 
-        // Защита от вылета за верхнюю границу экрана
         if (y < 20) {
             y = 20;
         }
