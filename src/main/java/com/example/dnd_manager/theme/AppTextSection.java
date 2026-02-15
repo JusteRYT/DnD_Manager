@@ -51,9 +51,8 @@ public class AppTextSection extends VBox {
         area.setWrapText(true);
         area.setPrefRowCount(rows);
         area.setPromptText(promptText);
+        area.setMinHeight(TextArea.USE_PREF_SIZE);
 
-        // Добавляем -fx-control-inner-background: #1e1e1e;
-        // Это закрасит ту самую белую область
         String baseStyle = """
         -fx-background-color: #3a3a3a, #1e1e1e;
         -fx-background-insets: 0, 1;
