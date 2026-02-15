@@ -72,11 +72,9 @@ public class CustomTitleBar extends HBox {
             }
         });
 
-        btn.setOnMouseExited(e -> {
-            btn.setStyle(btn.getStyle().replace("-fx-background-color: #e81123;", "")
-                    .replace("-fx-text-fill: white;", "")
-                    .replace("-fx-background-color: rgba(255, 255, 255, 0.1);", ""));
-        });
+        btn.setOnMouseExited(e -> btn.setStyle(btn.getStyle().replace("-fx-background-color: #e81123;", "")
+                .replace("-fx-text-fill: white;", "")
+                .replace("-fx-background-color: rgba(255, 255, 255, 0.1);", "")));
 
         return btn;
     }

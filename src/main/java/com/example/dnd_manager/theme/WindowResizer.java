@@ -20,7 +20,6 @@ public class WindowResizer {
         WindowResizer resizer = new WindowResizer(stage, margin);
         Scene scene = stage.getScene();
 
-        // Добавляем слушатели именно на сцену, используя EventFilter (он срабатывает раньше всех)
         scene.addEventFilter(MouseEvent.MOUSE_MOVED, resizer::handleMoved);
         scene.addEventFilter(MouseEvent.MOUSE_PRESSED, resizer::handlePressed);
         scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, resizer::handleDragged);
@@ -85,7 +84,6 @@ public class WindowResizer {
             newH = stage.getHeight() + deltaY;
         }
 
-        // Применяем размеры
         if (newW >= stage.getMinWidth()) {
             stage.setX(newX);
             stage.setWidth(newW);

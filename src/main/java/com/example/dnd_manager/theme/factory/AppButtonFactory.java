@@ -284,8 +284,8 @@ public final class AppButtonFactory {
         final boolean[] isActive = {false};
 
         // Цвета
-        String colorNormal = AppTheme.BUTTON_REMOVE; // Золотой
-        String colorActive = AppTheme.BUTTON_DANGER;  // Красный
+        String colorNormal = AppTheme.BUTTON_REMOVE;
+        String colorActive = AppTheme.BUTTON_DANGER;
         String colorHover = AppTheme.BUTTON_REMOVE_HOVER;
 
         String commonStyle = """
@@ -321,18 +321,16 @@ public final class AppButtonFactory {
         button.setMinSize(size, size);
         button.setMaxSize(size, size);
 
-        // Рисуем жирный минус через Utils
         StackPane icon = Utils.createAdjustIcon(false, size);
         button.setGraphic(icon);
 
         final boolean[] isActive = {false};
 
         // Цвета
-        String colorNormal = AppTheme.BUTTON_PRIMARY; // Золотой
-        String colorActive = AppTheme.BUTTON_DANGER;  // Красный
+        String colorNormal = AppTheme.BUTTON_PRIMARY;
+        String colorActive = AppTheme.BUTTON_DANGER;
         String colorHover = AppTheme.BUTTON_PRIMARY_HOVER;
 
-        // Общий каркас стиля (без цвета фона)
         String commonStyle = """
                 -fx-background-radius: 4;
                 -fx-border-radius: 4;
@@ -341,8 +339,8 @@ public final class AppButtonFactory {
                 -fx-padding: 0;
                 """;
 
-        // Функция для сборки стиля
-        java.util.function.Function<String, String> styleBuilder = (color) ->
+
+        Function<String, String> styleBuilder = (color) ->
                 commonStyle + "-fx-background-color: " + color + "; -fx-border-color: derive(" + color + ", -20%);";
 
         button.setStyle(styleBuilder.apply(colorNormal));
@@ -412,21 +410,63 @@ public final class AppButtonFactory {
     }
 
     /**
+     * Прозрачная кнопка с оранжевой рамкой для импорта/важных действий.
+     */
+    public static Button actionImport(String text, int width) {
+        final String IDLE_STYLE = """
+        -fx-background-color: transparent; 
+        -fx-text-fill: #777; 
+        -fx-border-color: #444; 
+        -fx-border-radius: 4; 
+        -fx-cursor: hand;
+        """;
+
+        final String HOVER_STYLE = """
+        -fx-background-color: rgba(200, 155, 60, 0.1); 
+        -fx-text-fill: #f6bb4a; 
+        -fx-border-color: #f6bb4a; 
+        -fx-border-radius: 4; 
+        -fx-cursor: hand;
+        """;
+
+        Button button = new Button(text);
+        button.setPrefWidth(width);
+
+        button.setStyle(IDLE_STYLE);
+
+        button.setOnMouseEntered(e -> button.setStyle(HOVER_STYLE));
+        button.setOnMouseExited(e -> button.setStyle(IDLE_STYLE));
+
+        return button;
+    }
+
+    /**
      * Прозрачная кнопка с рамкой для выхода/отмены.
      */
     public static Button actionExit(String text, int width) {
+        final String IDLE_STYLE = """
+            -fx-background-color: transparent; 
+            -fx-text-fill: #777; 
+            -fx-border-color: #444; 
+            -fx-border-radius: 4; 
+            -fx-cursor: hand;
+            """;
+
+        final String HOVER_STYLE = """
+            -fx-background-color: rgba(232, 17, 35, 0.1); 
+            -fx-text-fill: #ff6b6b; 
+            -fx-border-color: #ff6b6b; 
+            -fx-border-radius: 4; 
+            -fx-cursor: hand;
+            """;
+
         Button button = new Button(text);
         button.setPrefWidth(width);
-        button.setStyle("""
-                    -fx-background-color: transparent; 
-                    -fx-text-fill: #777; 
-                    -fx-border-color: #444; 
-                    -fx-border-radius: 4; 
-                    -fx-cursor: hand;
-                """);
 
-        button.setOnMouseEntered(e -> button.setStyle(button.getStyle() + "-fx-border-color: #666; -fx-text-fill: #aaa;"));
-        button.setOnMouseExited(e -> button.setStyle(button.getStyle().replace("-fx-border-color: #666; -fx-text-fill: #aaa;", "")));
+        button.setStyle(IDLE_STYLE);
+
+        button.setOnMouseEntered(e -> button.setStyle(HOVER_STYLE));
+        button.setOnMouseExited(e -> button.setStyle(IDLE_STYLE));
 
         return button;
     }

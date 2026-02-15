@@ -35,7 +35,6 @@ public class CharacterSelectionScreen extends VBox {
         if (names.isEmpty()) {
             renderEmptyState();
         } else {
-            // Используем FlowPane для плитки (слева направо)
             FlowPane cardsGrid = new FlowPane();
             cardsGrid.setHgap(25);
             cardsGrid.setVgap(25);
@@ -60,7 +59,7 @@ public class CharacterSelectionScreen extends VBox {
             getChildren().add(scrollPane);
         }
 
-        Button backBtn = AppButtonFactory.primary(I18n.t("button.back"));
+        Button backBtn = AppButtonFactory.actionExit(I18n.t("button.exit"), 80);
         backBtn.setPrefWidth(200);
         backBtn.setOnAction(e -> closeScreen(stage, storageService));
         getChildren().add(backBtn);
