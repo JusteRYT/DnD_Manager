@@ -123,7 +123,11 @@ public class CharacterImportExportScreen extends VBox {
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Zip files", "*.zip"));
         File file = chooser.showSaveDialog(stage);
         if (file != null) {
-            try { transferService.exportCharacter(characterName, file); } catch (IOException ex) { ex.printStackTrace(); }
+            try {
+                transferService.exportCharacter(characterName, file);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -132,7 +136,12 @@ public class CharacterImportExportScreen extends VBox {
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Zip files", "*.zip"));
         File file = chooser.showOpenDialog(stage);
         if (file != null) {
-            try { transferService.importCharacter(file); renderContent(); } catch (IOException ex) { ex.printStackTrace(); }
+            try {
+                transferService.importCharacter(file);
+                renderContent();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
