@@ -202,7 +202,7 @@ public class CharacterCreateScreen extends AbstractScreen {
         character.getInventory().addAll(inventoryEditor.getItems());
         character.getSkills().addAll(skillsEditor.getSkills());
         storageService.saveCharacter(character);
-        CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(character, storageService);
+        CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(stage, character, storageService);
         stage.getScene().setRoot(overviewScreen);
     }
 

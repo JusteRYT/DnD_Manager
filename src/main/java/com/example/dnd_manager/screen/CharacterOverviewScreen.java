@@ -12,6 +12,7 @@ import com.example.dnd_manager.tooltip.SkillsView;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import lombok.Getter;
 
 @Getter
@@ -19,10 +20,11 @@ public class CharacterOverviewScreen extends BorderPane {
 
     private final StorageService storageService;
     private final ManaBar manaBar;
+    private final Stage stage;
 
-    public CharacterOverviewScreen(Character character, StorageService storageService) {
+    public CharacterOverviewScreen(Stage stage, Character character, StorageService storageService) {
         this.storageService = storageService;
-
+        this.stage = stage;
         setStyle("-fx-background-color: #1e1e1e;");
 
         // --- Top Bar (Всегда сверху) ---
@@ -36,7 +38,7 @@ public class CharacterOverviewScreen extends BorderPane {
         mainGrid.setVgap(15);
         mainGrid.setPadding(new Insets(10));
 
-        BuffsInventoryPanel buffsInventoryPanel = new BuffsInventoryPanel(character, storageService);
+        BuffsInventoryPanel buffsInventoryPanel = new BuffsInventoryPanel(stage, character, storageService);
         StatsPanel statsPanel = new StatsPanel(character);
         ResourcePanel resourcePanel = new ResourcePanel(character, storageService);
         manaBar = resourcePanel.getManaBar();

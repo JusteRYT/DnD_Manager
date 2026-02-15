@@ -98,9 +98,7 @@ public class CharacterEditScreen extends AbstractScreen {
 
     private void closeScreen() {
         StartScreen startScreen = new StartScreen(stage, storageService);
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
-        scrollPane.setFitToHeight(true);
-        stage.getScene().setRoot(scrollPane);
+        ScreenManager.setScreen(stage, startScreen.getView());
     }
 
     private HBox buildBaseInfoSection() {
@@ -169,9 +167,7 @@ public class CharacterEditScreen extends AbstractScreen {
         // Save
         storageService.saveCharacter(character);
 
-        StartScreen startScreen =
-                new StartScreen(stage, storageService);
-        // Close or navigate back
-        stage.getScene().setRoot(startScreen.getView());
+        StartScreen startScreen = new StartScreen(stage, storageService);
+        ScreenManager.setScreen(stage, startScreen.getView());
     }
 }

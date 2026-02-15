@@ -6,6 +6,7 @@ import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.tooltip.BuffsView;
 import javafx.geometry.Insets;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  * Right panel: Buffs/Debuffs + Inventory
@@ -17,7 +18,7 @@ public class BuffsInventoryPanel extends VBox {
      *
      * @param character character instance
      */
-    public BuffsInventoryPanel(Character character, StorageService storageService) {
+    public BuffsInventoryPanel(Stage stage, Character character, StorageService storageService) {
         setSpacing(15);
 
         VBox buffs = new VBox(new BuffsView(character));

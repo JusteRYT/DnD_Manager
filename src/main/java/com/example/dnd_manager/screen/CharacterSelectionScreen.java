@@ -73,8 +73,6 @@ public class CharacterSelectionScreen extends VBox {
 
     private void closeScreen(Stage stage, StorageService storageService) {
         StartScreen startScreen = new StartScreen(stage, storageService);
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
-        scrollPane.setFitToHeight(true);
-        stage.getScene().setRoot(scrollPane);
+        ScreenManager.setScreen(stage, startScreen.getView());
     }
 }

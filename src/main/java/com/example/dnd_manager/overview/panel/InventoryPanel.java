@@ -21,6 +21,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.Objects;
@@ -53,7 +54,11 @@ public class InventoryPanel extends VBox {
         title.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 16px; -fx-font-weight: bold;");
 
         Button addBtn = AppButtonFactory.createValueAdjustButton(true, 24, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
-        addBtn.setOnAction(e -> new AddInventoryItemDialog(character, this::onItemCreated).show());
+        addBtn.setOnAction(e -> {
+            // Получаем окно, в котором находится кнопка, и приводим его к типу Stage
+            Stage owner = (Stage) addBtn.getScene().getWindow();
+            new AddInventoryItemDialog(owner, character, null, this::onItemCreated).show();
+        });
 
         deleteBtn = AppButtonFactory.deleteToggleButton(24);
         deleteBtn.setOnMouseClicked(e -> deleteMode = deleteBtn.getStyle().contains(AppTheme.BUTTON_DANGER));

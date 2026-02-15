@@ -1,5 +1,6 @@
 package com.example.dnd_manager;
 
+import com.example.dnd_manager.screen.ScreenManager;
 import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.CustomTitleBar;
@@ -17,10 +18,6 @@ import javafx.stage.StageStyle;
 
 public class MainApp extends Application {
 
-    private static final double PREFERRED_WIDTH = 1600;
-    private static final double PREFERRED_HEIGHT = 1200;
-    private static final double MIN_WIDTH = 1024;
-    private static final double MIN_HEIGHT = 768;
     private static final int RESIZE_MARGIN = 7;
 
     @Override
@@ -30,38 +27,21 @@ public class MainApp extends Application {
         StorageService storageService = new StorageService();
         storageService.init();
 
-        StartScreen startScreen = new StartScreen(primaryStage, storageService);
-
         VBox root = new VBox();
         root.setStyle("-fx-border-color: #3a3a3a; -fx-border-width: 1; -fx-background-color: #1e1e1e;");
         root.setPadding(new javafx.geometry.Insets(0, 2, 2, 2));
 
         CustomTitleBar titleBar = new CustomTitleBar(primaryStage);
+        root.getChildren().add(titleBar);
 
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(startScreen.getView());
-        scrollPane.setFitToHeight(true);
-        scrollPane.setFitToWidth(true);
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
-
-        root.getChildren().addAll(titleBar, scrollPane);
-
-        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-        double initialWidth = Math.min(PREFERRED_WIDTH, screenBounds.getWidth() * 0.95);
-        double initialHeight = Math.min(PREFERRED_HEIGHT, screenBounds.getHeight() * 0.9);
-
-        Scene scene = new Scene(root, initialWidth, initialHeight);
+        Scene scene = new Scene(root, 1200, 800);
         primaryStage.setScene(scene);
 
-        // --- Вызов логики Resize через статический метод ---
+        // 3. Используем менеджер для загрузки первого экрана
+        StartScreen startScreen = new StartScreen(primaryStage, storageService);
+        ScreenManager.setScreen(primaryStage, startScreen.getView());
+
         WindowResizer.listen(primaryStage, RESIZE_MARGIN);
-
-        primaryStage.setMinWidth(MIN_WIDTH);
-        primaryStage.setMinHeight(MIN_HEIGHT);
-
-        if (screenBounds.getWidth() <= MIN_WIDTH || screenBounds.getHeight() <= MIN_HEIGHT) {
-            primaryStage.setMaximized(true);
-        }
-
         primaryStage.show();
     }
 
