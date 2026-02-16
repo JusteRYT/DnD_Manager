@@ -9,7 +9,6 @@ import com.example.dnd_manager.theme.AppComboBox;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -28,7 +27,7 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
     private AppTextField nameField;
     private AppTextSection descriptionField;
     private AppComboBox<String> typeBox;
-    private AtomicReference<String> iconPath = new AtomicReference<>("");
+    private final AtomicReference<String> iconPath = new AtomicReference<>("");
     private Label iconPathLabel;
 
     public BuffEditor(Character character) {

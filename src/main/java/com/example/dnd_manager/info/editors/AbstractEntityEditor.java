@@ -88,17 +88,6 @@ public abstract class AbstractEntityEditor<T> extends VBox {
         itemsContainer.getChildren().add(createItemRow(item));
     }
 
-    protected void removeItem(T item) {
-        items.remove(item);
-    }
-
-    protected Runnable getOnRemoveAction(T item, Node rowNode) {
-        return () -> {
-            itemsContainer.getChildren().remove(rowNode);
-            items.remove(item);
-        };
-    }
-
     protected Pane createItemsContainer() {
         VBox vBox = new VBox(8);
         vBox.setPadding(new Insets(10, 0, 0, 0));
