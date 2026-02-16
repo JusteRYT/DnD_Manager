@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.skills;
 
 import com.example.dnd_manager.info.familiar.Displayable;
+import com.example.dnd_manager.lang.I18n;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,8 +47,8 @@ public record Skill(String name, String description, List<SkillEffect> effects, 
     @Override
     public Map<String, String> getAttributes() {
         Map<String, String> attr = new LinkedHashMap<>();
-        attr.put("Activation", activationType);
-        attr.put("Effects", effectsSummary());
+        attr.put(I18n.t("skill.attrActivation"), activationType);
+        attr.put(I18n.t("skill.attrEffects"), effectsSummary());
         return attr;
     }
 

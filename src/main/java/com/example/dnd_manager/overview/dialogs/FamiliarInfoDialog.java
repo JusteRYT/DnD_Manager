@@ -1,6 +1,7 @@
 package com.example.dnd_manager.overview.dialogs;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -62,7 +63,8 @@ public class FamiliarInfoDialog extends BaseDialog {
         VBox info = new VBox(2);
         Label name = new Label(familiar.getName());
         name.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #9c27b0;");
-        Label meta = new Label(familiar.getRace() + " • " + familiar.getCharacterClass() + " • Lvl " + familiar.getLevel());
+        String metaText = String.format("%s • %s • %s %s", familiar.getRace(), familiar.getCharacterClass(), I18n.t("label.familiarsLvl"), familiar.getLevel());
+        Label meta = new Label(metaText);
         meta.setStyle("-fx-text-fill: #888;");
 
         info.getChildren().addAll(name, meta);

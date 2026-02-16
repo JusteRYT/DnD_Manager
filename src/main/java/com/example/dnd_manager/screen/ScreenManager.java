@@ -31,8 +31,12 @@ public class ScreenManager {
         }
 
         ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(newView);
-        scrollPane.setFitToHeight(true);
+        scrollPane.setFitToHeight(false);
         scrollPane.setFitToWidth(true);
+
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background: #1e1e1e; -fx-border-width: 0;");
 
         VBox.setVgrow(scrollPane, Priority.ALWAYS);

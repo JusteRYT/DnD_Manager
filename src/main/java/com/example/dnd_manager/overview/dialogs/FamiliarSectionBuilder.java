@@ -1,7 +1,6 @@
 package com.example.dnd_manager.overview.dialogs;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.buff_debuff.BuffType;
 import com.example.dnd_manager.info.stats.StatEnum;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.components.IconSlot;
@@ -22,10 +21,10 @@ public class FamiliarSectionBuilder {
         pane.setStyle("-fx-background-color: rgba(0,0,0,0.2); -fx-padding: 10; -fx-background-radius: 8;");
 
         pane.getChildren().addAll(
-                createResBox("HP", familiar.getHp(), "#ff6b6b"),
-                createResBox("AC", familiar.getArmor(), "#74c0fc"),
-                createResBox("MP", familiar.getCurrentMana() + "/" + familiar.getMaxMana(), "#4dabf7"),
-                createResBox("GOLD", familiar.getTotalCooper(), "#ff922b")
+                createResBox("label.familiarsHP", familiar.getHp(), "#ff6b6b"),
+                createResBox("label.familiarsAC", familiar.getArmor(), "#74c0fc"),
+                createResBox("label.familiarsMP", familiar.getCurrentMana() + "/" + familiar.getMaxMana(), "#4dabf7"),
+                createResBox("label.familiarsGOLD", familiar.getTotalCooper(), "#ff922b")
         );
         return pane;
     }
@@ -48,19 +47,18 @@ public class FamiliarSectionBuilder {
     public static Node buildIconLists(Character familiar, Character character) {
         VBox container = new VBox(20);
 
-        appendIconRow(container, "SKILLS", familiar.getSkills(),
+        appendIconRow(container, I18n.t("label.familiarsSKILL"), familiar.getSkills(),
                 s -> new IconSlot(s, character.getName()));
 
-        appendIconRow(container, "INVENTORY", familiar.getInventory(),
+        appendIconRow(container, I18n.t("label.familiarsINVENTORY"), familiar.getInventory(),
                 i -> new IconSlot(i, character.getName()));
 
-        appendIconRow(container, "EFFECTS", familiar.getBuffs(),
+        appendIconRow(container, I18n.t("label.familiarsEFFECTS"), familiar.getBuffs(),
                 b -> new IconSlot(b, character.getName()));
 
         return container;
     }
 
-    // Вспомогательные методы
     private static <T> void appendIconRow(VBox container, String title, List<T> items, java.util.function.Function<T, Node> mapper) {
         if (items == null || items.isEmpty()) return;
         VBox section = new VBox(8, createHeaderLabel(title));

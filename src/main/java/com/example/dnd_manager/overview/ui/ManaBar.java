@@ -120,17 +120,6 @@ public class ManaBar extends VBox {
     }
 
     /**
-     * Safe integer parsing, returns 0 if invalid
-     */
-    private int parseOrZero(String value) {
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
-
-    /**
      * Updates progress bar and label.
      */
     public void refresh() {

@@ -1,6 +1,7 @@
 package com.example.dnd_manager.overview.dialogs.components;
 
 import com.example.dnd_manager.info.familiar.Displayable;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -37,7 +38,11 @@ public class IconSlot extends StackPane {
 
         if (item.getBadgeText() != null) {
             Label badge = new Label(item.getBadgeText());
-            badge.setStyle("-fx-text-fill: white; -fx-font-size: 9px; -fx-background-color: rgba(0,0,0,0.7); -fx-background-radius: 3; -fx-padding: 1 3;");
+            badge.setStyle("-fx-text-fill: white; " +
+                    "-fx-font-size: 9px; " +
+                    "-fx-background-color: rgba(0,0,0,0.7); " +
+                    "-fx-background-radius: 3; " +
+                    "-fx-padding: 1 3;");
             StackPane.setAlignment(badge, Pos.BOTTOM_RIGHT);
             StackPane.setMargin(badge, new Insets(2));
             getChildren().add(badge);
@@ -52,13 +57,17 @@ public class IconSlot extends StackPane {
     private void setupTooltip(Displayable item) {
         VBox root = new VBox(5);
         root.setPadding(new Insets(10));
-        root.setStyle("-fx-background-color: #1a1a1a; -fx-border-color: " + item.getAccentColor() + "; -fx-border-width: 1; -fx-min-width: 200; -fx-max-width: 300;");
+        root.setStyle("-fx-background-color: #1a1a1a; " +
+                "-fx-border-color: " + item.getAccentColor() + "; -fx-border-width: 1; " +
+                "-fx-min-width: 200; -fx-max-width: 300;");
 
         Label name = new Label(item.getName().toUpperCase());
         name.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;");
 
         Label type = new Label(item.getTypeName());
-        type.setStyle("-fx-text-fill: " + item.getAccentColor() + "; -fx-font-size: 9px; -fx-font-weight: bold;");
+        type.setStyle("-fx-text-fill: " + item.getAccentColor() + "; " +
+                "-fx-font-size: 9px; " +
+                "-fx-font-weight: bold;");
 
         root.getChildren().addAll(name, type, new Separator());
 
@@ -78,7 +87,7 @@ public class IconSlot extends StackPane {
 
         if (item.getDescription() != null) {
             HBox row = new HBox(5);
-            Label k = new Label("Description:");
+            Label k = new Label(I18n.t("label.familiarsDescription") + ":");
             k.setStyle("-fx-text-fill: #888; -fx-font-size: 10px; -fx-font-weight: bold;");
             Label desc = new Label(item.getDescription());
             desc.setWrapText(true);

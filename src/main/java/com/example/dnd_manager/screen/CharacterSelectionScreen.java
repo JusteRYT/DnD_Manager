@@ -11,6 +11,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -39,7 +40,7 @@ public class CharacterSelectionScreen extends VBox {
             cardsGrid.setVgap(25);
             cardsGrid.setAlignment(Pos.TOP_LEFT);
             cardsGrid.setPadding(new Insets(20));
-            cardsGrid.setPrefWrapLength(1200);
+            cardsGrid.prefWidthProperty().bind(this.widthProperty());
 
             for (String name : names) {
                 storageService.loadCharacter(name).ifPresent(character -> {
@@ -52,6 +53,7 @@ public class CharacterSelectionScreen extends VBox {
                 });
             }
 
+            VBox.setVgrow(cardsGrid, Priority.ALWAYS);
             getChildren().add(cardsGrid);
         }
 

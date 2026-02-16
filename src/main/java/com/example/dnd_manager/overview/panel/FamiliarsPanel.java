@@ -19,9 +19,10 @@ import javafx.stage.Stage;
 import java.util.Objects;
 
 public class FamiliarsPanel extends VBox {
-    private Character character;
+    private final Character character;
 
     private final Stage parentStage;
+
     public FamiliarsPanel(Character character, Stage parentStage) {
         this.parentStage = parentStage;
         this.character = character;
@@ -30,7 +31,8 @@ public class FamiliarsPanel extends VBox {
 
         // Заголовок
         Label title = new Label(I18n.t("label.familiars"));
-        title.setStyle(String.format("-fx-text-fill: %s; -fx-font-size: 14px; -fx-font-weight: bold; -fx-letter-spacing: 1.5;", accentColor));
+        title.setStyle(String.format("-fx-text-fill: %s; -fx-font-size: 16px; -fx-font-weight: bold; -fx-letter-spacing: 1.5;", accentColor));
+        title.setPadding(new Insets(0, 0, 10, 0));
 
         // Контейнер для списка
         VBox listContainer = new VBox(8);
@@ -73,36 +75,20 @@ public class FamiliarsPanel extends VBox {
     }
 
     private HBox createFamiliarCard(Character familiar) {
-        HBox card = new HBox(10);
-        card.setAlignment(Pos.CENTER_LEFT);
-        card.setPadding(new Insets(8));
-        card.setStyle("-fx-background-color: rgba(255,255,255,0.05); -fx-background-radius: 6;");
-        card.setOnMouseClicked(e -> {
-            new FamiliarInfoDialog(parentStage, familiar, character).show();
-        });
+        HBox card = getHBox(familiar);
 
-        // 1. Аватар
+        // --- Содержимое (без изменений, но теперь оно не будет светиться) ---
         ImageView avatar = new ImageView();
         avatar.setFitWidth(40);
         avatar.setFitHeight(40);
-        avatar.setPreserveRatio(false);
-
         try {
             String path = familiar.getAvatarImage();
-            if (path != null && !path.isBlank()) {
-                avatar.setImage(new Image(CharacterAssetResolver.resolve(character.getName(), path)));
-            } else {
-                avatar.setImage(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/no_image.png")).toExternalForm()));
-            }
-        } catch (Exception e) {
-            // Fallback
-        }
+            avatar.setImage(new Image((path != null && !path.isBlank())
+                    ? CharacterAssetResolver.resolve(character.getName(), path)
+                    : Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/no_image.png")).toExternalForm()));
+        } catch (Exception e) { /* ignore */ }
+        avatar.setClip(new Circle(20, 20, 20));
 
-        // Круглая маска для аватара
-        Circle clip = new Circle(20, 20, 20);
-        avatar.setClip(clip);
-
-        // 2. Информация
         Label nameLabel = new Label(familiar.getName());
         nameLabel.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;");
 
@@ -112,19 +98,59 @@ public class FamiliarsPanel extends VBox {
         VBox infoBox = new VBox(2, nameLabel, raceClassLabel);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
 
-        // 3. Статы (HP / AC)
         VBox statsBox = new VBox(2);
         statsBox.setAlignment(Pos.CENTER_RIGHT);
-
-        Label hpLabel = new Label("HP: " + familiar.getHp());
+        Label hpLabel = new Label(I18n.t("label.familiarsHP")+ ": " + familiar.getHp());
         hpLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-size: 11px; -fx-font-weight: bold;");
-
-        Label acLabel = new Label("AC: " + familiar.getArmor());
+        Label acLabel = new Label(I18n.t("label.familiarsAC")+ ": " + familiar.getArmor());
         acLabel.setStyle("-fx-text-fill: #74c0fc; -fx-font-size: 11px; -fx-font-weight: bold;");
-
         statsBox.getChildren().addAll(hpLabel, acLabel);
 
         card.getChildren().addAll(avatar, infoBox, statsBox);
+        return card;
+    }
+
+    private HBox getHBox(Character familiar) {
+        HBox card = new HBox(10);
+        card.setAlignment(Pos.CENTER_LEFT);
+        card.setPadding(new Insets(8));
+
+        String accentColor = "#9c27b0";
+        // Цвет тени с прозрачностью для мягкости
+        String glowColor = "rgba(156, 39, 176, 0.5)";
+
+        // Общие параметры скругления
+        String radii = "-fx-background-radius: 6; -fx-border-radius: 6;";
+
+        String baseStyle = radii + """
+                -fx-border-width: 1;
+                -fx-cursor: hand;
+                """;
+
+        // Обычное состояние
+        String idleStyle = baseStyle + """
+                -fx-background-color: rgba(255, 255, 255, 0.05);
+                -fx-border-color: rgba(156, 39, 176, 0.2);
+                -fx-effect: null;
+                """;
+
+        // Состояние наведения
+        String hoverStyle = baseStyle + String.format("""
+                -fx-border-color: %1$s;
+                /* Два слоя фона: 1-й (внешний) имитирует основу для тени, 2-й (внутренний) - тело карты */
+                -fx-background-color: %1$s, #2b2b2b;
+                -fx-background-insets: 0, 1; 
+                /* Эффект: размытие 15px, spread 0.2 делает края мягче */
+                -fx-effect: dropshadow(three-pass-box, %2$s, 15, 0.2, 0, 0);
+                """, accentColor, glowColor);
+
+        card.setStyle(idleStyle);
+
+        // Плавное переключение стилей
+        card.setOnMouseEntered(e -> card.setStyle(hoverStyle));
+        card.setOnMouseExited(e -> card.setStyle(idleStyle));
+
+        card.setOnMouseClicked(e -> new FamiliarInfoDialog(parentStage, familiar, character).show());
         return card;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.inventory;
 
 import com.example.dnd_manager.info.familiar.Displayable;
+import com.example.dnd_manager.lang.I18n;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -54,7 +55,7 @@ public class InventoryItem implements Displayable {
     @Override
     public Map<String, String> getAttributes() {
         Map<String, String> attr = new LinkedHashMap<>();
-        attr.put("Count", String.valueOf(count));
+        attr.put(I18n.t("textField.inventoryCountPrompt"), String.valueOf(count));
         return attr;
     }
 
