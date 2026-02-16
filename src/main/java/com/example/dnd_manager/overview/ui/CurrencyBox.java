@@ -29,13 +29,20 @@ public class CurrencyBox extends VBox {
                 new CoinRow(pathCooperIcon, copperText, () -> update(character, storageService, 1), () -> update(character, storageService, -1))
         );
 
-        setStyle("""
+        String commonStyle = """
                 -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
                 -fx-background-radius: 8;
                 -fx-border-color: #c89b3c;
                 -fx-border-radius: 8;
-                -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.2), 10, 0, 0, 0);
-                """);
+                """;
+
+        String idleStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.2), 10, 0, 0, 0);";
+        String hoverStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, #c89b3c, 10, 0.3, 0, 0);";
+
+        setStyle(idleStyle);
+
+        setOnMouseEntered(e -> setStyle(hoverStyle));
+        setOnMouseExited(e -> setStyle(idleStyle));
 
         getChildren().addAll(title, coinsList);
         refresh(character);

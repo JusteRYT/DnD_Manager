@@ -70,13 +70,22 @@ public class InspirationBox extends VBox {
 
         row.getChildren().addAll(icon, valContainer, add, remove);
 
-        setStyle("""
-                -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
-                -fx-background-radius: 8;
-                -fx-border-color: #9b59b6;
-                -fx-border-radius: 8;
-                -fx-effect: dropshadow(three-pass-box, rgba(155, 89, 182, 0.2), 10, 0, 0, 0);
-                """);
+        String accentColor = "#9b59b6"; // Фиолетовый цвет бордера
+        String commonStyle = """
+            -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
+            -fx-background-radius: 8;
+            -fx-border-color: %s;
+            -fx-border-radius: 8;
+            -fx-border-width: 1;
+            """.formatted(accentColor);
+
+        String idleStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, rgba(155, 89, 182, 0.2), 10, 0, 0, 0);";
+        String hoverStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, %s, 10, 0.2, 0, 0);".formatted(accentColor);
+
+        setStyle(idleStyle);
+
+        setOnMouseEntered(e -> setStyle(hoverStyle));
+        setOnMouseExited(e -> setStyle(idleStyle));
 
         getChildren().addAll(title, row);
         valLabel.setText(String.valueOf(character.getInspiration()));

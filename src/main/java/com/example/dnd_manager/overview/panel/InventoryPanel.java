@@ -64,15 +64,27 @@ public class InventoryPanel extends VBox {
 
         character.getInventory().forEach(this::addItem);
 
-        setStyle("""
-                -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
-                -fx-background-radius: 10;
-                -fx-border-color: #c89b3c;
-                -fx-border-radius: 10;
-                -fx-border-width: 1;
-                -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.15), 15, 0, 0, 0);
-                """);
-        setPadding(new Insets(8));
+        String goldPrimary = "#c89b3c";
+        String commonStyle = """
+            -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
+            -fx-background-radius: 10;
+            -fx-border-color: %s;
+            -fx-border-radius: 10;
+            -fx-border-width: 1;
+            -fx-padding: 8;
+            """.formatted(goldPrimary);
+
+        // Базовое состояние
+        String idleStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.15), 15, 0, 0, 0);";
+
+        // Состояние при наведении
+        String hoverStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, %s, 10, 0.2, 0, 0);".formatted(goldPrimary);
+
+        this.setStyle(idleStyle);
+
+        this.setOnMouseEntered(e -> this.setStyle(hoverStyle));
+        this.setOnMouseExited(e -> this.setStyle(idleStyle));
+
         getChildren().addAll(header, itemsPane);
     }
 

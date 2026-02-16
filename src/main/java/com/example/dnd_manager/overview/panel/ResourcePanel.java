@@ -41,7 +41,7 @@ public class ResourcePanel extends HBox {
         CurrencyBox currencyBox = new CurrencyBox(character, storageService);
         HBox.setHgrow(currencyBox, Priority.ALWAYS); // Занимает всё свободное место
         currencyBox.setMaxWidth(Double.MAX_VALUE);
-        currencyBox.setMinHeight(190); // Чтобы по высоте подходило под правый стек
+        currencyBox.setMinHeight(180); // Чтобы по высоте подходило под правый стек
 
         // 2. Правая часть: Стек (Вдохновение + Мана)
         VBox rightStack = new VBox(10);

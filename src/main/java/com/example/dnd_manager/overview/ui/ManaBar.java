@@ -29,42 +29,34 @@ public class ManaBar extends VBox {
         this.storageService = storageService;
 
         setSpacing(8);
-        setPadding(new Insets(8));
-        setStyle("""
-                -fx-border-color: #3a3a3a;
-                -fx-border-radius: 6;
-                -fx-border-width: 1;
-                -fx-background-radius: 6;
-                -fx-background-color: #252526;
-                """);
 
         Label title = new Label(I18n.t("manaField.name.overview"));
         title.setStyle("""
-                -fx-text-fill: #3aa3c3;
-                -fx-font-size: 16px;
-                -fx-font-weight: bold;
-                """);
+            -fx-text-fill: #3aa3c3;
+            -fx-font-size: 16px;
+            -fx-font-weight: bold;
+            """);
 
-        // Row with progress bar and value
         HBox row = new HBox(8);
         row.setAlignment(Pos.CENTER_LEFT);
 
+        // --- Настройка ProgressBar (Цвет полоски зафиксирован здесь) ---
         manaProgress.setMinWidth(100);
         manaProgress.setPrefWidth(150);
         manaProgress.setMaxWidth(Double.MAX_VALUE);
-        manaProgress.setProgress(0);
+
+        // Этот стиль отвечает за внутренний акцент прогресс-бара
+        manaProgress.setStyle("-fx-accent: #3aa3c3; -fx-control-inner-background: #1a1a1a;");
 
         manaProgress.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 manaProgress.applyCss();
-
                 Region track = (Region) manaProgress.lookup(".track");
                 if (track != null) {
                     track.setBackground(new Background(new BackgroundFill(
                             Color.web(AppTheme.BACKGROUND_SECONDARY), new CornerRadii(6), null
                     )));
                 }
-
                 Region bar = (Region) manaProgress.lookup(".bar");
                 if (bar != null) {
                     bar.setBackground(new Background(new BackgroundFill(
@@ -75,36 +67,42 @@ public class ManaBar extends VBox {
         });
 
         manaLabel.setStyle("""
-                -fx-text-fill: #f2f2f2;
-                -fx-font-weight: bold;
-                -fx-font-family: "Consolas";
-                -fx-font-size: 14px;
-                """);
-
-        manaProgress.setStyle("-fx-accent: #3aa3c3; -fx-control-inner-background: #1a1a1a; -fx-text-box-border: transparent;");
-
-        setStyle("""
-                -fx-border-color: #3aa3c3;
-                -fx-border-radius: 6;
-                -fx-border-width: 1;
-                -fx-background-radius: 6;
-                -fx-background-color: linear-gradient(to bottom, #252526, #1e1e1e);
-                -fx-effect: dropshadow(three-pass-box, rgba(58, 163, 195, 0.15), 10, 0, 0, 0);
-                -fx-padding: 12;
-                """);
+            -fx-text-fill: #f2f2f2;
+            -fx-font-weight: bold;
+            -fx-font-family: "Consolas";
+            -fx-font-size: 14px;
+            """);
 
         var addBtn = AppButtonFactory.createValueAdjustButton(true, 28, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
         addBtn.setOnAction(e -> changeMana(1));
 
-        var removeBtn = AppButtonFactory.createValueAdjustButton(false, 28,
-                AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
+        var removeBtn = AppButtonFactory.createValueAdjustButton(false, 28, AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
         removeBtn.setOnAction(e -> changeMana(-1));
 
         HBox.setHgrow(manaProgress, Priority.ALWAYS);
         row.getChildren().addAll(manaProgress, manaLabel, addBtn, removeBtn);
 
-        getChildren().addAll(title, row);
+        // --- ЛОГИКА ПОДСВЕТКИ КОНТЕЙНЕРА ---
+        String accentColor = "#3aa3c3";
+        String commonStyle = """
+            -fx-border-color: %1$s;
+            -fx-border-radius: 8;
+            -fx-border-width: 1.2;
+            -fx-background-radius: 8;
+            -fx-background-color: linear-gradient(to bottom right, #252526, #1e1e1e);
+            -fx-padding: 12;
+            """.formatted(accentColor);
 
+        String idleStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, rgba(58, 163, 195, 0.15), 10, 0, 0, 0);";
+        String hoverStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, %s, 10, 0.2, 0, 0);".formatted(accentColor);
+
+        // Устанавливаем стиль только для ManaBar (this)
+        this.setStyle(idleStyle);
+
+        this.setOnMouseEntered(e -> this.setStyle(hoverStyle));
+        this.setOnMouseExited(e -> this.setStyle(idleStyle));
+
+        getChildren().addAll(title, row);
         refresh();
     }
 
@@ -141,6 +139,7 @@ public class ManaBar extends VBox {
         int max = Math.max(0, character.getMaxMana());
         manaProgress.setProgress((double) current / max);
         manaLabel.setText(current + " / " + max);
+        manaLabel.setMinWidth(USE_PREF_SIZE);
     }
 
 }
