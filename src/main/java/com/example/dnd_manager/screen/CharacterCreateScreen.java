@@ -4,7 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.avatar.AvatarPicker;
 import com.example.dnd_manager.info.editors.BuffEditor;
 import com.example.dnd_manager.info.editors.InventoryEditor;
-import com.example.dnd_manager.info.skills.SkillsEditor;
+import com.example.dnd_manager.info.editors.SkillsEditor;
 import com.example.dnd_manager.info.stats.Stats;
 import com.example.dnd_manager.info.stats.StatsEditor;
 import com.example.dnd_manager.info.text.BaseInfoForm;
@@ -67,7 +67,7 @@ public class CharacterCreateScreen extends AbstractScreen {
         descriptionSection = new CharacterDescriptionSection();
         buffEditor = new BuffEditor();
         inventoryEditor = new InventoryEditor();
-        skillsEditor = new SkillsEditor();
+        skillsEditor = new SkillsEditor(null);
 
         // --- HERO SECTION (Верхняя карточка) ---
         HBox heroCard = buildHeroCardSection();
@@ -196,7 +196,7 @@ public class CharacterCreateScreen extends AbstractScreen {
         character.getStats().copyFrom(stats);
         character.getBuffs().addAll(buffEditor.getItems());
         character.getInventory().addAll(inventoryEditor.getItems());
-        character.getSkills().addAll(skillsEditor.getSkills());
+        character.getSkills().addAll(skillsEditor.getItems());
         storageService.saveCharacter(character);
         CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(stage, character, storageService);
         ScreenManager.setScreen(stage, overviewScreen);

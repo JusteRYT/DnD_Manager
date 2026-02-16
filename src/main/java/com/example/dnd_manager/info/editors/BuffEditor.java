@@ -102,7 +102,7 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
     @Override
     protected Node createItemRow(Buff buff) {
         return new BuffEditorRow(buff, () -> {
-            listContainer.getChildren().removeIf(node -> node instanceof BuffEditorRow r && r.getItem() == buff);
+            itemsContainer.getChildren().removeIf(node -> node instanceof BuffEditorRow r && r.getItem() == buff);
             items.remove(buff);
         }, character);
     }

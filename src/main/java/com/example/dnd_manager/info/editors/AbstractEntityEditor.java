@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public abstract class AbstractEntityEditor<T> extends VBox {
 
     @Getter
     protected final ObservableList<T> items = FXCollections.observableArrayList();
-    protected final VBox listContainer = new VBox(8);
+    protected final Pane itemsContainer;
     protected final Character character;
     protected final Label nameRequiredLabel = new Label(I18n.t("labelField.nameRequired"));
 
@@ -27,6 +28,7 @@ public abstract class AbstractEntityEditor<T> extends VBox {
         this.character = character;
         setSpacing(15);
         setPadding(new Insets(10));
+        this.itemsContainer = createItemsContainer();
 
         // 1. Заголовок
         Label title = new Label(I18n.t(titleKey).toUpperCase());
@@ -44,9 +46,7 @@ public abstract class AbstractEntityEditor<T> extends VBox {
 
         fillInputCard(inputCard);
 
-        listContainer.setPadding(new Insets(10, 0, 0, 0));
-
-        getChildren().addAll(title, inputCard, listContainer);
+        getChildren().addAll(title, inputCard, itemsContainer);
 
         if (character != null) {
             loadFromCharacter(character);
@@ -85,7 +85,7 @@ public abstract class AbstractEntityEditor<T> extends VBox {
     }
 
     private void renderItemRow(T item) {
-        listContainer.getChildren().add(createItemRow(item));
+        itemsContainer.getChildren().add(createItemRow(item));
     }
 
     protected void removeItem(T item) {
@@ -94,9 +94,15 @@ public abstract class AbstractEntityEditor<T> extends VBox {
 
     protected Runnable getOnRemoveAction(T item, Node rowNode) {
         return () -> {
-            listContainer.getChildren().remove(rowNode);
+            itemsContainer.getChildren().remove(rowNode);
             items.remove(item);
         };
+    }
+
+    protected Pane createItemsContainer() {
+        VBox vBox = new VBox(8);
+        vBox.setPadding(new Insets(10, 0, 0, 0));
+        return vBox;
     }
 
     // --- Утилиты UI ---

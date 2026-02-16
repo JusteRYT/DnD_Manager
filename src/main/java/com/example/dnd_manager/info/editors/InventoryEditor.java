@@ -98,7 +98,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
     @Override
     protected Node createItemRow(InventoryItem item) {
         return new InventoryRow(item, () -> {
-            listContainer.getChildren().removeIf(node -> node instanceof InventoryRow row && row.getItem() == item);
+            itemsContainer.getChildren().removeIf(node -> node instanceof InventoryRow row && row.getItem() == item);
             items.remove(item);
         }, character);
     }

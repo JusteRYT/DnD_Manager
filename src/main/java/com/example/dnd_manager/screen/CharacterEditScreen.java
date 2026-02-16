@@ -4,7 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.avatar.AvatarPicker;
 import com.example.dnd_manager.info.editors.BuffEditor;
 import com.example.dnd_manager.info.editors.InventoryEditor;
-import com.example.dnd_manager.info.skills.SkillsEditor;
+import com.example.dnd_manager.info.editors.SkillsEditor;
 import com.example.dnd_manager.info.stats.Stats;
 import com.example.dnd_manager.info.stats.StatsEditor;
 import com.example.dnd_manager.info.text.BaseInfoForm;
