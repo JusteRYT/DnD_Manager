@@ -16,6 +16,8 @@ public class CustomTitleBar extends HBox {
         setStyle("-fx-background-color: #1e1e1e; -fx-padding: 0 0 0 15; -fx-border-color: #3a3a3a; -fx-border-width: 0 0 1 0;");
         setAlignment(Pos.CENTER_LEFT);
         setPrefHeight(35);
+        setMinHeight(35);
+        setMaxHeight(35);
 
         Label titleLabel = new Label();
         titleLabel.textProperty().bind(stage.titleProperty());
