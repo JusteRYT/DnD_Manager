@@ -35,7 +35,7 @@ public class FamiliarsSection extends VBox {
         listContainer = new VBox(8);
 
         // 3. Кнопка добавления
-        Button addButton = AppButtonFactory.primaryButton(I18n.t("button.addFamiliar"), 100, 400, 14);
+        Button addButton = AppButtonFactory.primaryButton(I18n.t("button.addFamiliar"), 200, 30, 14);
         addButton.setOnAction(e -> openDialog(null));
 
         getChildren().addAll(title, listContainer, addButton);
