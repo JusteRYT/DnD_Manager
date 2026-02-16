@@ -72,10 +72,7 @@ public final class AppScrollPaneFactory {
                                 thumb.setBackground(new Background(new BackgroundFill(thumbGradient, new CornerRadii(6), null)));
                                 thumb.setEffect(glow); // Добавляем свечение
 
-                                // Интерактив при наведении
-                                thumb.setOnMouseEntered(e -> {
-                                    thumb.setEffect(new DropShadow(12, Color.web("rgba(200, 155, 60, 0.6)")));
-                                });
+                                thumb.setOnMouseEntered(e -> thumb.setEffect(new DropShadow(12, Color.web("rgba(200, 155, 60, 0.6)"))));
                                 thumb.setOnMouseExited(e -> thumb.setEffect(glow));
                             }
 

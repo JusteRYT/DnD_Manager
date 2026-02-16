@@ -51,6 +51,12 @@ public class BuffListView extends VBox {
                 container.setMinSize(ICON_CONTAINER_SIZE, ICON_CONTAINER_SIZE);
                 container.setMaxSize(ICON_CONTAINER_SIZE, ICON_CONTAINER_SIZE);
                 container.setAlignment(Pos.CENTER);
+                container.setStyle("-fx-cursor: hand;");
+
+                String accentColor = style.accentColor();
+
+                String idleStyle = "-fx-background-color: transparent; -fx-effect: null;";
+                String hoverStyle = "-fx-effect: dropshadow(three-pass-box, %s, 8, 0.3, 0, 0);".formatted(accentColor);
 
                 ImageView icon = BuffIconViewFactory.create(buff, style, ICON_SIZE, characterName);
                 icon.setFitWidth(ICON_SIZE);
@@ -59,6 +65,15 @@ public class BuffListView extends VBox {
                 icon.setSmooth(true);
 
                 container.getChildren().add(icon);
+
+                container.setOnMouseEntered(e -> {
+                    container.setStyle(hoverStyle);
+                });
+
+                container.setOnMouseExited(e -> {
+                    container.setStyle(idleStyle);
+                });
+
                 icons.getChildren().add(container);
             });
         }

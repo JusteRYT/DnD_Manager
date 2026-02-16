@@ -18,7 +18,6 @@ import javafx.util.Duration;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * Factory for creating styled application buttons.
