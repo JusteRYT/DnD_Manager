@@ -69,7 +69,7 @@ public abstract class AbstractEntityRow<T> extends HBox {
         editButton.setOnAction(e -> onEdit.run());
 
         // --- Delete Button ---
-        Button removeButton = AppButtonFactory.deleteButton(35);
+        Button removeButton = AppButtonFactory.deleteButton(30);
         removeButton.setOnAction(e -> onRemove.run());
         removeButton.setFocusTraversable(false);
 

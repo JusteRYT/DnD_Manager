@@ -5,12 +5,13 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 
-/**
- * Fully custom ScrollPane with colored background, custom track, thumb, arrow buttons and no white borders.
- */
 public final class AppScrollPaneFactory {
 
     private AppScrollPaneFactory() {}
@@ -22,76 +23,71 @@ public final class AppScrollPaneFactory {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        // Content background
+        // Цвета из темы
+        Color colorBgPrimary = Color.web(AppTheme.BACKGROUND_PRIMARY);
+        Color colorBgSecondary = Color.web(AppTheme.BACKGROUND_SECONDARY);
+        Color colorAccent = Color.web(AppTheme.BUTTON_PRIMARY);
+
+        // Градиент для Thumb (как у actionSave)
+        LinearGradient thumbGradient = new LinearGradient(
+                0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web("#FFC107")),
+                new Stop(1, Color.web("#FF8C00"))
+        );
+
+        // Свечение
+        DropShadow glow = new DropShadow(8, Color.web("rgba(200, 155, 60, 0.4)"));
+
         if (content instanceof Region region) {
-            region.setBackground(new Background(new BackgroundFill(
-                    Color.web(AppTheme.BACKGROUND_PRIMARY),
-                    new CornerRadii(0), null
-            )));
+            region.setBackground(new Background(new BackgroundFill(colorBgPrimary, CornerRadii.EMPTY, null)));
         }
 
-        // ScrollPane background + remove default border
-        scrollPane.setBackground(new Background(new BackgroundFill(
-                Color.web(AppTheme.BACKGROUND_PRIMARY),
-                new CornerRadii(0), null
-        )));
-        scrollPane.setStyle("""
-                -fx-background: %s;
-                -fx-background-insets: 0;
-                -fx-padding: 0;
-                """.formatted(AppTheme.BACKGROUND_PRIMARY));
+        scrollPane.setBackground(new Background(new BackgroundFill(colorBgPrimary, CornerRadii.EMPTY, null)));
+        scrollPane.setStyle("-fx-background: " + AppTheme.BACKGROUND_PRIMARY + "; -fx-background-insets: 0; -fx-padding: 0;");
 
-        // После рендера кастомизируем ScrollBars и viewport
         scrollPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
                 Platform.runLater(() -> {
                     scrollPane.applyCss();
 
-                    // Убираем border и фон viewport
                     Node viewport = scrollPane.lookup(".viewport");
                     if (viewport instanceof Region vp) {
-                        vp.setBackground(new Background(new BackgroundFill(
-                                Color.web(AppTheme.BACKGROUND_PRIMARY),
-                                new CornerRadii(0), null
-                        )));
+                        vp.setBackground(new Background(new BackgroundFill(colorBgPrimary, CornerRadii.EMPTY, null)));
                         vp.setBorder(null);
                     }
 
                     scrollPane.lookupAll(".scroll-bar").forEach(node -> {
                         if (node instanceof ScrollBar bar) {
-                            bar.setBackground(new Background(new BackgroundFill(
-                                    Color.web(AppTheme.BACKGROUND_SECONDARY), new CornerRadii(6), null
-                            )));
-                            bar.setOpacity(1);
+                            bar.setBackground(new Background(new BackgroundFill(colorBgSecondary, new CornerRadii(6), null)));
 
                             // Track
                             Region track = (Region) bar.lookup(".track");
                             if (track != null) {
-                                track.setBackground(new Background(new BackgroundFill(
-                                        Color.web(AppTheme.BACKGROUND_SECONDARY), new CornerRadii(6), null
-                                )));
+                                track.setBackground(new Background(new BackgroundFill(colorBgSecondary, new CornerRadii(6), null)));
                             }
 
                             // Thumb
                             Region thumb = (Region) bar.lookup(".thumb");
                             if (thumb != null) {
-                                thumb.setBackground(new Background(new BackgroundFill(
-                                        Color.web(AppTheme.BUTTON_PRIMARY), new CornerRadii(6), null
-                                )));
+                                thumb.setBackground(new Background(new BackgroundFill(thumbGradient, new CornerRadii(6), null)));
+                                thumb.setEffect(glow); // Добавляем свечение
+
+                                // Интерактив при наведении
+                                thumb.setOnMouseEntered(e -> {
+                                    thumb.setEffect(new DropShadow(12, Color.web("rgba(200, 155, 60, 0.6)")));
+                                });
+                                thumb.setOnMouseExited(e -> thumb.setEffect(glow));
                             }
 
                             // Стрелки
-                            createCustomArrow(bar, true);
-                            createCustomArrow(bar, false);
+                            createCustomArrow(bar, true, colorAccent, colorBgSecondary, glow);
+                            createCustomArrow(bar, false, colorAccent, colorBgSecondary, glow);
                         }
                     });
 
-                    // Corner
                     Region corner = (Region) scrollPane.lookup(".corner");
                     if (corner != null) {
-                        corner.setBackground(new Background(new BackgroundFill(
-                                Color.web(AppTheme.BACKGROUND_PRIMARY), new CornerRadii(0), null
-                        )));
+                        corner.setBackground(new Background(new BackgroundFill(colorBgPrimary, CornerRadii.EMPTY, null)));
                     }
                 });
             }
@@ -100,17 +96,23 @@ public final class AppScrollPaneFactory {
         return scrollPane;
     }
 
-    private static void createCustomArrow(ScrollBar bar, boolean decrement) {
+    private static void createCustomArrow(ScrollBar bar, boolean decrement, Color accent, Color bg, DropShadow glow) {
         Region arrow = (Region) bar.lookup(decrement ? ".decrement-button" : ".increment-button");
         if (arrow != null) {
-            arrow.setBackground(new Background(new BackgroundFill(
-                    Color.web(AppTheme.BACKGROUND_SECONDARY),
-                    new CornerRadii(3), null
-            )));
-            arrow.setBorder(new Border(new BorderStroke(
-                    Color.web(AppTheme.BUTTON_PRIMARY),
-                    BorderStrokeStyle.SOLID, new CornerRadii(3), BorderWidths.DEFAULT
-            )));
+            Background baseBg = new Background(new BackgroundFill(bg, new CornerRadii(3), null));
+            Border baseBorder = new Border(new BorderStroke(accent, BorderStrokeStyle.SOLID, new CornerRadii(3), new BorderWidths(1)));
+
+            arrow.setBackground(baseBg);
+            arrow.setBorder(baseBorder);
+
+            arrow.setOnMouseEntered(e -> {
+                arrow.setEffect(glow);
+                arrow.setBackground(new Background(new BackgroundFill(accent.deriveColor(0, 1, 1, 0.1), new CornerRadii(3), null)));
+            });
+            arrow.setOnMouseExited(e -> {
+                arrow.setEffect(null);
+                arrow.setBackground(baseBg);
+            });
         }
     }
 }

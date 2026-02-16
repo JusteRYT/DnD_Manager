@@ -158,18 +158,18 @@ public class TopBar extends HBox {
         );
 
         rightPanel.setAlignment(Pos.CENTER);
-        rightPanel.setPadding(new Insets(10, 20, 10, 20));
+        rightPanel.setPadding(new Insets(20));
         rightPanel.setMaxHeight(100);
         rightPanel.setStyle("""
                 -fx-background-color: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
                 -fx-background-radius: 12;
-                -fx-border-color: rgba(200, 155, 60, 0.4); 
+                -fx-border-color: rgba(200, 155, 60, 0.3); 
                 -fx-border-radius: 12;
                 -fx-border-width: 1.5;
-                -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 10, 0, 0, 4);
+                -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 5);
                 """);
 
-        HBox.setMargin(rightPanel, new Insets(15, 10, 10, 0));
+        HBox.setMargin(rightPanel, new Insets(10, 10, 10, 0));
 
 
         getChildren().addAll(leftBox, rightPanel);

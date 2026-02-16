@@ -65,20 +65,21 @@
             Label title = buildTitle();
             ImageView diceImage = buildDiceImage();
 
-            Button createButton = AppButtonFactory.customButton(
+            Button createButton = AppButtonFactory.primaryButton(
                     I18n.t("button.create"), BUTTON_WIDTH, BUTTON_HEIGHT, FONT_SIZE
             );
-            Button editButton = AppButtonFactory.customButton(
+            Button editButton = AppButtonFactory.primaryButton(
                     I18n.t("button.edit"), BUTTON_WIDTH, BUTTON_HEIGHT, FONT_SIZE
             );
-            Button loadButton = AppButtonFactory.customButton(
+            Button loadButton = AppButtonFactory.primaryButton(
                     I18n.t("button.load"), BUTTON_WIDTH, BUTTON_HEIGHT, FONT_SIZE
             );
-            Button transferButton = AppButtonFactory.customButton(
+            Button transferButton = AppButtonFactory.primaryButton(
                     I18n.t("button.importExport"), BUTTON_WIDTH, BUTTON_HEIGHT, FONT_SIZE
             );
-            Button languageBtn = AppButtonFactory.customButton(
-                    I18n.t("button.language"), 100
+
+            Button languageBtn = AppButtonFactory.primaryButton(
+                    I18n.t("button.language"), 120, 40, 14
             );
 
             ButtonSizeConfigurer.applyFixedSize(createButton, 400, 50);
@@ -88,6 +89,7 @@
             ButtonSizeConfigurer.applyFixedSize(languageBtn, 100, 40);
 
             languageBtn.setOnAction(e -> changeLanguage());
+            languageBtn.setFocusTraversable(false);
 
             createButton.setOnAction(e -> openCharacterCreate());
             editButton.setOnAction(e -> openCharacterEdit());

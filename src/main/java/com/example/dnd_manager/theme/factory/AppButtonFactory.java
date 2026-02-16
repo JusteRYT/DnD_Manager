@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -40,24 +41,30 @@ public final class AppButtonFactory {
         StackPane icon = Utils.createAdjustIcon(isPlus, size);
         button.setGraphic(icon);
 
+        // Определяем цвет свечения в зависимости от типа кнопки
+        String glowColor = isPlus ? "rgba(255, 140, 0, 0.5)" : "rgba(255, 0, 0, 0.4)";
+
         String commonStyle = """
-                -fx-background-radius: 4;
-                -fx-border-radius: 4;
-                -fx-border-width: 1;
-                -fx-cursor: hand;
-                -fx-padding: 0;
-                """;
+            -fx-background-radius: 4;
+            -fx-border-radius: 4;
+            -fx-border-width: 1;
+            -fx-cursor: hand;
+            -fx-padding: 0;
+            """;
 
+        // Базовый стиль с градиентом (аналогично actionSave)
         String baseStyle = commonStyle + """
-                -fx-background-color: %1$s;
-                -fx-border-color: derive(%1$s, -20%%);
-                """.formatted(baseColor);
+            -fx-background-color: linear-gradient(to bottom, %1$s, derive(%1$s, -20%%));
+            -fx-border-color: derive(%1$s, -30%%);
+            -fx-effect: dropshadow(three-pass-box, %2$s, 6, 0, 0, 0);
+            """.formatted(baseColor, glowColor);
 
+        // Стиль при наведении: ярче градиент и сильнее свечение
         String hoverStyle = commonStyle + """
-                -fx-background-color: %1$s;
-                -fx-border-color: derive(%1$s, 30%%);
-                -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 5, 0, 0, 0);
-                """.formatted(hoverColor);
+            -fx-background-color: linear-gradient(to bottom, derive(%1$s, 20%%), %1$s);
+            -fx-border-color: %1$s;
+            -fx-effect: dropshadow(three-pass-box, %2$s, 12, 0, 0, 0);
+            """.formatted(hoverColor, glowColor);
 
         button.setStyle(baseStyle);
 
@@ -66,7 +73,8 @@ public final class AppButtonFactory {
 
         button.setOnMousePressed(e -> {
             button.setTranslateY(1);
-            button.setStyle(baseStyle + "-fx-background-color: derive(" + baseColor + ", -15%);");
+            // При нажатии убираем свечение для эффекта "вдавливания"
+            button.setStyle(baseStyle + "-fx-effect: null; -fx-background-color: derive(" + baseColor + ", -15%);");
         });
 
         button.setOnMouseReleased(e -> {
@@ -143,80 +151,66 @@ public final class AppButtonFactory {
         Button button = new Button();
         button.setMinSize(size, size);
         button.setMaxSize(size, size);
+        button.setPickOnBounds(true);
 
-        // Цвета (используем константу PRIMARY для связи с остальным интерфейсом)
-        String primaryColor = AppTheme.BUTTON_PRIMARY; // Твой золотой
-        String bgColor = "#2b2b2b";
-        String bgHover = "#383838";
-        String bgPressed = "#222222";
+        String goldPrimary = AppTheme.BUTTON_PRIMARY;
+        String glowColor = "rgba(200, 155, 60, 0.4)";
 
-        String baseStyle = """
-                -fx-background-color: %s;
-                -fx-background-radius: 6;
-                -fx-border-color: %s;
-                -fx-border-radius: 6;
-                -fx-border-width: 1;
-                -fx-cursor: hand;
-                """.formatted(bgColor, primaryColor);
+        String colorHoverBg = "#2a2a2a";
+        String colorPressedBg = "#141414";
 
-        // 2. Ховер: Кнопка чуть светлеет, появляется легкое свечение рамки
+        String shadowCSS = "-fx-effect: dropshadow(three-pass-box, %s, 12, 0.1, 0, 0);".formatted(glowColor);
+
+
         String hoverStyle = """
-                -fx-background-color: %s;
-                -fx-background-radius: 6;
-                -fx-border-color: %s;
-                -fx-border-radius: 6;
-                -fx-border-width: 1;
-                -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.4), 8, 0, 0, 0);
-                """.formatted(bgHover, primaryColor);
+        -fx-background-color: %s;
+        -fx-background-radius: 6;
+        -fx-border-color: %s;
+        -fx-border-radius: 6;
+        -fx-border-width: 1.2;
+        -fx-cursor: hand;
+        %s
+        """.formatted(colorHoverBg, goldPrimary, shadowCSS);
 
-        // 3. Нажатие: Убираем свечение, затемняем фон
         String pressedStyle = """
-                -fx-background-color: %s;
-                -fx-background-radius: 6;
-                -fx-border-color: %s;
-                -fx-border-radius: 6;
-                -fx-border-width: 1;
-                -fx-effect: null;
-                """.formatted(bgPressed, primaryColor);
+        -fx-background-color: %s;
+        -fx-background-radius: 6;
+        -fx-border-color: %s;
+        -fx-border-radius: 6;
+        -fx-border-width: 1.2;
+        -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.8), 8, 0, 0, 1);
+        """.formatted(colorPressedBg, goldPrimary);
 
-        button.setStyle(baseStyle);
+        button.setStyle(hoverStyle);
 
-        // Логика поведения мыши
-        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
-        button.setOnMouseExited(e -> button.setStyle(baseStyle));
+        // Эффект иконки (стабильный)
+        ColorAdjust iconEffect = new ColorAdjust();
+        iconEffect.setBrightness(0.9);
+        iconEffect.setSaturation(0.4);
+
 
         button.setOnMousePressed(e -> {
             button.setStyle(pressedStyle);
-            button.setTranslateY(1); // Физический отклик
+            button.setTranslateY(1.0);
         });
 
         button.setOnMouseReleased(e -> {
-            button.setStyle(button.isHover() ? hoverStyle : baseStyle);
             button.setTranslateY(0);
+            button.setStyle(hoverStyle);
         });
 
-        // --- Иконка ---
-        if (iconPath != null) {
-            try {
-                ImageView icon = new ImageView(
-                        new Image(Objects.requireNonNull(AppButtonFactory.class.getResource(iconPath)).toExternalForm())
-                );
-
-                int iconSize = (int) (size * 0.55);
-                icon.setFitWidth(iconSize);
-                icon.setFitHeight(iconSize);
-                icon.setPreserveRatio(true);
-
-                ColorAdjust cleanLook = new ColorAdjust();
-                cleanLook.setBrightness(0.8);
-                cleanLook.setContrast(0.2);
-
-                icon.setEffect(cleanLook);
-
-                button.setGraphic(icon);
-            } catch (Exception e) {
-                System.err.println("Could not load icon: " + iconPath);
-            }
+        // --- Иконка (без лишних проверок, только загрузка) ---
+        try {
+            Image img = new Image(Objects.requireNonNull(AppButtonFactory.class.getResource(iconPath)).toExternalForm());
+            ImageView icon = new ImageView(img);
+            icon.setFitWidth(size * 0.45);
+            icon.setFitHeight(size * 0.45);
+            icon.setPreserveRatio(true);
+            icon.setMouseTransparent(true);
+            icon.setEffect(iconEffect);
+            button.setGraphic(icon);
+        } catch (Exception e) {
+            System.err.println("Could not load icon: " + iconPath);
         }
 
         return button;
@@ -236,15 +230,6 @@ public final class AppButtonFactory {
             button.setPrefWidth(width);
         }
         acceptColorTheme(button, DEFAULT_SIZE_FONT, primaryColor, secondaryColor);
-
-        return button;
-    }
-
-    public static Button customButton(String text, int width, int height, int fontSize) {
-        Button button = new Button(text);
-        button.setPrefWidth(width);
-        button.setPrefHeight(height);
-        acceptColorTheme(button, fontSize, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
 
         return button;
     }
@@ -317,28 +302,46 @@ public final class AppButtonFactory {
         String colorHover = AppTheme.BUTTON_REMOVE_HOVER;
 
         String commonStyle = """
-                -fx-background-radius: 4;
-                -fx-border-radius: 4;
-                -fx-border-width: 1;
-                -fx-cursor: hand;
-                -fx-padding: 0;
-                """;
+            -fx-background-radius: 4;
+            -fx-border-radius: 4;
+            -fx-border-width: 1;
+            -fx-cursor: hand;
+            -fx-padding: 0;
+            """;
 
-        Function<String, String> styleBuilder = (color) ->
-                commonStyle + "-fx-background-color: " + color + "; -fx-border-color: derive(" + color + ", -20%);";
+        BiFunction<String, Boolean, String> styleBuilder = (color, glowing) -> {
+            String glowOpacity = glowing ? "0.6" : "0.3";
+            int glowRadius = glowing ? 12 : 6;
 
-        button.setStyle(styleBuilder.apply(colorNormal));
+            return commonStyle + """
+                -fx-background-color: linear-gradient(to bottom, %1$s, derive(%1$s, -20%%));
+                -fx-border-color: derive(%1$s, -30%%);
+                -fx-effect: dropshadow(three-pass-box, rgba(255, 0, 0, %2$s), %3$d, 0, 0, 0);
+                """.formatted(color, glowOpacity, glowRadius);
+        };
+
+        // Начальное состояние
+        button.setStyle(styleBuilder.apply(colorNormal, false));
 
         button.setOnMouseEntered(e -> {
-            if (!isActive[0]) button.setStyle(styleBuilder.apply(colorHover));
+            // Если кнопка не активна, подсвечиваем её ховер-цветом и усиливаем свечение
+            if (!isActive[0]) {
+                button.setStyle(styleBuilder.apply(colorHover, true));
+            }
         });
 
-        button.setOnMouseExited(e -> button.setStyle(styleBuilder.apply(isActive[0] ? colorActive : colorNormal)));
+        button.setOnMouseExited(e -> {
+            // Возвращаем либо обычный цвет, либо активный (если нажата)
+            button.setStyle(styleBuilder.apply(isActive[0] ? colorActive : colorNormal, isActive[0]));
+        });
 
         button.setOnAction(e -> {
             isActive[0] = !isActive[0];
-            button.setStyle(styleBuilder.apply(isActive[0] ? colorActive : colorHover));
+            // При активации (первый клик) делаем свечение постоянным
+            button.setStyle(styleBuilder.apply(isActive[0] ? colorActive : colorHover, isActive[0]));
             button.setUserData(isActive[0]);
+
+            button.setTranslateY(isActive[0] ? 1 : 0);
         });
 
         return button;
@@ -369,17 +372,16 @@ public final class AppButtonFactory {
 
     public static Button addIcon(String text) {
         Button button = new Button(text);
-        button.setStyle("""
-                    -fx-background-color: linear-gradient(to bottom, #FFC107, #FF8C00);
-                    -fx-text-fill: #222;
-                    -fx-font-weight: bold;
-                    -fx-font-size: 14px;
-                    -fx-background-radius: 4;
-                    -fx-cursor: hand;
-                    -fx-effect: dropshadow(three-pass-box, rgba(255, 140, 0, 0.4), 10, 0, 0, 0);
-                """);
-        return button;
+        int fontSize = 14;
 
+        button.setStyle(getPrimaryGradientStyle(fontSize, false));
+        button.setOnMouseEntered(e -> button.setStyle(getPrimaryGradientStyle(fontSize, true)));
+        button.setOnMouseExited(e -> button.setStyle(getPrimaryGradientStyle(fontSize, false)));
+
+        button.setOnMousePressed(e -> button.setTranslateY(1));
+        button.setOnMouseReleased(e -> button.setTranslateY(0));
+
+        return button;
     }
 
     /**
@@ -387,20 +389,20 @@ public final class AppButtonFactory {
      */
     public static Button actionImport(String text, int width) {
         final String IDLE_STYLE = """
-        -fx-background-color: transparent; 
-        -fx-text-fill: #777; 
-        -fx-border-color: #444; 
-        -fx-border-radius: 4; 
-        -fx-cursor: hand;
-        """;
+                -fx-background-color: transparent; 
+                -fx-text-fill: #777; 
+                -fx-border-color: #444; 
+                -fx-border-radius: 4; 
+                -fx-cursor: hand;
+                """;
 
         final String HOVER_STYLE = """
-        -fx-background-color: rgba(200, 155, 60, 0.1); 
-        -fx-text-fill: #f6bb4a; 
-        -fx-border-color: #f6bb4a; 
-        -fx-border-radius: 4; 
-        -fx-cursor: hand;
-        """;
+                -fx-background-color: rgba(200, 155, 60, 0.1); 
+                -fx-text-fill: #f6bb4a; 
+                -fx-border-color: #f6bb4a; 
+                -fx-border-radius: 4; 
+                -fx-cursor: hand;
+                """;
 
         return getButton(text, width, HOVER_STYLE);
     }
@@ -410,20 +412,20 @@ public final class AppButtonFactory {
      */
     public static Button actionExit(String text, int width) {
         final String IDLE_STYLE = """
-            -fx-background-color: transparent; 
-            -fx-text-fill: #777; 
-            -fx-border-color: #444; 
-            -fx-border-radius: 4; 
-            -fx-cursor: hand;
-            """;
+                -fx-background-color: transparent; 
+                -fx-text-fill: #777; 
+                -fx-border-color: #444; 
+                -fx-border-radius: 4; 
+                -fx-cursor: hand;
+                """;
 
         final String HOVER_STYLE = """
-            -fx-background-color: rgba(232, 17, 35, 0.1); 
-            -fx-text-fill: #ff6b6b; 
-            -fx-border-color: #ff6b6b; 
-            -fx-border-radius: 4; 
-            -fx-cursor: hand;
-            """;
+                -fx-background-color: rgba(232, 17, 35, 0.1); 
+                -fx-text-fill: #ff6b6b; 
+                -fx-border-color: #ff6b6b; 
+                -fx-border-radius: 4; 
+                -fx-cursor: hand;
+                """;
 
         return getButton(text, width, HOVER_STYLE);
     }
@@ -436,6 +438,43 @@ public final class AppButtonFactory {
 
         button.setOnMouseEntered(e -> button.setStyle(HOVER_STYLE));
         button.setOnMouseExited(e -> button.setStyle("-fx-background-color: transparent;\n-fx-text-fill: #777;\n-fx-border-color: #444;\n-fx-border-radius: 4;\n-fx-cursor: hand;\n"));
+
+        return button;
+    }
+
+    private static String getPrimaryGradientStyle(int fontSize, boolean isHover) {
+        String base = """
+                -fx-background-color: linear-gradient(to bottom, #FFC107, #FF8C00);
+                -fx-text-fill: #222;
+                -fx-font-weight: bold;
+                -fx-font-size: %dpx;
+                -fx-background-radius: 4;
+                -fx-cursor: hand;
+                """.formatted(fontSize);
+
+        if (isHover) {
+            return base + "-fx-effect: dropshadow(three-pass-box, rgba(255, 140, 0, 0.6), 15, 0, 0, 0);";
+        } else {
+            return base + "-fx-effect: dropshadow(three-pass-box, rgba(255, 140, 0, 0.3), 8, 0, 0, 0);";
+        }
+    }
+
+    public static Button primaryButton(String text, int width, int height, int fontSize) {
+        Button button = new Button(text);
+        button.setPrefSize(width, height);
+
+        button.setStyle(getPrimaryGradientStyle(fontSize, false));
+        button.setOnMouseEntered(e -> button.setStyle(getPrimaryGradientStyle(fontSize, true)));
+        button.setOnMouseExited(e -> button.setStyle(getPrimaryGradientStyle(fontSize, false)));
+
+        button.setOnMousePressed(e -> {
+            button.setTranslateY(2);
+            button.setStyle(getPrimaryGradientStyle(fontSize, false) + "-fx-background-color: #e67e22;");
+        });
+        button.setOnMouseReleased(e -> {
+            button.setTranslateY(0);
+            button.setStyle(button.isHover() ? getPrimaryGradientStyle(fontSize, true) : getPrimaryGradientStyle(fontSize, false));
+        });
 
         return button;
     }
