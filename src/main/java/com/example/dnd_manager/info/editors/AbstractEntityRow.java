@@ -2,6 +2,7 @@ package com.example.dnd_manager.info.editors;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.skills.SkillCard;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -9,6 +10,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 
@@ -18,12 +20,13 @@ public abstract class AbstractEntityRow<T> extends HBox {
     protected final T item;
     protected final Character character;
 
-    public AbstractEntityRow(T item, Runnable onRemove, Character character) {
+    public AbstractEntityRow(T item, Runnable onRemove, Runnable onEdit, Character character) {
         this.item = item;
         this.character = character;
 
         setSpacing(10);
         setAlignment(Pos.CENTER_LEFT);
+        setMinHeight(Region.USE_PREF_SIZE);
 
         // --- Styles ---
         String baseStyle = """
@@ -50,19 +53,29 @@ public abstract class AbstractEntityRow<T> extends HBox {
         iconView.setPreserveRatio(true);
         iconView.setImage(resolveIcon(item, character));
         iconView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 5, 0, 0, 0);");
+        iconView.setSmooth(true);
 
         // --- Info Box (Content) ---
         VBox infoBox = new VBox(2);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
-
         fillContent(infoBox, item);
+
+        HBox actionButtons = new HBox(8);
+        actionButtons.setAlignment(Pos.CENTER_RIGHT);
+        actionButtons.setMinWidth(Region.USE_PREF_SIZE);
+
+        Button editButton = AppButtonFactory.actionSave(I18n.t("button.editEditor"));
+        editButton.setMinWidth(Region.USE_PREF_SIZE);
+        editButton.setOnAction(e -> onEdit.run());
 
         // --- Delete Button ---
         Button removeButton = AppButtonFactory.deleteButton(35);
         removeButton.setOnAction(e -> onRemove.run());
         removeButton.setFocusTraversable(false);
 
-        getChildren().addAll(iconView, infoBox, removeButton);
+        actionButtons.getChildren().addAll(editButton, removeButton);
+
+        getChildren().addAll(iconView, infoBox, actionButtons);
     }
 
     /**

@@ -65,8 +65,8 @@ public class CharacterCreateScreen extends AbstractScreen {
 
         // Инициализация
         descriptionSection = new CharacterDescriptionSection();
-        buffEditor = new BuffEditor();
-        inventoryEditor = new InventoryEditor();
+        buffEditor = new BuffEditor(null);
+        inventoryEditor = new InventoryEditor(null);
         skillsEditor = new SkillsEditor(null);
 
         // --- HERO SECTION (Верхняя карточка) ---

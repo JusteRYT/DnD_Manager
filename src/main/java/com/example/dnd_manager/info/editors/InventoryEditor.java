@@ -20,9 +20,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
 
-    public InventoryEditor() {
-        this(null);
-    }
+    // Поля теперь доступны всему классу для логики редактирования
+    private InventoryItem editingItem = null;
+    private Button addButton;
+
+    private AppTextField nameField;
+    private AppTextSection descriptionField;
+    private IntegerField countField;
+    private final AtomicReference<String> iconPath = new AtomicReference<>("");
+    private Label iconPathLabel;
 
     public InventoryEditor(Character character) {
         super(character, "label.inventoryEditor");
@@ -35,22 +41,21 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
 
     @Override
     protected void fillInputCard(VBox inputCard) {
-        AppTextField nameField = new AppTextField(I18n.t("textField.inventoryName"));
+        nameField = new AppTextField(I18n.t("textField.inventoryName"));
         configureNameValidation(nameField);
 
         VBox nameBox = new VBox(2, nameField.getField(), nameRequiredLabel);
         nameBox.setMinHeight(45);
         nameBox.setAlignment(Pos.TOP_LEFT);
 
-        AppTextSection descriptionField = new AppTextSection("", 3, I18n.t("textSection.inventoryDescription"));
-        IntegerField countField = new IntegerField(I18n.t("textField.inventoryCountPrompt"));
+        descriptionField = new AppTextSection("", 3, I18n.t("textSection.inventoryDescription"));
+        countField = new IntegerField(I18n.t("textField.inventoryCountPrompt"));
 
-        AtomicReference<String> iconPath = new AtomicReference<>("");
-        Label iconPathLabel = new Label();
+        iconPathLabel = new Label();
         iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");
 
         Button iconButton = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
-        Button addButton = AppButtonFactory.actionSave(I18n.t("button.addItem"));
+        addButton = AppButtonFactory.actionSave(I18n.t("button.addItem"));
         addButton.setPrefWidth(150);
 
         HBox settingsRow = new HBox(15,
@@ -75,32 +80,66 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
             }
         });
 
-        addButton.setOnAction(event -> {
-            if (validateName(nameField)) {
-                addItem(new InventoryItem(
-                        nameField.getText().trim(),
-                        descriptionField.getText(),
-                        resolveIconPath(iconPath),
-                        countField.getInt()
-                ));
+        addButton.setOnAction(event -> handleSave());
+    }
 
-                // Clear form
-                nameField.clear();
-                descriptionField.setText("");
-                countField.getField().setText("");
-                iconPath.set("");
-                iconPathLabel.setText("");
-                nameRequiredLabel.setVisible(false);
+    private void handleSave() {
+        if (validateName(nameField)) {
+            InventoryItem newItem = new InventoryItem(
+                    nameField.getText().trim(),
+                    descriptionField.getText(),
+                    resolveIconPath(iconPath),
+                    countField.getInt()
+            );
+
+            if (editingItem != null) {
+                int index = items.indexOf(editingItem);
+                if (index != -1) items.set(index, newItem);
+                editingItem = null;
+                addButton.setText(I18n.t("button.addItem"));
+            } else {
+                items.add(newItem);
             }
-        });
+
+            refreshUI();
+            clearForm();
+        }
+    }
+
+    private void prepareEdit(InventoryItem item) {
+        this.editingItem = item;
+        nameField.setText(item.getName());
+        descriptionField.setText(item.getDescription());
+        countField.getField().setText(String.valueOf(item.getCount()));
+        iconPath.set(item.getIconPath());
+
+        if (item.getIconPath() != null && !item.getIconPath().isEmpty()) {
+            iconPathLabel.setText(new File(item.getIconPath()).getName());
+        }
+
+        addButton.setText(I18n.t("button.save"));
+        nameField.getField().requestFocus();
+    }
+
+    private void clearForm() {
+        nameField.clear();
+        descriptionField.setText("");
+        countField.getField().setText("");
+        iconPath.set("");
+        iconPathLabel.setText("");
+        nameRequiredLabel.setVisible(false);
     }
 
     @Override
     protected Node createItemRow(InventoryItem item) {
-        return new InventoryRow(item, () -> {
-            itemsContainer.getChildren().removeIf(node -> node instanceof InventoryRow row && row.getItem() == item);
-            items.remove(item);
-        }, character);
+        return new InventoryRow(item,
+                () -> {
+                    items.remove(item);
+                    refreshUI();
+                },
+                () -> prepareEdit(item), // Передаем логику редактирования
+                character
+        );
     }
 
     @Override

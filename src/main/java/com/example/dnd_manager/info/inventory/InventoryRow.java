@@ -8,8 +8,8 @@ import javafx.scene.layout.VBox;
 
 public class InventoryRow extends AbstractEntityRow<InventoryItem> {
 
-    public InventoryRow(InventoryItem item, Runnable onDelete, Character character) {
-        super(item, onDelete, character);
+    public InventoryRow(InventoryItem item, Runnable onDelete, Runnable onEdit, Character character) {
+        super(item, onDelete, onEdit, character);
     }
 
     @Override

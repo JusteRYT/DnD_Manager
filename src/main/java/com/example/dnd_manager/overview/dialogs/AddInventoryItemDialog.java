@@ -2,6 +2,7 @@ package com.example.dnd_manager.overview.dialogs;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.inventory.InventoryItem;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.IconStorageService;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -51,7 +52,7 @@ public class AddInventoryItemDialog extends BaseDialog {
                 existingItem != null ? String.valueOf(existingItem.getCount()) : "1"
         );
 
-        Button iconBtn = AppButtonFactory.addIcon("Choose icon");
+        Button iconBtn = AppButtonFactory.addIcon(I18n.t("buttonText.icon"));
         iconBtn.setOnAction(e -> iconPath = chooseIcon());
 
         Button saveBtn = AppButtonFactory.actionSave(existingItem == null ? "Add" : "Save");

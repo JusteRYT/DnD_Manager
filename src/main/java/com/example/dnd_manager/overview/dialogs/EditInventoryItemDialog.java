@@ -44,6 +44,7 @@ public class EditInventoryItemDialog extends BaseDialog {
 
         // Поля ввода
         AppTextField nameField = new AppTextField(item.getName());
+        nameField.setText(item.getName());
         AppTextSection descriptionField = new AppTextSection(item.getDescription(), 4, "Description");
         IntegerField count = new IntegerField(String.valueOf(item.getCount()));
 

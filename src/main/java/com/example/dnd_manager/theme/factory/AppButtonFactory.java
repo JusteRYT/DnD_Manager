@@ -30,19 +30,6 @@ public final class AppButtonFactory {
     }
 
     /**
-     * Creates primary action button.
-     *
-     * @param text button text
-     * @return styled button
-     */
-    public static Button primary(String text) {
-        Button button = new Button(text);
-        acceptColorTheme(button, DEFAULT_SIZE_FONT, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
-
-        return button;
-    }
-
-    /**
      * Creates a compact square button for adjusting values (+/-).
      */
     public static Button createValueAdjustButton(boolean isPlus, int size, String baseColor, String hoverColor) {
@@ -50,7 +37,6 @@ public final class AppButtonFactory {
         button.setMinSize(size, size);
         button.setMaxSize(size, size);
 
-        // Рисуем иконку программно (Rectangle вместо текста)
         StackPane icon = Utils.createAdjustIcon(isPlus, size);
         button.setGraphic(icon);
 
@@ -96,14 +82,12 @@ public final class AppButtonFactory {
         button.setMinSize(32, 32);
         button.setMaxSize(32, 32);
 
-        // Цвета из твоей темы
         Color colorSecondary = Color.web(AppTheme.BACKGROUND_SECONDARY);
         Color baseGold = Color.web(AppTheme.BUTTON_PRIMARY);
         Color colorAccent = baseGold.deriveColor(0, 1.2, 1.25, 1);
         Color colorTextNormal = Color.web(AppTheme.BUTTON_PRIMARY);
         Color colorTextHover = Color.web(AppTheme.BACKGROUND_PRIMARY);
 
-        // Базовый стиль (границы и шрифт)
         button.setStyle("""
                     -fx-font-weight: bold;
                     -fx-font-size: 18px;
@@ -116,11 +100,9 @@ public final class AppButtonFactory {
                     -fx-padding: 0 0 2 0;
                 """.formatted(AppTheme.BACKGROUND_SECONDARY, AppTheme.BUTTON_PRIMARY));
 
-        // Начальное состояние
         button.setBackground(new Background(new BackgroundFill(colorSecondary, new CornerRadii(50), Insets.EMPTY)));
         button.setTextFill(colorTextNormal);
 
-        // Создаем кастомный Transition для плавного изменения цвета
         Transition transition = new Transition() {
             {
                 setCycleDuration(Duration.millis(300));
@@ -164,12 +146,10 @@ public final class AppButtonFactory {
 
         // Цвета (используем константу PRIMARY для связи с остальным интерфейсом)
         String primaryColor = AppTheme.BUTTON_PRIMARY; // Твой золотой
-        String bgColor = "#2b2b2b";     // Плоский темно-серый (как в TopBar левой части)
-        String bgHover = "#383838";     // Чуть светлее для реакции
-        String bgPressed = "#222222";   // Темнее для нажатия
+        String bgColor = "#2b2b2b";
+        String bgHover = "#383838";
+        String bgPressed = "#222222";
 
-        // 1. Базовый стиль: Плоский, ровный, аккуратная рамка
-        // border-radius: 6 совпадает с customButton
         String baseStyle = """
                 -fx-background-color: %s;
                 -fx-background-radius: 6;
@@ -222,17 +202,14 @@ public final class AppButtonFactory {
                         new Image(Objects.requireNonNull(AppButtonFactory.class.getResource(iconPath)).toExternalForm())
                 );
 
-                // Размер иконки ~55% от кнопки, чтобы был "воздух"
                 int iconSize = (int) (size * 0.55);
                 icon.setFitWidth(iconSize);
                 icon.setFitHeight(iconSize);
                 icon.setPreserveRatio(true);
 
-                // Эффект: Делаем иконку светло-золотой/белой.
-                // Это уберет "грязь" черных PNG на темном фоне.
                 ColorAdjust cleanLook = new ColorAdjust();
-                cleanLook.setBrightness(0.8); // Высветляем до почти белого
-                cleanLook.setContrast(0.2);   // Немного контраста
+                cleanLook.setBrightness(0.8);
+                cleanLook.setContrast(0.2);
 
                 icon.setEffect(cleanLook);
 
@@ -277,13 +254,11 @@ public final class AppButtonFactory {
         button.setMinSize(size, size);
         button.setMaxSize(size, size);
 
-        // Рисуем жирный минус через Utils
         StackPane icon = Utils.createAdjustIcon(false, size);
         button.setGraphic(icon);
 
         final boolean[] isActive = {false};
 
-        // Цвета
         String colorNormal = AppTheme.BUTTON_REMOVE;
         String colorActive = AppTheme.BUTTON_DANGER;
         String colorHover = AppTheme.BUTTON_REMOVE_HOVER;
@@ -316,51 +291,6 @@ public final class AppButtonFactory {
         return button;
     }
 
-    public static Button deleteToggleButton(int size) {
-        Button button = new Button();
-        button.setMinSize(size, size);
-        button.setMaxSize(size, size);
-
-        StackPane icon = Utils.createAdjustIcon(false, size);
-        button.setGraphic(icon);
-
-        final boolean[] isActive = {false};
-
-        // Цвета
-        String colorNormal = AppTheme.BUTTON_PRIMARY;
-        String colorActive = AppTheme.BUTTON_DANGER;
-        String colorHover = AppTheme.BUTTON_PRIMARY_HOVER;
-
-        String commonStyle = """
-                -fx-background-radius: 4;
-                -fx-border-radius: 4;
-                -fx-border-width: 1;
-                -fx-cursor: hand;
-                -fx-padding: 0;
-                """;
-
-
-        Function<String, String> styleBuilder = (color) ->
-                commonStyle + "-fx-background-color: " + color + "; -fx-border-color: derive(" + color + ", -20%);";
-
-        button.setStyle(styleBuilder.apply(colorNormal));
-
-        button.setOnMouseEntered(e -> {
-            if (!isActive[0]) button.setStyle(styleBuilder.apply(colorHover));
-        });
-
-        button.setOnMouseExited(e -> button.setStyle(styleBuilder.apply(isActive[0] ? colorActive : colorNormal)));
-
-        button.setOnAction(e -> {
-            isActive[0] = !isActive[0];
-            button.setStyle(styleBuilder.apply(isActive[0] ? colorActive : colorHover));
-            // Сохраняем состояние в UserData, чтобы удобно было читать снаружи
-            button.setUserData(isActive[0]);
-        });
-
-        return button;
-    }
-
     private static void acceptColorTheme(Button button, int fontSize, String primaryColor, String secondaryColor) {
         String common = """
                 -fx-font-weight: bold;
@@ -381,17 +311,7 @@ public final class AppButtonFactory {
     }
 
     public static Button actionSave(String text) {
-        Button button = new Button(text);
-        button.setStyle("""
-                    -fx-background-color: linear-gradient(to bottom, #FFC107, #FF8C00);
-                    -fx-text-fill: #222;
-                    -fx-font-weight: bold;
-                    -fx-font-size: 14px;
-                    -fx-background-radius: 4;
-                    -fx-cursor: hand;
-                    -fx-effect: dropshadow(three-pass-box, rgba(255, 140, 0, 0.4), 10, 0, 0, 0);
-                """);
-        return button;
+        return addIcon(text);
     }
 
     public static Button addIcon(String text) {
@@ -429,15 +349,7 @@ public final class AppButtonFactory {
         -fx-cursor: hand;
         """;
 
-        Button button = new Button(text);
-        button.setPrefWidth(width);
-
-        button.setStyle(IDLE_STYLE);
-
-        button.setOnMouseEntered(e -> button.setStyle(HOVER_STYLE));
-        button.setOnMouseExited(e -> button.setStyle(IDLE_STYLE));
-
-        return button;
+        return getButton(text, width, HOVER_STYLE);
     }
 
     /**
@@ -460,13 +372,17 @@ public final class AppButtonFactory {
             -fx-cursor: hand;
             """;
 
+        return getButton(text, width, HOVER_STYLE);
+    }
+
+    private static Button getButton(String text, int width, String HOVER_STYLE) {
         Button button = new Button(text);
         button.setPrefWidth(width);
 
-        button.setStyle(IDLE_STYLE);
+        button.setStyle("-fx-background-color: transparent;\n-fx-text-fill: #777;\n-fx-border-color: #444;\n-fx-border-radius: 4;\n-fx-cursor: hand;\n");
 
         button.setOnMouseEntered(e -> button.setStyle(HOVER_STYLE));
-        button.setOnMouseExited(e -> button.setStyle(IDLE_STYLE));
+        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: transparent;\n-fx-text-fill: #777;\n-fx-border-color: #444;\n-fx-border-radius: 4;\n-fx-cursor: hand;\n"));
 
         return button;
     }

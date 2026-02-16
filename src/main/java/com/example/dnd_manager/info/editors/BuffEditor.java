@@ -21,9 +21,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BuffEditor extends AbstractEntityEditor<Buff> {
 
-    public BuffEditor() {
-        this(null);
-    }
+    private Buff editingItem = null;
+    private Button addButton;
+
+    // Выносим поля на уровень класса для доступа из prepareEdit
+    private AppTextField nameField;
+    private AppTextSection descriptionField;
+    private AppComboBox<String> typeBox;
+    private AtomicReference<String> iconPath = new AtomicReference<>("");
+    private Label iconPathLabel;
 
     public BuffEditor(Character character) {
         super(character, "label.buffsEditor");
@@ -36,41 +42,27 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
 
     @Override
     protected void fillInputCard(VBox inputCard) {
-        AppTextField nameField = new AppTextField(I18n.t("buff.promptText.name"));
+        nameField = new AppTextField(I18n.t("buff.promptText.name"));
         configureNameValidation(nameField);
 
         VBox nameBox = new VBox(2, nameField.getField(), nameRequiredLabel);
         nameBox.setMinHeight(45);
-        nameBox.setAlignment(Pos.TOP_LEFT);
 
-        AppTextSection descriptionField = new AppTextSection("", 3, I18n.t("textSection.promptText.descriptionBuffs"));
+        descriptionField = new AppTextSection("", 3, I18n.t("textSection.promptText.descriptionBuffs"));
 
-        AppComboBox<String> typeBox = new AppComboBox<>();
+        typeBox = new AppComboBox<>();
         for (BuffType type : BuffType.values()) typeBox.getItems().add(type.getName());
         typeBox.setValue(BuffType.BUFF.getName());
         typeBox.setPrefWidth(150);
 
-        AtomicReference<String> iconPath = new AtomicReference<>("");
-        Label iconPathLabel = new Label();
+        iconPathLabel = new Label();
         iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");
 
         Button chooseIconButton = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
-        Button addButton = AppButtonFactory.actionSave(I18n.t("button.addBuff"));
+        addButton = AppButtonFactory.actionSave(I18n.t("button.addBuff"));
         addButton.setPrefWidth(150);
 
-        HBox settingsRow = new HBox(15,
-                new VBox(5, createFieldLabel(I18n.t("textFieldLabel.type")), typeBox),
-                new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)
-        );
-        settingsRow.setAlignment(Pos.BOTTOM_LEFT);
-
-        HBox buttonsRow = new HBox(15, addButton, chooseIconButton);
-
-        inputCard.getChildren().addAll(
-                createFieldLabel(I18n.t("textFieldLabel.name")), nameBox,
-                createFieldLabel(I18n.t("textFieldLabel.description")), descriptionField,
-                settingsRow, buttonsRow
-        );
+        // ... (layout code: settingsRow, buttonsRow - оставляем как было) ...
 
         chooseIconButton.setOnAction(e -> {
             String path = chooseIcon();
@@ -80,31 +72,67 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
             }
         });
 
-        addButton.setOnAction(e -> {
-            if (validateName(nameField)) {
-                addItem(new Buff(
-                        nameField.getText().trim(),
-                        descriptionField.getText(),
-                        typeBox.getValue(),
-                        resolveIconPath(iconPath)
-                ));
+        addButton.setOnAction(e -> handleSave());
 
-                // Clear form
-                nameField.clear();
-                descriptionField.setText("");
-                iconPath.set("");
-                iconPathLabel.setText("");
-                nameRequiredLabel.setVisible(false);
+        inputCard.getChildren().addAll(
+                createFieldLabel(I18n.t("textFieldLabel.name")), nameBox,
+                createFieldLabel(I18n.t("textFieldLabel.description")), descriptionField,
+                new HBox(15, new VBox(5, createFieldLabel(I18n.t("textFieldLabel.type")), typeBox),
+                        new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)),
+                new HBox(15, addButton, chooseIconButton)
+        );
+    }
+
+    private void handleSave() {
+        if (validateName(nameField)) {
+            Buff newBuff = new Buff(
+                    nameField.getText().trim(),
+                    descriptionField.getText(),
+                    typeBox.getValue(),
+                    resolveIconPath(iconPath)
+            );
+
+            if (editingItem != null) {
+                int index = items.indexOf(editingItem);
+                if (index != -1) items.set(index, newBuff);
+                editingItem = null;
+                addButton.setText(I18n.t("button.addBuff"));
+            } else {
+                items.add(newBuff);
             }
-        });
+
+            refreshUI();
+            clearForm();
+        }
+    }
+
+    private void prepareEdit(Buff buff) {
+        this.editingItem = buff;
+        nameField.setText(buff.name());
+        descriptionField.setText(buff.description());
+        typeBox.setValue(buff.type());
+        iconPath.set(buff.iconPath());
+        iconPathLabel.setText(buff.iconPath().contains("/") ?
+                buff.iconPath().substring(buff.iconPath().lastIndexOf("/") + 1) : "");
+
+        addButton.setText(I18n.t("button.save"));
+        nameField.getField().requestFocus();
+    }
+
+    private void clearForm() {
+        nameField.clear();
+        descriptionField.setText("");
+        iconPath.set("");
+        iconPathLabel.setText("");
+        nameRequiredLabel.setVisible(false);
     }
 
     @Override
     protected Node createItemRow(Buff buff) {
-        return new BuffEditorRow(buff, () -> {
-            itemsContainer.getChildren().removeIf(node -> node instanceof BuffEditorRow r && r.getItem() == buff);
-            items.remove(buff);
-        }, character);
+        return new BuffEditorRow(buff,
+                () -> { items.remove(buff); refreshUI(); },
+                () -> prepareEdit(buff),
+                character);
     }
 
     @Override

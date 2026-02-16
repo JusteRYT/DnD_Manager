@@ -7,8 +7,8 @@ import javafx.scene.layout.VBox;
 
 public class BuffEditorRow extends AbstractEntityRow<Buff> {
 
-    public BuffEditorRow(Buff buff, Runnable onRemove, Character character) {
-        super(buff, onRemove, character);
+    public BuffEditorRow(Buff buff, Runnable onRemove, Runnable onEdit, Character character) {
+        super(buff, onRemove, onEdit, character);
     }
 
     @Override
