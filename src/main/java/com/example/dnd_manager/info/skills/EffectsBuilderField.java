@@ -9,9 +9,12 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import lombok.Getter;
 
 import java.util.Objects;
@@ -20,7 +23,7 @@ public class EffectsBuilderField extends VBox {
 
     @Getter
     private final ObservableList<SkillEffect> effects = FXCollections.observableArrayList();
-    private final FlowPane tagsPane = new FlowPane(6, 6);
+    private final FlowPane tagsPane = new FlowPane(10, 10);
     private final Label errorLabel;
 
     private final AppTextField valueField;
@@ -29,7 +32,7 @@ public class EffectsBuilderField extends VBox {
 
     public EffectsBuilderField() {
         setSpacing(8);
-        setStyle("-fx-background-color: rgba(0,0,0,0.2); -fx-padding: 10; -fx-background-radius: 5;");
+        setStyle("-fx-background-color: rgba(0,0,0,0.2); -fx-padding: 15; -fx-background-radius: 5;");
 
         errorLabel = new Label(I18n.t("labelField.effectRequired"));
         errorLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-size: 10px; -fx-font-weight: bold;");
@@ -54,7 +57,6 @@ public class EffectsBuilderField extends VBox {
         Button addBtn = AppButtonFactory.addEffectButton();
         addBtn.setOnAction(e -> addCurrentEffect());
 
-        // Layout
         Label sectionLabel = new Label(I18n.t("textFieldLabel.effectsBuilder"));
         sectionLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 10px; -fx-font-weight: bold;");
 
@@ -77,51 +79,66 @@ public class EffectsBuilderField extends VBox {
                 : typeBox.getValue();
 
         SkillEffect effect = SkillEffect.of(typeBox.getValue(), typeName, valueField.getText().trim());
-        effects.add(effect);
-
-        // Визуальный тег
-        Label tag = new Label(effect.toString());
-        tag.setStyle(String.format("-fx-background-color: %s; -fx-text-fill: white; -fx-padding: 3 8; -fx-background-radius: 10;",
-                getEffectColor(typeName)));
-
-        // Удаление по клику на тег (опционально, но удобно)
-        tag.setOnMouseClicked(e -> {
-            effects.remove(effect);
-            tagsPane.getChildren().remove(tag);
-        });
-
-        tagsPane.getChildren().add(tag);
+        addEffectToUI(effect);
 
         valueField.clear();
         customField.clear();
         errorLabel.setVisible(false);
     }
 
-    private String getEffectColor(String typeName) {
-        if (typeName.contains("Damage") || typeName.contains("Урон")) return "#722f37";
-        if (typeName.contains("Heal") || typeName.contains("Лечение")) return "#2e5a1c";
-        return "#3b444b";
+    public void addEffect(SkillEffect effect) {
+        if (effect != null) {
+            addEffectToUI(effect);
+        }
     }
 
-    public void addEffect(SkillEffect effect) {
-        if (effect == null) {
-            return;
-        }
+    /**
+     * Создает визуальный тег с эффектом свечения
+     */
+    private void addEffectToUI(SkillEffect effect) {
         effects.add(effect);
 
+        String colorHex = getEffectColor(effect.getType());
         Label tag = new Label(effect.toString());
+
         tag.setStyle(String.format(
-                "-fx-background-color: %s; -fx-text-fill: white; -fx-padding: 3 8; -fx-background-radius: 10; -fx-cursor: hand;",
-                getEffectColor(effect.getDisplayName())
+                "-fx-background-color: %s; -fx-text-fill: white; -fx-padding: 4 10; " +
+                        "-fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 11px;",
+                colorHex
         ));
 
-        // Удаление по клику
+        // ДОБАВЛЯЕМ СВЕЧЕНИЕ
+        applyGlow(tag, colorHex);
+
         tag.setOnMouseClicked(e -> {
             effects.remove(effect);
             tagsPane.getChildren().remove(tag);
         });
 
         tagsPane.getChildren().add(tag);
+    }
+
+    private void applyGlow(Label tag, String hexColor) {
+        Color color = Color.web(hexColor);
+
+        DropShadow glow = new DropShadow();
+        glow.setBlurType(BlurType.THREE_PASS_BOX);
+        glow.setColor(color.deriveColor(0, 1.2, 1.2, 0.6));
+        glow.setRadius(15);
+        glow.setSpread(0.25);
+        glow.setOffsetX(0);
+        glow.setOffsetY(0);
+
+        tag.setEffect(glow);
+
+        tag.setOnMouseEntered(e -> glow.setRadius(20));
+        tag.setOnMouseExited(e -> glow.setRadius(15));
+    }
+
+    private String getEffectColor(String typeName) {
+        if (typeName.contains(TypeEffects.DAMAGE.getName())) return "#722f37";
+        if (typeName.contains(TypeEffects.HEAL.getName())) return "#2e5a1c";
+        return "#3b444b";
     }
 
     public void clear() {

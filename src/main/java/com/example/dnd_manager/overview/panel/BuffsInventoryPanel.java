@@ -4,8 +4,8 @@ package com.example.dnd_manager.overview.panel;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.tooltip.BuffsView;
-import javafx.geometry.Insets;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
 /**
  * Right panel: Buffs/Debuffs + Inventory
@@ -17,7 +17,7 @@ public class BuffsInventoryPanel extends VBox {
      *
      * @param character character instance
      */
-    public BuffsInventoryPanel(Character character, StorageService storageService) {
+    public BuffsInventoryPanel(Character character, StorageService storageService, Stage stage) {
         setSpacing(15);
 
         VBox buffsContainer = new VBox(new BuffsView(character));
@@ -42,6 +42,8 @@ public class BuffsInventoryPanel extends VBox {
 
         InventoryPanel inventoryPanel = new InventoryPanel(character, storageService::saveCharacter);
 
-        getChildren().addAll(buffsContainer, inventoryPanel);
+        FamiliarsPanel familiarsPanel = new FamiliarsPanel(character, stage);
+
+        getChildren().addAll(buffsContainer, inventoryPanel, familiarsPanel);
     }
 }

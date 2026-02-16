@@ -233,9 +233,8 @@ public class TopBar extends HBox {
     private static void showLevelUpDialog(Button sourceButton, Character character, StorageService storageService, Label levelValue) {
         Stage owner = (Stage) sourceButton.getScene().getWindow();
 
-        new LevelUpDialog(owner, character, storageService, () -> {
-            levelValue.setText(String.valueOf(character.getLevel()));
-        }).show();
+        new LevelUpDialog(owner, character, storageService, () ->
+                levelValue.setText(String.valueOf(character.getLevel()))).show();
     }
 
     private void closeScreen(Stage stage, StorageService storageService) {

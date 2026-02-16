@@ -36,6 +36,7 @@ public class Character {
     private final List<Skill> skills = new ArrayList<>();
     private final List<Buff> buffs = new ArrayList<>();
     private final List<InventoryItem> inventory = new ArrayList<>();
+    private final List<Character> familiars = new ArrayList<>();
 
     private String avatarImage;
 

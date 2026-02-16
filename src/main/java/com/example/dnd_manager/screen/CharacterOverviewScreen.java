@@ -36,7 +36,7 @@ public class CharacterOverviewScreen extends BorderPane {
         mainGrid.setVgap(15);
         mainGrid.setPadding(new Insets(10));
 
-        BuffsInventoryPanel buffsInventoryPanel = new BuffsInventoryPanel(character, storageService);
+        BuffsInventoryPanel buffsInventoryPanel = new BuffsInventoryPanel(character, storageService, stage);
         StatsPanel statsPanel = new StatsPanel(character);
         ResourcePanel resourcePanel = new ResourcePanel(character, storageService);
         manaBar = resourcePanel.getManaBar();

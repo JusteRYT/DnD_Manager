@@ -66,13 +66,8 @@ public class BuffListView extends VBox {
 
                 container.getChildren().add(icon);
 
-                container.setOnMouseEntered(e -> {
-                    container.setStyle(hoverStyle);
-                });
-
-                container.setOnMouseExited(e -> {
-                    container.setStyle(idleStyle);
-                });
+                container.setOnMouseEntered(e -> container.setStyle(hoverStyle));
+                container.setOnMouseExited(e -> container.setStyle(idleStyle));
 
                 icons.getChildren().add(container);
             });
