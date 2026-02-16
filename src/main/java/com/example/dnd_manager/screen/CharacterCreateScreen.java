@@ -2,8 +2,8 @@ package com.example.dnd_manager.screen;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.avatar.AvatarPicker;
-import com.example.dnd_manager.info.buff_debuff.BuffEditor;
-import com.example.dnd_manager.info.inventory.InventoryEditor;
+import com.example.dnd_manager.info.editors.BuffEditor;
+import com.example.dnd_manager.info.editors.InventoryEditor;
 import com.example.dnd_manager.info.skills.SkillsEditor;
 import com.example.dnd_manager.info.stats.Stats;
 import com.example.dnd_manager.info.stats.StatsEditor;
@@ -194,7 +194,7 @@ public class CharacterCreateScreen extends AbstractScreen {
         }
         Character character = getCharacter();
         character.getStats().copyFrom(stats);
-        character.getBuffs().addAll(buffEditor.getBuffs());
+        character.getBuffs().addAll(buffEditor.getItems());
         character.getInventory().addAll(inventoryEditor.getItems());
         character.getSkills().addAll(skillsEditor.getSkills());
         storageService.saveCharacter(character);

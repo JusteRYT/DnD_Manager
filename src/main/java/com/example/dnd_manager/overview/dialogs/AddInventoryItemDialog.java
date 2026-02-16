@@ -71,7 +71,7 @@ public class AddInventoryItemDialog extends BaseDialog {
     }
 
     private void saveData(String name, String desc, String countStr) {
-        int count = 0;
+        int count = 1;
         try {
             count = Integer.parseInt(countStr);
         } catch (NumberFormatException ignored) {

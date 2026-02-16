@@ -2,8 +2,8 @@ package com.example.dnd_manager.screen;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.avatar.AvatarPicker;
-import com.example.dnd_manager.info.buff_debuff.BuffEditor;
-import com.example.dnd_manager.info.inventory.InventoryEditor;
+import com.example.dnd_manager.info.editors.BuffEditor;
+import com.example.dnd_manager.info.editors.InventoryEditor;
 import com.example.dnd_manager.info.skills.SkillsEditor;
 import com.example.dnd_manager.info.stats.Stats;
 import com.example.dnd_manager.info.stats.StatsEditor;
@@ -14,14 +14,12 @@ import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.SectionBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 

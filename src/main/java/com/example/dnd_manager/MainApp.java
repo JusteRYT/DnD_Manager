@@ -5,14 +5,9 @@ import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.CustomTitleBar;
 import com.example.dnd_manager.theme.WindowResizer;
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.application.Application;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
