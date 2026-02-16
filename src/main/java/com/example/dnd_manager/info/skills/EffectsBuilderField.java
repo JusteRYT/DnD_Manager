@@ -103,6 +103,27 @@ public class EffectsBuilderField extends VBox {
         return "#3b444b";
     }
 
+    public void addEffect(SkillEffect effect) {
+        if (effect == null) {
+            return;
+        }
+        effects.add(effect);
+
+        Label tag = new Label(effect.toString());
+        tag.setStyle(String.format(
+                "-fx-background-color: %s; -fx-text-fill: white; -fx-padding: 3 8; -fx-background-radius: 10; -fx-cursor: hand;",
+                getEffectColor(effect.getDisplayName())
+        ));
+
+        // Удаление по клику
+        tag.setOnMouseClicked(e -> {
+            effects.remove(effect);
+            tagsPane.getChildren().remove(tag);
+        });
+
+        tagsPane.getChildren().add(tag);
+    }
+
     public void clear() {
         effects.clear();
         tagsPane.getChildren().clear();

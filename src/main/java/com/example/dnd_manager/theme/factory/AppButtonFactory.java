@@ -249,6 +249,59 @@ public final class AppButtonFactory {
         return button;
     }
 
+    public static Button actionEditIcon(String iconPath, int size) {
+        Button button = new Button();
+        button.setMinSize(size, size);
+        button.setMaxSize(size, size);
+
+        String baseStyle = """
+                    -fx-background-color: linear-gradient(to bottom, #FFC107, #FF8C00);
+                    -fx-background-radius: 4;
+                    -fx-cursor: hand;
+                    -fx-effect: dropshadow(three-pass-box, rgba(255, 140, 0, 0.3), 8, 0, 0, 0);
+                """;
+
+        String hoverStyle = """
+                    -fx-background-color: linear-gradient(to bottom, #ffd54f, #ffa726);
+                    -fx-background-radius: 4;
+                    -fx-cursor: hand;
+                    -fx-effect: dropshadow(three-pass-box, rgba(255, 140, 0, 0.6), 12, 0, 0, 0);
+                """;
+
+        button.setStyle(baseStyle);
+
+        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
+        button.setOnMouseExited(e -> button.setStyle(baseStyle));
+        button.setOnMousePressed(e -> {
+            button.setTranslateY(1);
+            button.setStyle(baseStyle + "-fx-effect: null;");
+        });
+        button.setOnMouseReleased(e -> {
+            button.setTranslateY(0);
+            button.setStyle(button.isHover() ? hoverStyle : baseStyle);
+        });
+
+        if (iconPath != null && !iconPath.isEmpty()) {
+            try {
+                ImageView icon = new ImageView(new Image(Objects.requireNonNull(
+                        AppButtonFactory.class.getResource(iconPath)).toExternalForm()));
+                icon.setFitWidth(size * 0.6);
+                icon.setFitHeight(size * 0.6);
+                icon.setPreserveRatio(true);
+
+                ColorAdjust darken = new ColorAdjust();
+                darken.setBrightness(-0.8);
+                icon.setEffect(darken);
+
+                button.setGraphic(icon);
+            } catch (Exception e) {
+                System.err.println("Error loading edit icon: " + iconPath);
+            }
+        }
+
+        return button;
+    }
+
     public static Button deleteButton(int size) {
         Button button = new Button();
         button.setMinSize(size, size);

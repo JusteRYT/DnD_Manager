@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -24,7 +25,7 @@ import java.nio.file.Path;
 public class SkillCard extends VBox {
     private final Skill skill;
 
-    public SkillCard(Skill skill, Runnable onRemove, Character character) {
+    public SkillCard(Skill skill, Runnable onRemove, Runnable onEdit, Character character) {
         this.skill = skill;
         setSpacing(8);
         setAlignment(Pos.TOP_CENTER);
@@ -70,12 +71,20 @@ public class SkillCard extends VBox {
         desc.setWrapText(true);
         desc.setMaxHeight(60);
 
+        HBox actions = new HBox(10);
+        actions.setAlignment(Pos.CENTER);
+        Button editBtn = AppButtonFactory.actionEditIcon("/com/example/dnd_manager/icon/editSkill_icon.png", 30);
+        editBtn.setOnAction(e -> onEdit.run());
+
         Button removeBtn = AppButtonFactory.deleteButton(30);
         removeBtn.setOnAction(e -> onRemove.run());
         removeBtn.setFocusTraversable(false);
+
+        actions.getChildren().addAll(editBtn, removeBtn);
+
         getChildren().addAll(iconView, name, meta, desc, new Region() {{
             VBox.setVgrow(this, Priority.ALWAYS);
-        }}, removeBtn);
+        }}, actions);
     }
 
 

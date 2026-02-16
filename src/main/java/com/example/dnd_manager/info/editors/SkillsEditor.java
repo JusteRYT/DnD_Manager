@@ -24,8 +24,16 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class SkillsEditor extends AbstractEntityEditor<Skill> {
 
+    private Skill editingItem = null;
+    private Button addSkillButton;
+
+    // Выносим поля в класс
     private EffectsBuilderField effectsBuilder;
     private AppTextSection descriptionSection;
+    private AppTextField nameField;
+    private AppComboBox<String> activationBox;
+    private final AtomicReference<String> iconPath = new AtomicReference<>("");
+    private Label iconPathLabel;
 
     public SkillsEditor(Character character) {
         super(character, "label.skillsEditor");
@@ -44,30 +52,29 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
     @Override
     protected void fillInputCard(VBox inputCard) {
         effectsBuilder = new EffectsBuilderField();
-
-        AppTextField nameField = new AppTextField(I18n.t("textField.skillName"));
+        nameField = new AppTextField(I18n.t("textField.skillName"));
         configureNameValidation(nameField);
 
-        AppComboBox<String> activationBox = new AppComboBox<>();
+        activationBox = new AppComboBox<>();
         for (ActivationType type : ActivationType.values()) activationBox.getItems().add(type.getName());
         activationBox.setValue(ActivationType.ACTION.getName());
         activationBox.setPrefWidth(180);
 
         descriptionSection = new AppTextSection("", 3, I18n.t("textSection.promptText.skillDescription"));
 
+        iconPathLabel = new Label();
+        iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");
+
+        Button iconButton = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
+        addSkillButton = AppButtonFactory.actionSave(I18n.t("button.addSkill"));
+        addSkillButton.setPrefWidth(200);
+
+        // Layout (topRow и т.д.)
         HBox topRow = new HBox(15,
                 new VBox(5, createFieldLabel(I18n.t("textFieldLabel.skillName")),
                         new VBox(0, nameField.getField(), nameRequiredLabel)),
                 new VBox(5, createFieldLabel(I18n.t("textFieldLabel.activation")), activationBox)
         );
-
-        AtomicReference<String> iconPath = new AtomicReference<>("");
-        Label iconPathLabel = new Label();
-        iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");
-
-        Button iconButton = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
-        Button addSkillButton = AppButtonFactory.actionSave(I18n.t("button.addSkill"));
-        addSkillButton.setPrefWidth(200);
 
         inputCard.getChildren().addAll(
                 topRow,
@@ -85,31 +92,68 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
             }
         });
 
-        addSkillButton.setOnAction(e -> {
-            if (validateName(nameField) && effectsBuilder.validate()) {
-                addItem(new Skill(
-                        nameField.getText().trim(),
-                        descriptionSection.getText(),
-                        new ArrayList<>(effectsBuilder.getEffects()),
-                        activationBox.getValue(),
-                        resolveIconPath(iconPath)
-                ));
+        addSkillButton.setOnAction(e -> handleSave());
+    }
 
-                nameField.clear();
-                descriptionSection.clear();
-                effectsBuilder.clear();
-                iconPath.set("");
-                iconPathLabel.setText("");
+    private void handleSave() {
+        if (validateName(nameField) && effectsBuilder.validate()) {
+            Skill newSkill = new Skill(
+                    nameField.getText().trim(),
+                    descriptionSection.getText(),
+                    new ArrayList<>(effectsBuilder.getEffects()),
+                    activationBox.getValue(),
+                    resolveIconPath(iconPath)
+            );
+
+            if (editingItem != null) {
+                int index = items.indexOf(editingItem);
+                if (index != -1) items.set(index, newSkill);
+                editingItem = null;
+                addSkillButton.setText(I18n.t("button.addSkill"));
+            } else {
+                items.add(newSkill);
             }
-        });
+
+            refreshUI(); // Метод в базовом классе для перерисовки FlowPane
+            clearForm();
+        }
+    }
+
+    private void prepareEdit(Skill skill) {
+        this.editingItem = skill;
+        nameField.setText(skill.name());
+        descriptionSection.setText(skill.description());
+        activationBox.setValue(skill.activationType());
+
+        effectsBuilder.clear();
+        skill.effects().forEach(effectsBuilder::addEffect);
+
+        iconPath.set(skill.iconPath());
+        iconPathLabel.setText(skill.iconPath().isEmpty() ? "" : new File(skill.iconPath()).getName());
+
+        addSkillButton.setText(I18n.t("button.save"));
+        nameField.getField().requestFocus();
+    }
+
+    private void clearForm() {
+        nameField.clear();
+        descriptionSection.clear();
+        effectsBuilder.clear();
+        iconPath.set("");
+        iconPathLabel.setText("");
+        nameRequiredLabel.setVisible(false);
     }
 
     @Override
     protected Node createItemRow(Skill skill) {
-        return new SkillCard(skill, () -> {
-            items.remove(skill);
-            itemsContainer.getChildren().removeIf(n -> n instanceof SkillCard sc && sc.getSkill() == skill);
-        }, character);
+        return new SkillCard(skill,
+                () -> {
+                    items.remove(skill);
+                    refreshUI();
+                },
+                () -> prepareEdit(skill),
+                character
+        );
     }
 
     @Override
