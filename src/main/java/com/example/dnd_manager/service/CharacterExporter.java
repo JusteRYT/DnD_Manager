@@ -44,13 +44,35 @@ public class CharacterExporter {
 
         sb.append("--- ИНВЕНТАРЬ ---\n");
         for (InventoryItem item : c.getInventory()) {
-            sb.append("- ").append(item.getName()).append(": ").append(item.getDescription()).append("\n");
+            sb.append("- ").append(item.getName());
+            if (item.getCount() >= 1) {
+                sb.append(" (x").append(item.getCount()).append(")");
+            }
+            sb.append(": ").append(item.getDescription()).append("\n");
         }
+        sb.append("\n");
 
         sb.append("--- СПОСОБНОСТИ ---\n");
         for (Skill skill : c.getSkills()) {
-            sb.append("• ").append(skill.name()).append(" (").append(skill.activationType()).append(")\n");
-            sb.append(skill.description()).append("\n\n");
+            // Заголовок: Название (Тип активации)
+            sb.append("• ").append(skill.name().toUpperCase())
+                    .append(" [").append(skill.activationType()).append("]\n");
+
+            // Описание
+            sb.append("  Описание: ").append(skill.description()).append("\n");
+
+            // Сборка эффектов
+            if (skill.effects() != null && !skill.effects().isEmpty()) {
+                sb.append("  Эффекты: ");
+                String effectsStr = skill.effects().stream()
+                        .map(eff -> {
+                            String name = (eff.getCustomName() != null) ? eff.getCustomName() : translateEffType(eff.getType());
+                            return name + " (" + eff.getValue() + ")";
+                        })
+                        .collect(Collectors.joining(", "));
+                sb.append(effectsStr).append("\n");
+            }
+            sb.append("\n");
         }
 
         return sb.toString();
@@ -58,5 +80,15 @@ public class CharacterExporter {
 
     private static String formatStat(int value) {
         return value >= 0 ? "+" + value : String.valueOf(value);
+    }
+
+    private static String translateEffType(String type) {
+        if (type == null) return "Эффект";
+        return switch (type.toUpperCase()) {
+            case "DAMAGE" -> "Урон";
+            case "HEAL" -> "Лечение";
+            case "CUSTOM" -> "Особое";
+            default -> type;
+        };
     }
 }
