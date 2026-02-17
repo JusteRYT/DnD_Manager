@@ -3,6 +3,7 @@ package com.example.dnd_manager.info.editors;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.skills.SkillCard;
 import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -90,6 +91,6 @@ public abstract class AbstractEntityRow<T> extends HBox {
 
     // Общая логика загрузки картинки
     private Image resolveIcon(T item, Character character) {
-        return SkillCard.getImage(character, getIconPath(item));
+        return CharacterAssetResolver.getImage(character, getIconPath(item));
     }
 }

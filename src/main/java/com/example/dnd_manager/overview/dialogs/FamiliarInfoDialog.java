@@ -2,7 +2,10 @@ package com.example.dnd_manager.overview.dialogs;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.overview.ui.HpBar;
+import com.example.dnd_manager.overview.ui.ManaBar;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
+import com.example.dnd_manager.store.StorageService;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -18,11 +21,13 @@ public class FamiliarInfoDialog extends BaseDialog {
 
     private final Character familiar;
     private final Character owner;
+    private final StorageService storageService;
 
-    public FamiliarInfoDialog(Stage ownerStage, Character familiar, Character owner) {
+    public FamiliarInfoDialog(Stage ownerStage, Character familiar, Character owner, StorageService storageService) {
         super(ownerStage, familiar.getName(), 550, 750);
         this.familiar = familiar;
         this.owner = owner;
+        this.storageService = storageService;
     }
 
     @Override
@@ -31,7 +36,12 @@ public class FamiliarInfoDialog extends BaseDialog {
         contentArea.setPadding(new Insets(15, 25, 25, 25));
 
         VBox mainScrollContent = new VBox(20);
+        HpBar hpBar = new HpBar(familiar, storageService);
+        ManaBar manaBar = new ManaBar(familiar, storageService);
+
         mainScrollContent.getChildren().addAll(
+                hpBar,
+                manaBar,
                 FamiliarSectionBuilder.buildResources(familiar),
                 FamiliarSectionBuilder.buildStats(familiar),
                 FamiliarSectionBuilder.buildIconLists(familiar, owner)

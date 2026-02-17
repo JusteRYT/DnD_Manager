@@ -116,27 +116,50 @@ public class JsonCharacterRepository implements CharacterRepository {
      * and rewrites paths to relative ones.
      */
     private void copyIcons(Character character, Path iconDir) throws IOException {
-        copyIcon(character.getAvatarImage(), iconDir, character::setAvatarImage);
+        processCharacterAssets(character, iconDir);
 
-        for (Skill skill : character.getSkills()) {
+        for (Character familiar : character.getFamiliars()) {
+            processCharacterAssets(familiar, iconDir);
+        }
+    }
+
+    private void processCharacterAssets(Character c, Path iconDir) throws IOException {
+        // Аватар
+        copyIcon(c.getAvatarImage(), iconDir, c::setAvatarImage);
+
+        // Скиллы
+        List<Skill> skills = c.getSkills();
+        for (int i = 0; i < skills.size(); i++) {
+            Skill skill = skills.get(i);
+            int index = i; // final переменная для лямбды
             copyIcon(skill.iconPath(), iconDir, newPath ->
-                    character.getSkills().set(
-                            character.getSkills().indexOf(skill),
-                            new Skill(skill.name(), skill.description(), skill.effects(), skill.activationType(), newPath)
-                    )
+                    skills.set(index, new Skill(
+                            skill.name(),
+                            skill.description(),
+                            skill.effects(),
+                            skill.activationType(),
+                            newPath
+                    ))
             );
         }
 
-        for (Buff buff : character.getBuffs()) {
+        // Баффы
+        List<Buff> buffs = c.getBuffs();
+        for (int i = 0; i < buffs.size(); i++) {
+            Buff buff = buffs.get(i);
+            int index = i;
             copyIcon(buff.iconPath(), iconDir, newPath ->
-                    character.getBuffs().set(
-                            character.getBuffs().indexOf(buff),
-                            new Buff(buff.name(), buff.description(), buff.type(), newPath)
-                    )
+                    buffs.set(index, new Buff(
+                            buff.name(),
+                            buff.description(),
+                            buff.type(),
+                            newPath
+                    ))
             );
         }
 
-        for (InventoryItem item : character.getInventory()) {
+        // Инвентарь
+        for (InventoryItem item : c.getInventory()) {
             copyIcon(item.getIconPath(), iconDir, item::setIconPath);
         }
     }
@@ -152,7 +175,7 @@ public class JsonCharacterRepository implements CharacterRepository {
         }
 
         // already stored icon, do not copy again
-        if (sourcePath.startsWith("icon/")) {
+        if (sourcePath.startsWith(ICON_DIR + "/")) {
             return;
         }
 

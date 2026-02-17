@@ -35,7 +35,7 @@ public class EditStatsDialog extends BaseDialog {
         // HP
         Label hpLabel = new Label(I18n.t("hpField.name") + ":");
         hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold;");
-        IntegerField hpField = new IntegerField(String.valueOf(character.getHp()));
+        IntegerField hpField = new IntegerField(String.valueOf(character.getMaxHp()));
         VBox hpBox = new VBox(4, hpLabel, hpField.getField());
 
         // Armor
@@ -47,7 +47,7 @@ public class EditStatsDialog extends BaseDialog {
         // Mana
         Label manaLabel = new Label(I18n.t("manaField.name") + ":");
         manaLabel.setStyle("-fx-text-fill: #3aa3c3; -fx-font-weight: bold;");
-        IntegerField manaField = new IntegerField(String.valueOf(character.getCurrentMana()));
+        IntegerField manaField = new IntegerField(String.valueOf(character.getMaxMana()));
         VBox manaBox = new VBox(4, manaLabel, manaField.getField());
 
         // Level
@@ -70,7 +70,7 @@ public class EditStatsDialog extends BaseDialog {
     }
 
     private void applyChanges(IntegerField hp, IntegerField arm, IntegerField man, IntegerField lvl) {
-        if (!hp.getText().isBlank()) character.setHp(hp.getInt());
+        if (!hp.getText().isBlank()) character.setMaxHp(hp.getInt());
         if (!arm.getText().isBlank()) character.setArmor(arm.getInt());
         if (!man.getText().isBlank()) character.setMaxMana(man.getInt());
         if (!lvl.getText().isBlank()) character.setLevel(lvl.getInt());

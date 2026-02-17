@@ -53,7 +53,7 @@ public class FamiliarsSection extends VBox {
         }).show();
     }
 
-    private void refreshList() {
+    public void refreshList() {
         listContainer.getChildren().clear();
         for (Character familiar : items) {
             FamiliarEditorRow row = new FamiliarEditorRow(

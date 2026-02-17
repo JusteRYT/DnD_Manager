@@ -23,6 +23,7 @@ public class FamiliarDialog extends BaseDialog {
     @Override
     protected void setupContent() {
         editor = new FamiliarEditor(familiar);
+        editor.setFocusTraversable(false);
 
         Button applyBtn = AppButtonFactory.actionSave(I18n.t("button.editSave"));
 
@@ -31,6 +32,7 @@ public class FamiliarDialog extends BaseDialog {
             onSave.run();
             close();
         });
+        applyBtn.setFocusTraversable(false);
 
         Button cancelBtn = AppButtonFactory.actionExit(I18n.t("button.exit"), 100);
         cancelBtn.setOnAction(e -> close());

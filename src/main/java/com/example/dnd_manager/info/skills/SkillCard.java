@@ -93,28 +93,6 @@ public class SkillCard extends VBox {
     }
 
     public static Image getImage(Character character, String iconPath) {
-        if (iconPath == null || iconPath.isEmpty()) {
-            return new Image(SkillCard.class.getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
-        }
-
-        try {
-            if (iconPath.startsWith("file:") || iconPath.startsWith("jar:") || iconPath.contains("://")) {
-                return new Image(iconPath);
-            }
-
-            Path path = Path.of(iconPath);
-            if (path.isAbsolute()) {
-                return new Image(path.toUri().toString());
-            }
-
-            if (character != null) {
-                return new Image(CharacterAssetResolver.resolve(character.getName(), iconPath));
-            }
-
-        } catch (Exception e) {
-            System.err.println("Error loading image: " + iconPath + " -> " + e.getMessage());
-        }
-
-        return new Image(SkillCard.class.getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
+       return CharacterAssetResolver.getImage(character, iconPath);
     }
 }

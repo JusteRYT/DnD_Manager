@@ -42,7 +42,7 @@ public class BuffsInventoryPanel extends VBox {
 
         InventoryPanel inventoryPanel = new InventoryPanel(character, storageService::saveCharacter);
 
-        FamiliarsPanel familiarsPanel = new FamiliarsPanel(character, stage);
+        FamiliarsPanel familiarsPanel = new FamiliarsPanel(character, stage, storageService);
 
         getChildren().addAll(buffsContainer, inventoryPanel, familiarsPanel);
     }

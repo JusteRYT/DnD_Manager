@@ -1,14 +1,13 @@
 package com.example.dnd_manager.overview.dialogs.components;
 
-import com.example.dnd_manager.info.familiar.Displayable;
+import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.skills.SkillCard;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -17,7 +16,7 @@ import javafx.util.Duration;
 
 public class IconSlot extends StackPane {
 
-    public IconSlot(Displayable item, String characterName) {
+    public IconSlot(IconSlotViewModel item, Character character) {
         setPrefSize(50, 50);
         setMinSize(50, 50);
 
@@ -27,34 +26,22 @@ public class IconSlot extends StackPane {
         // Иконка
         ImageView iv = new ImageView();
         try {
-            iv.setImage(new Image(CharacterAssetResolver.resolve(characterName, item.getIconPath())));
+            iv.setImage(CharacterAssetResolver.getImage(character, item.getIconPath()));
         } catch (Exception e) {
             Label placeholder = new Label(item.getName().substring(0, 1).toUpperCase());
             placeholder.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
             getChildren().add(placeholder);
         }
-        iv.setFitWidth(45); iv.setFitHeight(45);
+        iv.setFitWidth(45);
+        iv.setFitHeight(45);
         getChildren().add(iv);
-
-        if (item.getBadgeText() != null) {
-            Label badge = new Label(item.getBadgeText());
-            badge.setStyle("-fx-text-fill: white; " +
-                    "-fx-font-size: 9px; " +
-                    "-fx-background-color: rgba(0,0,0,0.7); " +
-                    "-fx-background-radius: 3; " +
-                    "-fx-padding: 1 3;");
-            StackPane.setAlignment(badge, Pos.BOTTOM_RIGHT);
-            StackPane.setMargin(badge, new Insets(2));
-            getChildren().add(badge);
-        }
-
         setupTooltip(item);
 
         setOnMouseEntered(e -> setStyle(getStyle() + "-fx-background-color: #3d3d3d;"));
         setOnMouseExited(e -> setStyle(getStyle() + "-fx-background-color: #2b2b2b;"));
     }
 
-    private void setupTooltip(Displayable item) {
+    private void setupTooltip(IconSlotViewModel item) {
         VBox root = new VBox(5);
         root.setPadding(new Insets(10));
         root.setStyle("-fx-background-color: #1a1a1a; " +

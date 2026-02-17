@@ -4,6 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.FamiliarInfoDialog;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
+import com.example.dnd_manager.store.StorageService;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -22,10 +23,12 @@ public class FamiliarsPanel extends VBox {
     private final Character character;
 
     private final Stage parentStage;
+    private final StorageService storageService;
 
-    public FamiliarsPanel(Character character, Stage parentStage) {
+    public FamiliarsPanel(Character character, Stage parentStage, StorageService storageService) {
         this.parentStage = parentStage;
         this.character = character;
+        this.storageService = storageService;
         // Мистический фиолетовый цвет для фамильяров
         String accentColor = "#9c27b0";
 
@@ -100,7 +103,7 @@ public class FamiliarsPanel extends VBox {
 
         VBox statsBox = new VBox(2);
         statsBox.setAlignment(Pos.CENTER_RIGHT);
-        Label hpLabel = new Label(I18n.t("label.familiarsHP")+ ": " + familiar.getHp());
+        Label hpLabel = new Label(I18n.t("label.familiarsHP")+ ": " + familiar.getMaxHp());
         hpLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-size: 11px; -fx-font-weight: bold;");
         Label acLabel = new Label(I18n.t("label.familiarsAC")+ ": " + familiar.getArmor());
         acLabel.setStyle("-fx-text-fill: #74c0fc; -fx-font-size: 11px; -fx-font-weight: bold;");
@@ -150,7 +153,7 @@ public class FamiliarsPanel extends VBox {
         card.setOnMouseEntered(e -> card.setStyle(hoverStyle));
         card.setOnMouseExited(e -> card.setStyle(idleStyle));
 
-        card.setOnMouseClicked(e -> new FamiliarInfoDialog(parentStage, familiar, character).show());
+        card.setOnMouseClicked(e -> new FamiliarInfoDialog(parentStage, familiar, character, storageService).show());
         return card;
     }
 }

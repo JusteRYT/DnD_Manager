@@ -24,7 +24,7 @@ public class FamiliarEditorRow extends AbstractEntityRow<Character> {
         Label subLabel = new Label(subText);
         subLabel.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 12px;");
 
-        Label statsLabel = new Label(String.format("HP: %d | AC: %d", familiar.getHp(), familiar.getArmor()));
+        Label statsLabel = new Label(String.format("HP: %d | AC: %d", familiar.getMaxHp(), familiar.getArmor()));
         statsLabel.setStyle("-fx-text-fill: #3aa3c3; -fx-font-size: 11px; -fx-font-family: 'Consolas';");
 
         container.getChildren().addAll(nameLabel, subLabel, statsLabel);

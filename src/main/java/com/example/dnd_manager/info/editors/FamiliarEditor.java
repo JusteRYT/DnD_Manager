@@ -26,6 +26,7 @@ public class FamiliarEditor extends VBox {
     private AppTextField classField;
     private IntegerField hpField;
     private IntegerField armorField;
+    private IntegerField manaField;
 
     private final AtomicReference<String> avatarPath = new AtomicReference<>("");
     private Label iconPathLabel;
@@ -45,7 +46,6 @@ public class FamiliarEditor extends VBox {
     }
 
     private void setupUI() {
-        // 1. Базовая карточка (Имя, раса, статы)
         VBox baseCard = new VBox(12);
         baseCard.setStyle("-fx-background-color: #252526; -fx-padding: 15; -fx-background-radius: 8;");
 
@@ -57,11 +57,13 @@ public class FamiliarEditor extends VBox {
         );
 
         HBox statsRow = new HBox(10,
-                new VBox(2, createLabel("HP"), (hpField = new IntegerField("")).getField()),
-                new VBox(2, createLabel("AC"), (armorField = new IntegerField("")).getField())
+                new VBox(2, createLabel(I18n.t("label.familiarsHP")), (hpField = new IntegerField("")).getField()),
+                new VBox(2, createLabel(I18n.t("label.familiarsAC")), (armorField = new IntegerField("")).getField()),
+                new VBox(2, createLabel(I18n.t("label.familiarsMP")), (manaField = new IntegerField("")).getField())
         );
         hpField.getField().setPrefWidth(80);
         armorField.getField().setPrefWidth(80);
+        manaField.getField().setPrefWidth(80);
 
         iconPathLabel = new Label();
         iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");
@@ -88,8 +90,9 @@ public class FamiliarEditor extends VBox {
         nameField.setText(familiar.getName());
         raceField.setText(familiar.getRace());
         classField.setText(familiar.getCharacterClass());
-        hpField.setText(String.valueOf(familiar.getHp()));
+        hpField.setText(String.valueOf(familiar.getMaxHp()));
         armorField.setText(String.valueOf(familiar.getArmor()));
+        manaField.setText(String.valueOf(familiar.getMaxMana()));
         avatarPath.set(familiar.getAvatarImage());
         if (familiar.getAvatarImage() != null) {
             iconPathLabel.setText(new File(familiar.getAvatarImage()).getName());
@@ -100,8 +103,11 @@ public class FamiliarEditor extends VBox {
         familiar.setName(nameField.getText());
         familiar.setRace(raceField.getText());
         familiar.setCharacterClass(classField.getText());
-        familiar.setHp(parseSafe(hpField.getText()));
+        familiar.setMaxHp(parseSafe(hpField.getText()));
+        familiar.setCurrentHp(parseSafe(hpField.getText()));
         familiar.setArmor(parseSafe(armorField.getText()));
+        familiar.setMaxMana(parseSafe(manaField.getText()));
+        familiar.setCurrentMana(parseSafe(manaField.getText()));
         familiar.setAvatarImage(avatarPath.get());
 
         buffEditor.applyTo(familiar);

@@ -87,7 +87,7 @@ public class TopBar extends HBox {
         ImageView hpIcon = new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/com/example/dnd_manager/icon/icon_heart.png")).toExternalForm()));
         hpIcon.setFitWidth(25);
         hpIcon.setFitHeight(25);
-        Label hpLabel = new Label(String.valueOf(character.getHp()));
+        Label hpLabel = new Label(String.valueOf(character.getCurrentHp()));
         hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold; -fx-font-size: 18px;");
         HBox hpBox = new HBox(6, hpIcon, hpLabel);
         hpBox.setAlignment(Pos.CENTER_LEFT);
@@ -135,7 +135,7 @@ public class TopBar extends HBox {
                     character,
                     storageService,
                     () -> {
-                        hpLabel.setText(String.valueOf(character.getHp()));
+                        hpLabel.setText(String.valueOf(character.getCurrentHp()));
                         armorLabel.setText(String.valueOf(character.getArmor()));
                         parentScreen.getManaBar().refresh();
                         levelValue.setText(String.valueOf(character.getLevel()));

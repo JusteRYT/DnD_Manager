@@ -91,7 +91,7 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
 
             BaseInfoData baseData = new BaseInfoData(
                     character.getName(), character.getRace(), character.getCharacterClass(),
-                    character.getHp(), character.getArmor(), character.getMaxMana(), character.getLevel()
+                    character.getCurrentHp(), character.getArmor(), character.getMaxMana(), character.getLevel()
             );
             baseInfoForm = new BaseInfoForm(FormMode.EDIT, baseData);
 
@@ -108,6 +108,7 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
 
             familiarsSection = new FamiliarsSection(stage);
             familiarsSection.getItems().addAll(character.getFamiliars());
+            familiarsSection.refreshList();
         }
     }
 
@@ -159,7 +160,8 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
         character.setName(baseData.name());
         character.setRace(baseData.race());
         character.setCharacterClass(baseData.characterClass());
-        character.setHp(baseData.hp());
+        character.setCurrentHp(baseData.hp());
+        character.setMaxHp(baseData.hp());
         character.setArmor(baseData.armor());
         character.setMaxMana(baseData.mana());
         character.setCurrentMana(baseData.mana());

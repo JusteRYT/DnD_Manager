@@ -4,6 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.stats.StatEnum;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.components.IconSlot;
+import com.example.dnd_manager.overview.dialogs.components.IconSlotMapper;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -21,10 +22,10 @@ public class FamiliarSectionBuilder {
         pane.setStyle("-fx-background-color: rgba(0,0,0,0.2); -fx-padding: 10; -fx-background-radius: 8;");
 
         pane.getChildren().addAll(
-                createResBox("label.familiarsHP", familiar.getHp(), "#ff6b6b"),
+                createResBox("label.familiarsHP", familiar.getCurrentHp() + "/" + familiar.getMaxHp(), "#ff6b6b"),
                 createResBox("label.familiarsAC", familiar.getArmor(), "#74c0fc"),
                 createResBox("label.familiarsMP", familiar.getCurrentMana() + "/" + familiar.getMaxMana(), "#4dabf7"),
-                createResBox("label.familiarsGOLD", familiar.getTotalCooper(), "#ff922b")
+                createResBox("label.familiarsLVL", familiar.getLevel(), "#ff922b")
         );
         return pane;
     }
@@ -47,14 +48,26 @@ public class FamiliarSectionBuilder {
     public static Node buildIconLists(Character familiar, Character character) {
         VBox container = new VBox(20);
 
-        appendIconRow(container, I18n.t("label.familiarsSKILL"), familiar.getSkills(),
-                s -> new IconSlot(s, character.getName()));
+        appendIconRow(container,
+                I18n.t("label.familiarsSKILLS"),
+                familiar.getSkills(),
+                s -> new IconSlot(
+                        IconSlotMapper.fromSkill(s),
+                        character
+                ));
 
-        appendIconRow(container, I18n.t("label.familiarsINVENTORY"), familiar.getInventory(),
-                i -> new IconSlot(i, character.getName()));
+        appendIconRow(container,
+                I18n.t("label.familiarsINVENTORY"),
+                familiar.getInventory(),
+                i -> new IconSlot(
+                        IconSlotMapper.fromInventoryItem(i),
+                        character));
 
-        appendIconRow(container, I18n.t("label.familiarsEFFECTS"), familiar.getBuffs(),
-                b -> new IconSlot(b, character.getName()));
+        appendIconRow(container,
+                I18n.t("label.familiarsEFFECTS"),
+                familiar.getBuffs(),
+                b -> new IconSlot(
+                        IconSlotMapper.fromBuff(b), character));
 
         return container;
     }
@@ -75,7 +88,7 @@ public class FamiliarSectionBuilder {
     }
 
     private static VBox createResBox(String label, Object val, String color) {
-        VBox b = new VBox(-2, new Label(label), new Label(val.toString()));
+        VBox b = new VBox(-2, new Label(I18n.t(label)), new Label(val.toString()));
         b.setAlignment(Pos.CENTER); b.setMinWidth(55);
         b.getChildren().get(0).setStyle("-fx-text-fill: #666; -fx-font-size: 9px;");
         b.getChildren().get(1).setStyle("-fx-text-fill: " + color + "; -fx-font-size: 15px; -fx-font-weight: bold;");
@@ -85,7 +98,7 @@ public class FamiliarSectionBuilder {
     private static VBox createStatBlock(StatEnum stat, int val) {
         VBox b = new VBox(0); b.setAlignment(Pos.CENTER); b.setPrefWidth(60);
         b.setStyle("-fx-background-color: #2b2b2b; -fx-padding: 5; -fx-background-radius: 4;");
-        Label n = new Label(stat.name().substring(0, 3).toUpperCase());
+        Label n = new Label(stat.getName().substring(0, 3).toUpperCase());
         n.setStyle("-fx-text-fill: #888; -fx-font-size: 10px;");
         Label v = new Label(String.valueOf(val));
         v.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
