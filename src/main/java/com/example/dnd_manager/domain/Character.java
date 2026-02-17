@@ -23,7 +23,7 @@ public class Character {
     private String race;
     private String characterClass;
     private int maxHp;
-    private int currentHp = maxHp;
+    private int currentHp;
     private int armor;
     private int currentMana;
     private int maxMana;

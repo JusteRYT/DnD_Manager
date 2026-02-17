@@ -10,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import lombok.Setter;
 
 /**
  * Panel representing character's mana.
@@ -17,16 +18,20 @@ import javafx.scene.paint.Color;
  */
 public class ManaBar extends VBox {
 
-    private final Character character;
+    private final Character target;
+    private final Character owner;
     private final StorageService storageService;
 
     private final ProgressBar manaProgress = new ProgressBar();
     private final Label manaLabel = new Label();
 
-    public ManaBar(Character character, StorageService storageService) {
-        this.character = character;
-        this.storageService = storageService;
+    @Setter
+    private Runnable onUpdate;
 
+    public ManaBar(Character target, Character owner, StorageService storageService) {
+        this.target = target;
+        this.owner = owner;
+        this.storageService = storageService;
         setSpacing(8);
 
         Label title = new Label(I18n.t("manaField.name.overview"));
@@ -109,25 +114,29 @@ public class ManaBar extends VBox {
      * Changes current mana by delta. Current mana is clamped between 0 and maxMana.
      */
     private void changeMana(int delta) {
-        int current = character.getCurrentMana();
-        int max = Math.max(0, character.getMaxMana());
-
+        int current = target.getCurrentMana();
+        int max = Math.max(0, target.getMaxMana());
         int newMana = Math.max(0, Math.min(current + delta, max));
 
-        character.setCurrentMana(newMana);
+        target.setCurrentMana(newMana);
         refresh();
-        storageService.saveCharacter(character);
+
+        storageService.saveCharacter(owner);
+
+        if (onUpdate != null) {
+            onUpdate.run();
+        }
     }
 
     /**
      * Updates progress bar and label.
      */
     public void refresh() {
-        int current = character.getCurrentMana();
-        int max = Math.max(0, character.getMaxMana());
-        manaProgress.setProgress((double) current / max);
+        int current = target.getCurrentMana();
+        int max = Math.max(0, target.getMaxMana());
+
+        manaProgress.setProgress(max > 0 ? (double) current / max : 0);
         manaLabel.setText(current + " / " + max);
-        manaLabel.setMinWidth(USE_PREF_SIZE);
     }
 
 }

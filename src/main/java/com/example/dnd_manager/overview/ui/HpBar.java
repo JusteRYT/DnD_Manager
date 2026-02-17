@@ -10,20 +10,25 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import lombok.Setter;
 
 public class HpBar extends VBox {
 
-    private final Character character;
+    private final Character target;
+    private final Character owner;
     private final StorageService storageService;
 
     private final ProgressBar hpProgress = new ProgressBar();
     private final Label hpLabel = new Label();
 
-    // Красный цвет для HP
     private static final String ACCENT_COLOR = "#ff4444";
 
-    public HpBar(Character character, StorageService storageService) {
-        this.character = character;
+    @Setter
+    private Runnable onUpdate;
+
+    public HpBar(Character target, Character owner, StorageService storageService) {
+        this.target = target;
+        this.owner = owner;
         this.storageService = storageService;
 
         setSpacing(8);
@@ -42,8 +47,6 @@ public class HpBar extends VBox {
         hpProgress.setMinWidth(100);
         hpProgress.setPrefWidth(150);
         hpProgress.setMaxWidth(Double.MAX_VALUE);
-
-        // CSS для красного цвета
         hpProgress.setStyle(String.format("-fx-accent: %s; -fx-control-inner-background: #1a1a1a;", ACCENT_COLOR));
 
         hpProgress.sceneProperty().addListener((obs, oldScene, newScene) -> {
@@ -71,7 +74,6 @@ public class HpBar extends VBox {
             -fx-font-size: 14px;
             """);
 
-        // Кнопки +/-
         var addBtn = AppButtonFactory.createValueAdjustButton(true, 28, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
         addBtn.setOnAction(e -> changeHp(1));
 
@@ -81,7 +83,6 @@ public class HpBar extends VBox {
         HBox.setHgrow(hpProgress, Priority.ALWAYS);
         row.getChildren().addAll(hpProgress, hpLabel, addBtn, removeBtn);
 
-        // --- Стилизация контейнера (Красное свечение) ---
         String commonStyle = """
             -fx-border-color: %1$s;
             -fx-border-radius: 8;
@@ -103,19 +104,23 @@ public class HpBar extends VBox {
     }
 
     private void changeHp(int delta) {
-        int current = character.getCurrentHp();
-        int max = character.getMaxHp();
-
+        int current = target.getCurrentHp();
+        int max = target.getMaxHp();
         int newVal = Math.max(0, Math.min(current + delta, max));
 
-        character.setCurrentHp(newVal);
+        target.setCurrentHp(newVal);
         refresh();
-        storageService.saveCharacter(character);
+
+        storageService.saveCharacter(owner);
+
+        if (onUpdate != null) {
+            onUpdate.run();
+        }
     }
 
     public void refresh() {
-        int current = character.getCurrentHp();
-        int max = Math.max(1, character.getMaxHp());
+        int current = target.getCurrentHp();
+        int max = Math.max(1, target.getMaxHp());
         hpProgress.setProgress((double) current / max);
         hpLabel.setText(current + " / " + max);
         hpLabel.setMinWidth(USE_PREF_SIZE);

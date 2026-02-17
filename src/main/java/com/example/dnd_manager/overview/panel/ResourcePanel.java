@@ -24,7 +24,6 @@ public class ResourcePanel extends HBox {
         setFillHeight(false);
 
 
-
         // Убираем прозрачный фон, делаем его стандартным для приложения или прозрачным,
         // чтобы не перекрывать стиль внутренних панелек
         setStyle("""
@@ -48,7 +47,7 @@ public class ResourcePanel extends HBox {
         rightStack.setAlignment(Pos.TOP_CENTER);
 
         InspirationBox inspirationBox = new InspirationBox(character, storageService);
-        this.manaBar = new ManaBar(character, storageService);
+        this.manaBar = new ManaBar(character, character, storageService);
 
         // Чтобы правая колонка не была слишком широкой
         rightStack.setMinWidth(300);

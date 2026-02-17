@@ -1,7 +1,6 @@
 package com.example.dnd_manager.info.editors;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.skills.SkillCard;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
@@ -68,6 +67,7 @@ public abstract class AbstractEntityRow<T> extends HBox {
         Button editButton = AppButtonFactory.actionSave(I18n.t("button.editEditor"));
         editButton.setMinWidth(Region.USE_PREF_SIZE);
         editButton.setOnAction(e -> onEdit.run());
+        editButton.setFocusTraversable(false);
 
         // --- Delete Button ---
         Button removeButton = AppButtonFactory.deleteButton(30);

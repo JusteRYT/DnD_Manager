@@ -1,7 +1,9 @@
 package com.example.dnd_manager.info.editors;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.stats.StatsEditor;
 import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.screen.FormMode;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.IntegerField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
@@ -32,6 +34,7 @@ public class FamiliarEditor extends VBox {
     private Label iconPathLabel;
 
     // Вложенные редакторы для фамильяра
+    private StatsEditor statsEditor;
     private BuffEditor buffEditor;
     private InventoryEditor inventoryEditor;
     private SkillsEditor skillsEditor;
@@ -76,11 +79,12 @@ public class FamiliarEditor extends VBox {
         );
 
         // 2. Добавляем вложенные редакторы
+        statsEditor = new StatsEditor(familiar.getStats(), FormMode.EDIT);
         buffEditor = new BuffEditor(familiar);
         inventoryEditor = new InventoryEditor(familiar);
         skillsEditor = new SkillsEditor(familiar);
 
-        VBox content = new VBox(20, baseCard, skillsEditor, inventoryEditor, buffEditor);
+        VBox content = new VBox(20, baseCard, statsEditor, skillsEditor, inventoryEditor, buffEditor);
         ScrollPane scroll = AppScrollPaneFactory.defaultPane(content);
 
         getChildren().add(scroll);
@@ -110,6 +114,7 @@ public class FamiliarEditor extends VBox {
         familiar.setCurrentMana(parseSafe(manaField.getText()));
         familiar.setAvatarImage(avatarPath.get());
 
+        statsEditor.applyTo(familiar);
         buffEditor.applyTo(familiar);
         inventoryEditor.applyTo(familiar);
         skillsEditor.applyTo(familiar);
@@ -131,6 +136,10 @@ public class FamiliarEditor extends VBox {
     }
 
     private int parseSafe(String v) {
-        try { return Integer.parseInt(v.replaceAll("\\D", "")); } catch (Exception e) { return 0; }
+        try {
+            return Integer.parseInt(v.replaceAll("\\D", ""));
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

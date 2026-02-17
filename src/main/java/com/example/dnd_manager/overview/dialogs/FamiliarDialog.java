@@ -40,7 +40,6 @@ public class FamiliarDialog extends BaseDialog {
         HBox buttonContainer = new HBox(15, cancelBtn, applyBtn);
         buttonContainer.setAlignment(Pos.CENTER_RIGHT);
         buttonContainer.setStyle("-fx-padding: 10 0 0 0;");
-
         contentArea.getChildren().addAll(editor, buttonContainer);
     }
 }

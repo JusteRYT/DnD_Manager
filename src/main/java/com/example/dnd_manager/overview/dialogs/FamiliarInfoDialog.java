@@ -6,6 +6,7 @@ import com.example.dnd_manager.overview.ui.HpBar;
 import com.example.dnd_manager.overview.ui.ManaBar;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.store.StorageService;
+import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -16,15 +17,18 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import lombok.Setter;
 
 public class FamiliarInfoDialog extends BaseDialog {
 
     private final Character familiar;
     private final Character owner;
     private final StorageService storageService;
+    @Setter
+    private Runnable onAnyUpdate;
 
     public FamiliarInfoDialog(Stage ownerStage, Character familiar, Character owner, StorageService storageService) {
-        super(ownerStage, familiar.getName(), 550, 750);
+        super(ownerStage, familiar.getName(), 550, 700);
         this.familiar = familiar;
         this.owner = owner;
         this.storageService = storageService;
@@ -35,14 +39,37 @@ public class FamiliarInfoDialog extends BaseDialog {
         contentArea.setSpacing(15);
         contentArea.setPadding(new Insets(15, 25, 25, 25));
 
+        Label hpValLabel = new Label(familiar.getCurrentHp() + "/" + familiar.getMaxHp());
+        hpValLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-size: 15px; -fx-font-weight: bold;");
+
+        Label mpValLabel = new Label(familiar.getCurrentMana() + "/" + familiar.getMaxMana());
+        mpValLabel.setStyle("-fx-text-fill: #4dabf7; -fx-font-size: 15px; -fx-font-weight: bold;");
+
+        Label acValLabel = new Label(String.valueOf(familiar.getArmor()));
+        acValLabel.setStyle("-fx-text-fill: #74c0fc; -fx-font-size: 15px; -fx-font-weight: bold;");
+
+        Label lvlValLabel = new Label(String.valueOf(familiar.getLevel()));
+        lvlValLabel.setStyle("-fx-text-fill: #ff922b; -fx-font-size: 15px; -fx-font-weight: bold;");
+
+        HpBar hpBar = new HpBar(familiar, owner, storageService);
+        ManaBar manaBar = new ManaBar(familiar, owner, storageService);
+
+        hpBar.setOnUpdate(() -> {
+            hpValLabel.setText(familiar.getCurrentHp() + "/" + familiar.getMaxHp());
+            if (onAnyUpdate != null) onAnyUpdate.run();
+        });
+
+        manaBar.setOnUpdate(() -> {
+            mpValLabel.setText(familiar.getCurrentMana() + "/" + familiar.getMaxMana());
+            if (onAnyUpdate != null) onAnyUpdate.run();
+        });
+
         VBox mainScrollContent = new VBox(20);
-        HpBar hpBar = new HpBar(familiar, storageService);
-        ManaBar manaBar = new ManaBar(familiar, storageService);
 
         mainScrollContent.getChildren().addAll(
                 hpBar,
                 manaBar,
-                FamiliarSectionBuilder.buildResources(familiar),
+                FamiliarSectionBuilder.buildResources(hpValLabel, acValLabel, mpValLabel, lvlValLabel),
                 FamiliarSectionBuilder.buildStats(familiar),
                 FamiliarSectionBuilder.buildIconLists(familiar, owner)
         );
@@ -53,7 +80,7 @@ public class FamiliarInfoDialog extends BaseDialog {
         contentArea.getChildren().addAll(
                 buildHeader(),
                 separator,
-                wrapInScrollPane(mainScrollContent)
+                wrapInAppScrollPane(mainScrollContent)
         );
     }
 
@@ -62,7 +89,8 @@ public class FamiliarInfoDialog extends BaseDialog {
         header.setAlignment(Pos.CENTER_LEFT);
 
         ImageView avatar = new ImageView();
-        avatar.setFitWidth(80); avatar.setFitHeight(80);
+        avatar.setFitWidth(80);
+        avatar.setFitHeight(80);
         try {
             avatar.setImage(new Image(CharacterAssetResolver.resolve(owner.getName(), familiar.getAvatarImage())));
         } catch (Exception e) {
@@ -82,11 +110,15 @@ public class FamiliarInfoDialog extends BaseDialog {
         return header;
     }
 
-    private ScrollPane wrapInScrollPane(VBox content) {
-        ScrollPane sp = new ScrollPane(content);
+    private ScrollPane wrapInAppScrollPane(VBox content) {
+        content.setPadding(new Insets(10));
+        ScrollPane sp = AppScrollPaneFactory.defaultPane(content);
         sp.setFitToWidth(true);
-        sp.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        sp.setFitToHeight(false);
+        sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        sp.setStyle("-fx-background-color: transparent; -fx-background: transparent; -fx-border-width: 0;");
+
         VBox.setVgrow(sp, Priority.ALWAYS);
         return sp;
     }

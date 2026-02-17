@@ -20,10 +20,11 @@ public class FamiliarsSection extends VBox {
     private final ObservableList<Character> items = FXCollections.observableArrayList();
     private final VBox listContainer;
     private final Stage parentStage;
-    private final Character dummyOwner = new Character();
+    private final Character dummyOwner;
 
-    public FamiliarsSection(Stage parentStage) {
+    public FamiliarsSection(Stage parentStage, Character dummyOwner) {
         this.parentStage = parentStage;
+        this.dummyOwner = dummyOwner;
         setSpacing(10);
         setPadding(new Insets(10));
 
@@ -38,7 +39,7 @@ public class FamiliarsSection extends VBox {
         Button addButton = AppButtonFactory.primaryButton(I18n.t("button.addFamiliar"), 200, 30, 14);
         addButton.setOnAction(e -> openDialog(null));
 
-        getChildren().addAll(title, listContainer, addButton);
+        getChildren().addAll(title, addButton, listContainer);
     }
 
     private void openDialog(Character existingFamiliar) {
@@ -62,6 +63,7 @@ public class FamiliarsSection extends VBox {
                     () -> openDialog(familiar),
                     dummyOwner
             );
+            row.setFocusTraversable(false);
             listContainer.getChildren().add(row);
         }
     }

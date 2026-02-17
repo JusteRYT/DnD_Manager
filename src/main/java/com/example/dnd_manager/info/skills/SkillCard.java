@@ -14,8 +14,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import lombok.Getter;
 
-import java.nio.file.Path;
-
 
 /**
  * Visual card representation of a skill.

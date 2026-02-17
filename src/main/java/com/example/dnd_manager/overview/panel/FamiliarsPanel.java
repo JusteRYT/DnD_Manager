@@ -5,6 +5,7 @@ import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.FamiliarInfoDialog;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.store.StorageService;
+import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -21,6 +22,7 @@ import java.util.Objects;
 
 public class FamiliarsPanel extends VBox {
     private final Character character;
+    private final VBox listContainer;
 
     private final Stage parentStage;
     private final StorageService storageService;
@@ -38,27 +40,11 @@ public class FamiliarsPanel extends VBox {
         title.setPadding(new Insets(0, 0, 10, 0));
 
         // Контейнер для списка
-        VBox listContainer = new VBox(8);
+        this.listContainer = new VBox(8);
 
-        if (character.getFamiliars().isEmpty()) {
-            Label emptyLabel = new Label(I18n.t("label.noFamiliars"));
-            emptyLabel.setStyle("-fx-text-fill: #666; -fx-font-style: italic;");
-            listContainer.getChildren().add(emptyLabel);
-        } else {
-            for (Character familiar : character.getFamiliars()) {
-                listContainer.getChildren().add(createFamiliarCard(familiar));
-            }
-        }
+        refresh();
 
-        ScrollPane scrollPane = new ScrollPane(listContainer);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scrollPane.getStyleClass().add("edge-to-edge");
-
-        getChildren().addAll(title, scrollPane);
-
+        getChildren().addAll(title, listContainer);
         // --- Стилизация Панели (Магическое свечение) ---
         String commonStyle = """
                 -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
@@ -80,7 +66,6 @@ public class FamiliarsPanel extends VBox {
     private HBox createFamiliarCard(Character familiar) {
         HBox card = getHBox(familiar);
 
-        // --- Содержимое (без изменений, но теперь оно не будет светиться) ---
         ImageView avatar = new ImageView();
         avatar.setFitWidth(40);
         avatar.setFitHeight(40);
@@ -103,11 +88,17 @@ public class FamiliarsPanel extends VBox {
 
         VBox statsBox = new VBox(2);
         statsBox.setAlignment(Pos.CENTER_RIGHT);
-        Label hpLabel = new Label(I18n.t("label.familiarsHP")+ ": " + familiar.getMaxHp());
+        Label hpLabel = new Label(I18n.t("label.familiarsHP")+ ": " + familiar.getCurrentHp());
         hpLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-size: 11px; -fx-font-weight: bold;");
         Label acLabel = new Label(I18n.t("label.familiarsAC")+ ": " + familiar.getArmor());
         acLabel.setStyle("-fx-text-fill: #74c0fc; -fx-font-size: 11px; -fx-font-weight: bold;");
         statsBox.getChildren().addAll(hpLabel, acLabel);
+
+        card.setOnMouseClicked(e -> {
+            FamiliarInfoDialog dialog = new FamiliarInfoDialog(parentStage, familiar, character, storageService);
+            dialog.setOnAnyUpdate(this::refresh);
+            dialog.show();
+        });
 
         card.getChildren().addAll(avatar, infoBox, statsBox);
         return card;
@@ -155,5 +146,18 @@ public class FamiliarsPanel extends VBox {
 
         card.setOnMouseClicked(e -> new FamiliarInfoDialog(parentStage, familiar, character, storageService).show());
         return card;
+    }
+
+    public void refresh() {
+        listContainer.getChildren().clear();
+        if (character.getFamiliars().isEmpty()) {
+            Label emptyLabel = new Label(I18n.t("label.noFamiliars"));
+            emptyLabel.setStyle("-fx-text-fill: #666; -fx-font-style: italic;");
+            listContainer.getChildren().add(emptyLabel);
+        } else {
+            for (Character familiar : character.getFamiliars()) {
+                listContainer.getChildren().add(createFamiliarCard(familiar));
+            }
+        }
     }
 }

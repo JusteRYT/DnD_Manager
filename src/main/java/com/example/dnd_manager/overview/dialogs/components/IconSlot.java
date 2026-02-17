@@ -1,7 +1,6 @@
 package com.example.dnd_manager.overview.dialogs.components;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.skills.SkillCard;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import javafx.geometry.Insets;
@@ -58,7 +57,6 @@ public class IconSlot extends StackPane {
 
         root.getChildren().addAll(name, type, new Separator());
 
-        // Отрисовываем все уникальные поля, которые есть у сущности
         item.getAttributes().forEach((key, value) -> {
             if (value != null && !value.isEmpty()) {
                 HBox row = new HBox(5);
@@ -86,6 +84,7 @@ public class IconSlot extends StackPane {
         Tooltip t = new Tooltip();
         t.setGraphic(root);
         t.setShowDelay(Duration.millis(100));
+        t.setPrefHeight(200);
         t.setStyle("-fx-background-color: transparent;");
         Tooltip.install(this, t);
     }

@@ -85,7 +85,7 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
             buffEditor = new BuffEditor(null);
             inventoryEditor = new InventoryEditor(null);
             skillsEditor = new SkillsEditor(null);
-            familiarsSection = new FamiliarsSection(stage);
+            familiarsSection = new FamiliarsSection(stage, null);
         } else {
             avatarPicker = new AvatarPicker(character);
 
@@ -106,7 +106,7 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
             inventoryEditor = new InventoryEditor(character);
             skillsEditor = new SkillsEditor(character);
 
-            familiarsSection = new FamiliarsSection(stage);
+            familiarsSection = new FamiliarsSection(stage, character);
             familiarsSection.getItems().addAll(character.getFamiliars());
             familiarsSection.refreshList();
         }
