@@ -11,6 +11,7 @@ import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
 import com.example.dnd_manager.screen.ScreenManager;
 import com.example.dnd_manager.screen.StartScreen;
+import com.example.dnd_manager.service.CharacterExporter;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Insets;
@@ -23,8 +24,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Objects;
 
 /**
@@ -121,6 +126,28 @@ public class TopBar extends HBox {
                 """);
 
         // --- Right block: buttons ---
+        Button exportBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/import-export.png");
+        exportBtn.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+
+            fileChooser.setTitle("Сохранить описание персонажа");
+            fileChooser.setInitialFileName(character.getName() + "_description.txt");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+
+            Stage stage = (Stage) exportBtn.getScene().getWindow();
+            File file = fileChooser.showSaveDialog(stage);
+
+            if (file != null) {
+                try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+                    String fullText = CharacterExporter.generateFullDescription(character);
+                    writer.print(fullText);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    // Здесь можно вывести Alert с ошибкой
+                }
+            }
+        });
+
         Button showDescBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/icon_description.png");
         showDescBtn.setOnAction(e -> {
             Stage owner = (Stage) showDescBtn.getScene().getWindow();
@@ -151,6 +178,7 @@ public class TopBar extends HBox {
         increaseLevelBtn.setOnAction(e -> showLevelUpDialog(increaseLevelBtn, character, storageService, levelValue));
 
         HBox rightPanel = new HBox(15,
+                exportBtn,
                 showDescBtn,
                 editBtn,
                 increaseLevelBtn,
@@ -178,6 +206,11 @@ public class TopBar extends HBox {
             Stage stage = (Stage) parentScreen.getScene().getWindow();
             closeScreen(stage, storageService);
         });
+
+        ButtonPopupInstaller.install(
+                exportBtn,
+                PopupFactory.tooltip(I18n.t("button.showExport"))
+        );
 
         ButtonPopupInstaller.install(
                 showDescBtn,
