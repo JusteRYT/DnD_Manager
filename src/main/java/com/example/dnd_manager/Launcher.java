@@ -1,7 +1,7 @@
-package com.example.dnd_manager;
+    package com.example.dnd_manager;
 
-public class Launcher {
-    public static void main(String[] args) {
-        MainApp.main(args);
+    public class Launcher {
+        public static void main(String[] args) {
+            MainApp.main(args);
+        }
     }
-}

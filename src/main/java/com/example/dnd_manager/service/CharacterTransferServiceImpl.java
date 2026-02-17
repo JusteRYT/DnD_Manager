@@ -61,8 +61,16 @@ public class CharacterTransferServiceImpl implements CharacterTransferService {
             ZipEntry entry;
 
             while ((entry = zis.getNextEntry()) != null) {
+                String entryName = entry.getName();
+                Path entryPath = Paths.get(entryName);
+                if (entryPath.startsWith(characterName)) {
 
-                Path newFile = characterDir.resolve(entry.getName()).normalize();
+                    if (entryPath.getNameCount() == 1) {
+                        continue;
+                    }
+                    entryPath = entryPath.subpath(1, entryPath.getNameCount());
+                }
+                Path newFile = characterDir.resolve(entryPath).normalize();
 
                 if (!newFile.startsWith(characterDir)) {
                     throw new IOException("Invalid zip entry: " + entry.getName());
@@ -71,7 +79,9 @@ public class CharacterTransferServiceImpl implements CharacterTransferService {
                 if (entry.isDirectory()) {
                     Files.createDirectories(newFile);
                 } else {
-                    Files.createDirectories(newFile.getParent());
+                    if (newFile.getParent() != null) {
+                        Files.createDirectories(newFile.getParent());
+                    }
                     Files.copy(zis, newFile, StandardCopyOption.REPLACE_EXISTING);
                 }
 
