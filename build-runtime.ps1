@@ -1,74 +1,75 @@
 # --- НАСТРОЙКИ ---
 $APP_NAME = "DnD_Manager"
 $APP_VERSION = "1.0-SNAPSHOT"
+$ICON_PATH = "src/main/resources/com/example/dnd_manager/icon/App_icon.ico"
+$JAVAFX_SDK_WIN = "C:\Users\JusteRYT\.jdks\openjfx-23.0.2_windows-x64_bin-sdk\javafx-sdk-23.0.2"
 
-# Папка для сборки (вне target, чтобы избежать конфликтов доступа)
-$BUILD_ROOT = "dist_build"
-$STAGING_DIR = "$BUILD_ROOT\$APP_NAME" # Та самая папка, которая будет внутри архива
-$ZIP_PATH = "target\${APP_NAME}_Windows.zip"
-
-# 0. Убиваем процессы и чистим старое
-Write-Host "--- Cleaning up processes and old builds ---" -ForegroundColor Yellow
-Stop-Process -Name "javaw" -Force -ErrorAction SilentlyContinue
-Stop-Process -Name "java" -Force -ErrorAction SilentlyContinue
-
-if (Test-Path $BUILD_ROOT) {
-    # Небольшая пауза, чтобы Windows "отпустил" файлы после убийства процесса
-    Start-Sleep -Milliseconds 500
-    Remove-Item -Recurse -Force $BUILD_ROOT -ErrorAction SilentlyContinue
-}
-
-# Авто-поиск JDK
+# Поиск JDK
 $JAVA_HOME_WIN = $env:JAVA_HOME
 if (-not $JAVA_HOME_WIN -or -not (Test-Path "$JAVA_HOME_WIN\bin\jlink.exe")) {
     $foundJdk = Get-ChildItem "C:\Program Files\Java\" | Where-Object { $_.Name -like "jdk*" } | Sort-Object Name -Descending | Select-Object -First 1
     if ($foundJdk) { $JAVA_HOME_WIN = $foundJdk.FullName }
 }
 
-$JAVAFX_SDK_WIN = "C:\Users\JusteRYT\.jdks\openjfx-23.0.2_windows-x64_bin-sdk\javafx-sdk-23.0.2"
+# 0. Очистка
+Write-Host "--- Cleaning up ---" -ForegroundColor Yellow
+Stop-Process -Name "javaw" -Force -ErrorAction SilentlyContinue
+if (Test-Path "dist") { Remove-Item -Recurse -Force "dist" }
 
 # 1. Сборка Maven
 Write-Host "--- Building JAR with Maven ---" -ForegroundColor Cyan
 mvn clean package -DskipTests
 if ($LASTEXITCODE -ne 0) { Write-Error "Maven build failed"; exit }
 
-# 2. Подготовка структуры папок
-Write-Host "--- Preparing structure ---" -ForegroundColor Cyan
-New-Item -ItemType Directory -Force -Path "$STAGING_DIR\app"
+# Подготовка входной папки
+$INPUT_DIR = "target\jpackage-input"
+if (Test-Path $INPUT_DIR) { Remove-Item -Recurse -Force $INPUT_DIR }
+New-Item -ItemType Directory -Path $INPUT_DIR
+Copy-Item "target\$APP_NAME-$APP_VERSION.jar" -Destination "$INPUT_DIR\app.jar"
 
-# 3. Создание Runtime (jlink)
-Write-Host "--- Creating Custom Runtime ---" -ForegroundColor Cyan
-& "$JAVA_HOME_WIN\bin\jlink.exe" `
-  --module-path "$JAVA_HOME_WIN\jmods;$JAVAFX_SDK_WIN\lib" `
-  --add-modules java.base,java.desktop,jdk.unsupported,javafx.controls,javafx.fxml,javafx.graphics `
-  --output "$STAGING_DIR\runtime" `
-  --strip-debug `
-  --compress 2 `
-  --no-header-files `
-  --no-man-pages
+# 2. Создание EXE образа
+Write-Host "--- Creating EXE with jpackage ---" -ForegroundColor Cyan
+& "$JAVA_HOME_WIN\bin\jpackage.exe" `
+  --type app-image `
+  --dest dist `
+  --name $APP_NAME `
+  --input $INPUT_DIR `
+  --main-jar "app.jar" `
+  --main-class com.example.dnd_manager.Launcher `
+  --module-path "$JAVAFX_SDK_WIN\lib" `
+  --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media,java.base,java.desktop,jdk.unsupported `
+  --icon $ICON_PATH `
+  --vendor "JusteRYT" `
+  --description "D&D Character Manager"
 
-if ($LASTEXITCODE -ne 0) { Write-Error "jlink failed"; exit }
+if ($LASTEXITCODE -ne 0) { Write-Error "jpackage failed"; exit }
 
-# 4. Копирование файлов
-Write-Host "--- Copying App and DLLs ---" -ForegroundColor Cyan
-Copy-Item "target\$APP_NAME-$APP_VERSION.jar" -Destination "$STAGING_DIR\app\app.jar"
-Copy-Item "$JAVAFX_SDK_WIN\bin\*.dll" -Destination "$STAGING_DIR\runtime\bin\"
+# --- ШАГ 2.1: ИСПРАВЛЕНИЕ ГРАФИКИ (Копируем DLL) ---
+Write-Host "--- Fixing Graphics Pipeline (copying DLLs) ---" -ForegroundColor Yellow
+# Копируем все DLL из папки bin JavaFX SDK прямо в bin рантайма приложения
+$RUNTIME_BIN = "dist\$APP_NAME\runtime\bin"
+if (Test-Path "$JAVAFX_SDK_WIN\bin") {
+    Copy-Item "$JAVAFX_SDK_WIN\bin\*.dll" -Destination $RUNTIME_BIN -Force
+} else {
+    Write-Warning "JavaFX bin folder not found! Check your SDK path."
+}
 
-# 5. Создание батника запуска (теперь он лежит в корне папки DnD_Manager)
-Write-Host "--- Creating launch script ---" -ForegroundColor Cyan
-$batContent = @"
+# --- ШАГ 2.2: СОЗДАНИЕ DEBUG-ЗАПУСКАТЕЛЯ ---
+Write-Host "--- Creating Debug Script ---" -ForegroundColor Cyan
+$debugBat = @"
 @echo off
-set DIR=%~dp0
-start "" /b "%DIR%runtime\bin\javaw.exe" -Dprism.verbose=true -jar "%DIR%app\app.jar"
-exit
+echo Starting DnD_Manager in Debug Mode...
+REM Запуск через внутреннюю Java из рантайма с выводом в консоль
+".\runtime\bin\java.exe" -jar ".\app\app.jar"
+pause
 "@
-[System.IO.File]::WriteAllLines("$STAGING_DIR\run.bat", $batContent)
+$debugBat | Out-File -FilePath "dist\$APP_NAME\debug_launcher.bat" -Encoding ASCII
 
-# 6. Архивация
-Write-Host "--- Zipping ---" -ForegroundColor Cyan
+# 3. Архивация
+Write-Host "--- Zipping for GitHub Release ---" -ForegroundColor Cyan
+$ZIP_PATH = "target\${APP_NAME}_Windows.zip"
 if (Test-Path $ZIP_PATH) { Remove-Item $ZIP_PATH }
-# Архивируем папку DnD_Manager целиком, чтобы она была корневой в архиве
-Compress-Archive -Path $STAGING_DIR -DestinationPath $ZIP_PATH
+Compress-Archive -Path "dist\$APP_NAME\*" -DestinationPath $ZIP_PATH
 
 Write-Host "--- Done! ---" -ForegroundColor Green
-Write-Host "Archive is at: $ZIP_PATH"
+Write-Host "Archive for GitHub: $ZIP_PATH"

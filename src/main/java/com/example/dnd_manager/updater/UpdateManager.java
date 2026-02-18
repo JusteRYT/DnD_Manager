@@ -44,7 +44,7 @@ public class UpdateManager {
             writer.println("echo Cleaning up...");
             writer.println("del \"" + zipPath + "\"");
 
-            writer.println("start \"\" \"DnD_Manager.exe\"");
+            writer.println("start \"\" \"run.bat\"");
 
             writer.println("del \"%~f0\"");
         }
