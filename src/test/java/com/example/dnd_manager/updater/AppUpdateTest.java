@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AppUpdateTest {
 
-    private final UpdateChecker checker = new UpdateChecker();
-
     @Test
     @DisplayName("Сравнение версий: удаленный сервер имеет версию новее")
     void shouldReturnTrueWhenRemoteIsNewer() {

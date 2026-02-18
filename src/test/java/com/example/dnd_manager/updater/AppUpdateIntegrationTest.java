@@ -29,6 +29,6 @@ class AppUpdateIntegrationTest {
         );
 
         System.out.println("Latest Release: " + release.tagName);
-        System.out.println("Download URL: " + release.assets.get(0).downloadUrl);
+        System.out.println("Download URL: " + release.assets.getFirst().downloadUrl);
     }
 }
