@@ -1,23 +1,22 @@
 package com.example.dnd_manager.repository;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.skills.Skill;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * JSON-based character repository.
@@ -25,30 +24,34 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class JsonCharacterRepository implements CharacterRepository {
 
-    private static final String ROOT_DIR = "Character";
     private static final String ICON_DIR = "icon";
-
     private final ObjectMapper mapper = new ObjectMapper();
 
     public JsonCharacterRepository() {
-        new File(ROOT_DIR).mkdirs();
+        CharacterStoragePathResolver.migrateIfNeeded();
+        try {
+            CharacterStoragePathResolver.ensureRootExists();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not initialize storage", e);
+        }
+    }
+
+    private Path getRoot() {
+        return CharacterStoragePathResolver.getRoot();
     }
 
     @Override
     public void save(Character character) {
         validate(character);
-
         try {
-            Path characterDir = Paths.get(ROOT_DIR, character.getName());
+            Path characterDir = CharacterStoragePathResolver.getCharacterDir(character.getName());
             Path iconDir = characterDir.resolve(ICON_DIR);
 
             Files.createDirectories(iconDir);
-
             copyIcons(character, iconDir);
 
             Path jsonFile = characterDir.resolve(character.getName() + ".json");
             mapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile.toFile(), character);
-
         } catch (Exception e) {
             throw new RuntimeException("Failed to save character", e);
         }
@@ -57,7 +60,7 @@ public class JsonCharacterRepository implements CharacterRepository {
     @Override
     public Optional<Character> load(String name) {
         try {
-            Path jsonFile = Paths.get(ROOT_DIR, name, name + ".json");
+            Path jsonFile = CharacterStoragePathResolver.getCharacterDir(name).resolve(name + ".json");
             if (!Files.exists(jsonFile)) {
                 return Optional.empty();
             }
@@ -70,7 +73,8 @@ public class JsonCharacterRepository implements CharacterRepository {
     @Override
     public List<String> listAll() {
         try {
-            return Files.list(Paths.get(ROOT_DIR))
+            if (!Files.exists(getRoot())) return Collections.emptyList();
+            return Files.list(getRoot())
                     .filter(Files::isDirectory)
                     .map(p -> p.getFileName().toString())
                     .collect(Collectors.toList());
@@ -79,32 +83,17 @@ public class JsonCharacterRepository implements CharacterRepository {
         }
     }
 
-    /**
-     * Deletes character directory recursively.
-     *
-     * @param name character name
-     */
     @Override
     public void delete(String name) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("Character name must not be empty");
-        }
-
-        Path characterDir = Paths.get(ROOT_DIR, name);
-
-        if (!Files.exists(characterDir)) {
-            return;
-        }
+        Path characterDir = CharacterStoragePathResolver.getCharacterDir(name);
+        if (!Files.exists(characterDir)) return;
 
         try {
             Files.walk(characterDir)
                     .sorted(Comparator.reverseOrder())
                     .forEach(path -> {
-                        try {
-                            Files.delete(path);
-                        } catch (IOException e) {
-                            throw new RuntimeException("Failed to delete " + path, e);
-                        }
+                        try { Files.delete(path); }
+                        catch (IOException e) { throw new RuntimeException(e); }
                     });
         } catch (IOException e) {
             throw new RuntimeException("Failed to delete character " + name, e);

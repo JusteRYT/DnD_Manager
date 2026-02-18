@@ -9,10 +9,15 @@
     import com.example.dnd_manager.theme.AppTheme;
     import com.example.dnd_manager.theme.ButtonSizeConfigurer;
     import com.example.dnd_manager.theme.factory.AppButtonFactory;
+    import com.example.dnd_manager.updater.UpdateChecker;
+    import com.example.dnd_manager.updater.UpdateManager;
+    import javafx.application.Platform;
     import javafx.geometry.Insets;
     import javafx.geometry.Pos;
     import javafx.scene.Parent;
+    import javafx.scene.control.Alert;
     import javafx.scene.control.Button;
+    import javafx.scene.control.ButtonType;
     import javafx.scene.control.Label;
     import javafx.scene.image.Image;
     import javafx.scene.image.ImageView;
@@ -82,19 +87,30 @@
                     I18n.t("button.language"), 120, 40, 14
             );
 
+            Button updateBtn = AppButtonFactory.primaryButton(
+                    "Check Updates", 120, 40, 14
+            );
+
             ButtonSizeConfigurer.applyFixedSize(createButton, 400, 50);
             ButtonSizeConfigurer.applyFixedSize(editButton, 400, 50);
             ButtonSizeConfigurer.applyFixedSize(loadButton, 400, 50);
             ButtonSizeConfigurer.applyFixedSize(transferButton, 400, 50);
-            ButtonSizeConfigurer.applyFixedSize(languageBtn, 100, 40);
+            ButtonSizeConfigurer.applyFixedSize(languageBtn, 150, 40);
+            ButtonSizeConfigurer.applyFixedSize(updateBtn, 150, 40);
 
             languageBtn.setOnAction(e -> changeLanguage());
+            updateBtn.setOnAction(e -> handleUpdateCheck(updateBtn));
             languageBtn.setFocusTraversable(false);
+            updateBtn.setFocusTraversable(false);
 
             createButton.setOnAction(e -> openCharacterCreate());
             editButton.setOnAction(e -> openCharacterEdit());
             loadButton.setOnAction(e -> openCharacterLoad());
             transferButton.setOnAction(e -> openCharacterTransfer());
+
+            HBox bottomButtons = new HBox(15);
+            bottomButtons.setAlignment(Pos.CENTER);
+            bottomButtons.getChildren().addAll(languageBtn, updateBtn);
 
             content.getChildren().addAll(
                     title,
@@ -103,7 +119,7 @@
                     editButton,
                     loadButton,
                     transferButton,
-                    languageBtn
+                    bottomButtons
             );
 
             root.setCenter(content);
@@ -219,5 +235,42 @@
         private void showError(String title, String message) {
             AppErrorDialog dialog = new AppErrorDialog(stage, title, message);
             dialog.show();
+        }
+
+        private void handleUpdateCheck(Button btn) {
+            btn.setDisable(true);
+            btn.setText("Checking...");
+
+            new Thread(() -> {
+                UpdateChecker checker = new UpdateChecker();
+                var releaseOpt = checker.check();
+
+                Platform.runLater(() -> {
+                    btn.setDisable(false);
+                    btn.setText("Check Updates");
+
+                    if (releaseOpt.isPresent()) {
+                        var release = releaseOpt.get();
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("Update Available");
+                        alert.setHeaderText("New version " + release.tagName + " is available!");
+                        alert.setContentText("Do you want to download and restart the app?");
+
+                        if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                            try {
+                                new UpdateManager().applyUpdate(release);
+                            } catch (Exception e) {
+                                showError("Update Error", "Failed to apply update: " + e.getMessage());
+                            }
+                        }
+                    } else {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("No Updates");
+                        alert.setHeaderText(null);
+                        alert.setContentText("You are using the latest version.");
+                        alert.showAndWait();
+                    }
+                });
+            }).start();
         }
     }
