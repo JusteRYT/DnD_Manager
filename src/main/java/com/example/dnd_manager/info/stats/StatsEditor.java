@@ -64,11 +64,10 @@ public class StatsEditor extends VBox {
             stats.increase(stat);
         });
         row.addDecreaseAction(() -> {
-            if (values.get(stat) > 0) {
-                values.put(stat, values.get(stat) - 1);
-                row.updateValue(values.get(stat));
-                stats.decrease(stat);
-            }
+            values.put(stat, values.get(stat) - 1);
+            row.updateValue(values.get(stat));
+            stats.decrease(stat);
+
         });
     }
 
