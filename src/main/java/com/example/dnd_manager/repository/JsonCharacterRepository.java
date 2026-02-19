@@ -8,6 +8,7 @@ import com.example.dnd_manager.info.skills.Skill;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -70,6 +71,18 @@ public class JsonCharacterRepository implements CharacterRepository {
         }
     }
 
+    private void copyIcons(Character character, Path iconDir) throws IOException {
+        // Сначала обрабатываем самого персонажа
+        processCharacterAssets(character, iconDir);
+
+        // Затем обрабатываем всех фамильяров (если они есть)
+        if (character.getFamiliars() != null) {
+            for (Character familiar : character.getFamiliars()) {
+                processCharacterAssets(familiar, iconDir);
+            }
+        }
+    }
+
     @Override
     public List<String> listAll() {
         try {
@@ -92,8 +105,11 @@ public class JsonCharacterRepository implements CharacterRepository {
             Files.walk(characterDir)
                     .sorted(Comparator.reverseOrder())
                     .forEach(path -> {
-                        try { Files.delete(path); }
-                        catch (IOException e) { throw new RuntimeException(e); }
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     });
         } catch (IOException e) {
             throw new RuntimeException("Failed to delete character " + name, e);
@@ -104,11 +120,60 @@ public class JsonCharacterRepository implements CharacterRepository {
      * Copies all icon files used by character into icon directory
      * and rewrites paths to relative ones.
      */
-    private void copyIcons(Character character, Path iconDir) throws IOException {
-        processCharacterAssets(character, iconDir);
+    private void copyIcon(
+            String sourcePath,
+            Path iconDir,
+            Consumer<String> pathSetter
+    ) throws IOException {
 
-        for (Character familiar : character.getFamiliars()) {
-            processCharacterAssets(familiar, iconDir);
+        if (sourcePath == null || sourcePath.isBlank()) {
+            return;
+        }
+
+        // Если иконка уже в папке icon/, ничего не делаем
+        if (sourcePath.startsWith(ICON_DIR + "/")) {
+            return;
+        }
+
+        // 1. Извлекаем имя файла (обрабатываем и системные пути, и JAR-пути)
+        String fileName;
+        if (sourcePath.contains("/") || sourcePath.contains("\\")) {
+            String[] parts = sourcePath.split("[/\\\\]");
+            fileName = parts[parts.length - 1];
+        } else {
+            fileName = sourcePath;
+        }
+
+        // Убираем лишние символы, если имя файла пришло из JAR URL (например, "user.png")
+        if (fileName.contains("!")) {
+            fileName = fileName.substring(fileName.lastIndexOf("!") + 1);
+        }
+
+        Path target = iconDir.resolve(fileName);
+
+        // 2. Копируем через универсальный поток ввода
+        try (java.io.InputStream in = openStream(sourcePath)) {
+            Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+        }
+
+        pathSetter.accept(ICON_DIR + "/" + fileName);
+    }
+
+    private java.io.InputStream openStream(String sourcePath) throws IOException {
+        if (sourcePath.startsWith("file:") || sourcePath.startsWith("jar:")) {
+            // Если это URL (как в вашей ошибке)
+            return new URL(sourcePath).openStream();
+        } else {
+            // Если это обычный путь к файлу на диске
+            Path path = Path.of(sourcePath);
+            if (Files.exists(path)) {
+                return Files.newInputStream(path);
+            } else {
+                // Пытаемся загрузить как ресурс из classpath, если файл не найден
+                java.io.InputStream is = getClass().getResourceAsStream(sourcePath.startsWith("/") ? sourcePath : "/" + sourcePath);
+                if (is == null) throw new IOException("Resource not found: " + sourcePath);
+                return is;
+            }
         }
     }
 
@@ -151,36 +216,6 @@ public class JsonCharacterRepository implements CharacterRepository {
         for (InventoryItem item : c.getInventory()) {
             copyIcon(item.getIconPath(), iconDir, item::setIconPath);
         }
-    }
-
-    private void copyIcon(
-            String sourcePath,
-            Path iconDir,
-            Consumer<String> pathSetter
-    ) throws IOException {
-
-        if (sourcePath == null || sourcePath.isBlank()) {
-            return;
-        }
-
-        // already stored icon, do not copy again
-        if (sourcePath.startsWith(ICON_DIR + "/")) {
-            return;
-        }
-
-        Path source;
-
-        if (sourcePath.startsWith("file:")) {
-            source = Path.of(java.net.URI.create(sourcePath));
-        } else {
-            source = Path.of(sourcePath);
-        }
-
-        String fileName = source.getFileName().toString();
-        Path target = iconDir.resolve(fileName);
-
-        Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
-        pathSetter.accept("icon/" + fileName);
     }
 
     private void validate(Character character) {

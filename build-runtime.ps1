@@ -56,14 +56,27 @@ if (Test-Path "$JAVAFX_SDK_WIN\bin") {
 
 # --- ШАГ 2.2: СОЗДАНИЕ DEBUG-ЗАПУСКАТЕЛЯ ---
 Write-Host "--- Creating Debug Script ---" -ForegroundColor Cyan
+
 $debugBat = @"
 @echo off
-echo Starting DnD_Manager in Debug Mode...
-REM Запуск через внутреннюю Java из рантайма с выводом в консоль
-".\runtime\bin\java.exe" -jar ".\app\app.jar"
-pause
+setlocal
+cd /d "%~dp0"
+echo Starting DnD_Manager with Log redirection...
+echo Output will be saved to: debug_output.txt
+
+REM Запускаем основной EXE и перенаправляем стандартный вывод и ошибки в файл
+DnD_Manager.exe > debug_output.txt 2>&1
+
+if %ERRORLEVEL% neq 0 (
+    echo.
+    echo Application exited with code %ERRORLEVEL%
+    echo Check debug_output.txt for details.
+    pause
+)
+endlocal
 "@
-$debugBat | Out-File -FilePath "dist\$APP_NAME\debug_launcher.bat" -Encoding ASCII
+
+[System.IO.File]::WriteAllLines("$PSScriptRoot\dist\$APP_NAME\debug_launcher.bat", $debugBat)
 
 # 3. Архивация
 Write-Host "--- Zipping for GitHub Release ---" -ForegroundColor Cyan
