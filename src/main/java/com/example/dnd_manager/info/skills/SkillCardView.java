@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.skills;
 
+import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.animation.KeyFrame;
@@ -11,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -36,7 +36,7 @@ public class SkillCardView extends VBox {
 
     private final Label briefDesc = new Label();
 
-    public SkillCardView(Skill skill, String characterName) {
+    public SkillCardView(Skill skill, Character character) {
         setSpacing(6);
         setPadding(new Insets(15, 10, 15, 10));
         setAlignment(Pos.TOP_CENTER);
@@ -52,9 +52,8 @@ public class SkillCardView extends VBox {
 
         // --- 1. ICON ---
         ImageView icon = new ImageView();
-        if (skill.iconPath() != null && !skill.iconPath().isBlank()) {
-            icon.setImage(new Image(CharacterAssetResolver.resolve(characterName, skill.iconPath())));
-        }
+        icon.setImage(CharacterAssetResolver.getImage(character, skill.iconPath()));
+
         icon.setFitWidth(ICON_SIZE);
         icon.setFitHeight(ICON_SIZE);
         StackPane iconFrame = new StackPane(icon);

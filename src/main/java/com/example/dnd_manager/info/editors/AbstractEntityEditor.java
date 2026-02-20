@@ -132,10 +132,7 @@ public abstract class AbstractEntityEditor<T> extends VBox {
 
     protected String resolveIconPath(AtomicReference<String> iconPath) {
         String icon = iconPath.get();
-        if (icon == null || icon.isEmpty()) {
-            return getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm();
-        }
-        return icon;
+        return (icon == null || icon.isEmpty()) ? "" : icon;
     }
 
     protected void refreshUI() {

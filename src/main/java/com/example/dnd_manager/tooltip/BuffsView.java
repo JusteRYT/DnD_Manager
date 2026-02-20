@@ -5,6 +5,7 @@ import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.buff_debuff.BuffColumnStyle;
 import com.example.dnd_manager.info.buff_debuff.BuffListView;
 import com.example.dnd_manager.info.buff_debuff.BuffType;
+import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.lang.I18n;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -19,6 +20,9 @@ public class BuffsView extends HBox {
 
     public BuffsView(Character character) {
               List<Buff> buffs = character.getBuffs();
+              for (InventoryItem item : character.getInventory()) {
+                  buffs.addAll(item.getAttachedBuffs());
+              }
 
         BuffListView buffsView = new BuffListView(
                 I18n.t("buffsView.titleBuff"),

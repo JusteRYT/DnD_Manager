@@ -3,6 +3,7 @@ package com.example.dnd_manager.repository;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -182,7 +183,7 @@ public class JsonCharacterRepository implements CharacterRepository {
         Path source;
 
         if (sourcePath.startsWith("file:")) {
-            source = Path.of(java.net.URI.create(sourcePath));
+            source = Path.of(URI.create(sourcePath));
         } else {
             source = Path.of(sourcePath);
         }

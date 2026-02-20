@@ -1,14 +1,17 @@
 package com.example.dnd_manager.repository;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.skills.SkillCard;
 import javafx.scene.image.Image;
 
 import java.nio.file.Path;
+import java.util.Objects;
+
 /**
  * Resolves character asset paths to file URLs.
  */
 public final class CharacterAssetResolver {
+
+    private static final String DEFAULT_ICON = "/com/example/dnd_manager/icon/no_image.png";
 
     private CharacterAssetResolver() {
     }
@@ -21,36 +24,49 @@ public final class CharacterAssetResolver {
      * @return file URL string
      */
     public static String resolve(String characterName, String relativePath) {
-        Path fullPath = CharacterStoragePathResolver
+        return CharacterStoragePathResolver
                 .getCharacterDir(characterName)
-                .resolve(relativePath);
-
-        return fullPath.toUri().toString();
+                .resolve(relativePath)
+                .toUri()
+                .toString();
     }
 
     public static Image getImage(Character character, String iconPath) {
-        if (iconPath == null || iconPath.isEmpty()) {
-            return new Image(SkillCard.class.getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
+        String name;
+        if (character != null) {
+            name = character.getName();
+        } else {
+            name = "";
+        }
+
+        if (iconPath == null || iconPath.isBlank()) {
+            return getDefaultImage();
         }
 
         try {
-            if (iconPath.startsWith("file:") || iconPath.startsWith("jar:") || iconPath.contains("://")) {
-                return new Image(iconPath);
+            if (iconPath.contains(":/")) {
+                return new Image(iconPath, true); // true для фоновой загрузки
             }
 
             Path path = Path.of(iconPath);
             if (path.isAbsolute()) {
-                return new Image(path.toUri().toString());
+                return new Image(path.toUri().toString(), true);
             }
 
-            if (character != null) {
-                return new Image(CharacterAssetResolver.resolve(character.getName(), iconPath));
+            if (name != null && !name.isBlank()) {
+                String resolvedPath = resolve(name, iconPath);
+                return new Image(resolvedPath, true);
             }
 
         } catch (Exception e) {
-            System.err.println("Error loading image: " + iconPath + " -> " + e.getMessage());
+            System.err.println("Failed to load image: " + iconPath + " - " + e.getMessage());
         }
 
-        return new Image(SkillCard.class.getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm());
+        return getDefaultImage();
+    }
+
+    private static Image getDefaultImage() {
+        return new Image(Objects.requireNonNull(
+                CharacterAssetResolver.class.getResource(DEFAULT_ICON)).toExternalForm());
     }
 }

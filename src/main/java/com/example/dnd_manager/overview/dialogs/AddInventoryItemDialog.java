@@ -85,7 +85,7 @@ public class AddInventoryItemDialog extends BaseDialog {
             existingItem.setIconPath(iconPath != null ? iconPath : "icon/no_image.png");
             onItemAddedOrEdited.accept(existingItem);
         } else {
-            InventoryItem item = new InventoryItem(name, desc, iconPath != null ? iconPath : "icon/no_image.png");
+            InventoryItem item = new InventoryItem(name, desc, iconPath != null && !iconPath.equals("icon/no_image.png") ? iconPath : "icon/no_image.png");
             item.setCount(count);
             character.getInventory().add(item);
             onItemAddedOrEdited.accept(item);

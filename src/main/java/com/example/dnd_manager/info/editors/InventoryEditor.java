@@ -1,21 +1,29 @@
 package com.example.dnd_manager.info.editors;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.inventory.InventoryRow;
+import com.example.dnd_manager.info.skills.Skill;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
 import com.example.dnd_manager.theme.IntegerField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
@@ -29,6 +37,9 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
     private IntegerField countField;
     private final AtomicReference<String> iconPath = new AtomicReference<>("");
     private Label iconPathLabel;
+    private final List<Buff> tempBuffs = new ArrayList<>();
+    private final List<Skill> tempSkills = new ArrayList<>();
+    private Label effectsInfoLabel;
 
     public InventoryEditor(Character character) {
         super(character, "label.inventoryEditor");
@@ -54,9 +65,21 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         iconPathLabel = new Label();
         iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");
 
+        Button addBuffBtn = AppButtonFactory.addIcon("Add Buff");
+        Button addSkillBtn = AppButtonFactory.addIcon("Add Skill");
+
+        effectsInfoLabel = new Label("No effects attached");
+        effectsInfoLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-style: italic;");
+
+        addBuffBtn.setOnAction(e -> openSubEditor(new BuffEditor(character), tempBuffs, "Edit Item Buffs"));
+        addSkillBtn.setOnAction(e -> openSubEditor(new SkillsEditor(character), tempSkills, "Edit Item Skills"));
+
         Button iconButton = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
         addButton = AppButtonFactory.actionSave(I18n.t("button.addItem"));
         addButton.setPrefWidth(150);
+
+        HBox effectsRow = new HBox(10, addBuffBtn, addSkillBtn, effectsInfoLabel);
+        effectsRow.setAlignment(Pos.CENTER_LEFT);
 
         HBox settingsRow = new HBox(15,
                 new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)
@@ -69,6 +92,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
                 createFieldLabel(I18n.t("textFieldLabel.itemName")), nameBox,
                 createFieldLabel(I18n.t("textFieldLabel.description")), descriptionField,
                 createFieldLabel(I18n.t("textField.inventoryCount")), countField.getField(),
+                createFieldLabel("Item Effects"), effectsRow,
                 settingsRow, buttonsRow
         );
 
@@ -83,6 +107,35 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         addButton.setOnAction(event -> handleSave());
     }
 
+    private <E> void openSubEditor(AbstractEntityEditor<E> editor, List<E> targetList, String title) {
+        Stage stage = new Stage();
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setTitle(title);
+
+        editor.getItems().setAll(targetList);
+        editor.refreshUI();
+
+        Button saveBtn = AppButtonFactory.actionSave("Apply to Item");
+        saveBtn.setOnAction(e -> {
+            targetList.clear();
+            targetList.addAll(editor.getItems());
+            updateEffectsLabel();
+            stage.close();
+        });
+
+        VBox layout = new VBox(10, editor, saveBtn);
+        layout.setPadding(new Insets(15));
+        layout.setStyle("-fx-background-color: #1e1e1e;");
+
+        stage.setScene(new Scene(layout, 600, 700));
+        stage.showAndWait();
+    }
+
+    private void updateEffectsLabel() {
+        effectsInfoLabel.setText(String.format("Attached: %d buffs, %d skills",
+                tempBuffs.size(), tempSkills.size()));
+    }
+
     private void handleSave() {
         if (validateName(nameField)) {
             InventoryItem newItem = new InventoryItem(
@@ -91,6 +144,9 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
                     resolveIconPath(iconPath),
                     countField.getInt()
             );
+
+            newItem.getAttachedBuffs().addAll(new ArrayList<>(tempBuffs));
+            newItem.getAttachedSkills().addAll(new ArrayList<>(tempSkills));
 
             if (editingItem != null) {
                 int index = items.indexOf(editingItem);
@@ -113,8 +169,16 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         countField.getField().setText(String.valueOf(item.getCount()));
         iconPath.set(item.getIconPath());
 
+        tempBuffs.clear();
+        tempBuffs.addAll(item.getAttachedBuffs());
+        tempSkills.clear();
+        tempSkills.addAll(item.getAttachedSkills());
+        updateEffectsLabel();
+
         if (item.getIconPath() != null && !item.getIconPath().isEmpty()) {
             iconPathLabel.setText(new File(item.getIconPath()).getName());
+        } else {
+            iconPathLabel.setText("No icon selected");
         }
 
         addButton.setText(I18n.t("button.save"));
@@ -127,17 +191,29 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         countField.getField().setText("");
         iconPath.set("");
         iconPathLabel.setText("");
+        tempBuffs.clear();
+        tempSkills.clear();
+        updateEffectsLabel();
         nameRequiredLabel.setVisible(false);
     }
 
     @Override
     protected Node createItemRow(InventoryItem item) {
-        return new InventoryRow(item,
+        return new InventoryRow(
+                item,
                 () -> {
                     items.remove(item);
                     refreshUI();
                 },
-                () -> prepareEdit(item), // Передаем логику редактирования
+                () -> prepareEdit(item),
+                () -> {
+                    openSubEditor(new BuffEditor(character), item.getAttachedBuffs(), "Edit Buffs: " + item.getName());
+                    refreshUI();
+                },
+                () -> {
+                    openSubEditor(new SkillsEditor(character), item.getAttachedSkills(), "Edit Skills: " + item.getName());
+                    refreshUI();
+                },
                 character
         );
     }
