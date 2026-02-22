@@ -7,11 +7,14 @@ import com.example.dnd_manager.theme.CustomTitleBar;
 import com.example.dnd_manager.theme.WindowResizer;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 public class MainApp extends Application {
 
@@ -40,6 +43,7 @@ public class MainApp extends Application {
 
         Scene scene = new Scene(root, 1200, 800);
         primaryStage.setScene(scene);
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/example/dnd_manager/icon/App_icon.ico"))));
 
         // 3. Используем менеджер для загрузки первого экрана
         log.info("Loading initial screen: StartScreen");
