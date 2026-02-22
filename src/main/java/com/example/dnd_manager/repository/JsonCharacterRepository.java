@@ -140,25 +140,38 @@ public class JsonCharacterRepository implements CharacterRepository {
             return;
         }
 
-        if (sourcePath.startsWith(ICON_DIR + "/")) {
-            return;
-        }
-
+        // 1. Извлекаем чистое имя файла
         String fileName = extractFileName(sourcePath);
         Path target = iconDir.resolve(fileName);
 
+        // 2. Улучшенная проверка: если файл уже в целевой папке (локально или через URL)
+        // Проверяем, содержит ли путь "/icon/имя_файла" в конце
+        String internalPathMarker = ICON_DIR + "/" + fileName;
+        if (sourcePath.endsWith(internalPathMarker)) {
+            log.trace("Icon {} is already in storage, skipping", fileName);
+            pathSetter.accept(internalPathMarker);
+            return;
+        }
+
+        // 3. Физическая проверка на тот же файл (на случай разных стилей написания путей)
         try {
-            Path sourceFile = Path.of(sourcePath);
+            Path sourceFile;
+            if (sourcePath.startsWith("file:")) {
+                sourceFile = Path.of(java.net.URI.create(sourcePath));
+            } else {
+                sourceFile = Path.of(sourcePath);
+            }
+
             if (Files.exists(sourceFile) && Files.exists(target) && Files.isSameFile(sourceFile, target)) {
-                log.trace("Source and target are the same file: {}, skipping copy", fileName);
-                pathSetter.accept(ICON_DIR + "/" + fileName);
+                pathSetter.accept(internalPathMarker);
                 return;
             }
         } catch (Exception ignored) {
+            // Если это jar: или сложный URL, просто идем дальше
         }
 
-        // 3. Копируем только если файлы реально разные
-        log.debug("Copying icon from {} to {}", sourcePath, target);
+        // 4. Копируем только реально новые файлы
+        log.debug("Copying new icon from {} to {}", sourcePath, target);
         try (InputStream in = openStream(sourcePath)) {
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
@@ -166,7 +179,7 @@ public class JsonCharacterRepository implements CharacterRepository {
             throw e;
         }
 
-        pathSetter.accept(ICON_DIR + "/" + fileName);
+        pathSetter.accept(internalPathMarker);
     }
 
     public String extractFileName(String sourcePath) {
