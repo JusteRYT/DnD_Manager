@@ -17,9 +17,15 @@ Stop-Process -Name "javaw" -Force -ErrorAction SilentlyContinue
 if (Test-Path "dist") { Remove-Item -Recurse -Force "dist" }
 
 # 1. Сборка Maven
-Write-Host "--- Building JAR with Maven ---" -ForegroundColor Cyan
-mvn clean package -DskipTests
-if ($LASTEXITCODE -ne 0) { Write-Error "Maven build failed"; exit }
+Write-Host "--- Running Tests and Building JAR ---" -ForegroundColor Cyan
+# Убираем -DskipTests, чтобы тесты запустились
+mvn clean package
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" -ForegroundColor Red
+    Write-Host "Tests failed or Build error! EXE will not be created." -ForegroundColor Red
+    Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" -ForegroundColor Red
+    exit
+}
 
 # Подготовка входной папки
 $INPUT_DIR = "target\jpackage-input"
@@ -37,7 +43,7 @@ Write-Host "--- Creating EXE with jpackage ---" -ForegroundColor Cyan
   --main-jar "app.jar" `
   --main-class com.example.dnd_manager.Launcher `
   --module-path "$JAVAFX_SDK_WIN\lib" `
-  --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media,java.base,java.desktop,jdk.unsupported `
+  --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.media,java.base,java.desktop,jdk.unsupported,java.net.http,java.management,java.naming,java.sql `
   --icon $ICON_PATH `
   --vendor "JusteRYT" `
   --description "D&D Character Manager"
@@ -57,26 +63,35 @@ if (Test-Path "$JAVAFX_SDK_WIN\bin") {
 # --- ШАГ 2.2: СОЗДАНИЕ DEBUG-ЗАПУСКАТЕЛЯ ---
 Write-Host "--- Creating Debug Script ---" -ForegroundColor Cyan
 
+# Убедимся, что имя приложения доступно для строки
+$ExeName = "${APP_NAME}.exe"
+
 $debugBat = @"
 @echo off
 setlocal
 cd /d "%~dp0"
-echo Starting DnD_Manager with Log redirection...
-echo Output will be saved to: debug_output.txt
 
-REM Запускаем основной EXE и перенаправляем стандартный вывод и ошибки в файл
-DnD_Manager.exe > debug_output.txt 2>&1
+set "LOG_LEVEL=DEBUG"
+if not "%~1"=="" set "LOG_LEVEL=%~1"
+
+echo Starting ${APP_NAME}...
+echo Console output (with colors) is displayed below.
+echo Clean logs are being saved to: debug_output.txt
+
+REM Запускаем приложение. Имя файла подставится из PowerShell
+$ExeName --log=%LOG_LEVEL%
 
 if %ERRORLEVEL% neq 0 (
     echo.
     echo Application exited with code %ERRORLEVEL%
-    echo Check debug_output.txt for details.
+    echo Check debug_output.txt for technical details.
     pause
 )
 endlocal
 "@
 
-[System.IO.File]::WriteAllLines("$PSScriptRoot\dist\$APP_NAME\debug_launcher.bat", $debugBat)
+# Сохраняем в ASCII
+[System.IO.File]::WriteAllText("$PSScriptRoot\dist\$APP_NAME\debug_launcher.bat", $debugBat, [System.Text.Encoding]::ASCII)
 
 # 3. Архивация
 Write-Host "--- Zipping for GitHub Release ---" -ForegroundColor Cyan

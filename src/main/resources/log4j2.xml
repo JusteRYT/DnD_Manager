@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
     <Appenders>
-        <Console name="Console" target="SYSTEM_OUT">
+        <Console name="STDOUT" target="SYSTEM_OUT">
             <PatternLayout
                     disableAnsi="false"
                     pattern="%d{dd.MM.yyyy HH:mm:ss,SSS} %highlight{%-5p} %style{%logger{1}}{yellow} - %m%n"/>
         </Console>
+
+        <File name="LogFile" fileName="debug_output.txt" append="false">
+            <PatternLayout
+                    disableAnsi="true"
+                    pattern="%d{dd.MM.yyyy HH:mm:ss,SSS} %-5p %logger{1} - %m%n"/>
+        </File>
     </Appenders>
+
     <Loggers>
-        <Root level="info">
-            <AppenderRef ref="Console"/>
+        <Root level="${sys:app.log.level:-INFO}">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="LogFile"/>
         </Root>
     </Loggers>
 </Configuration>

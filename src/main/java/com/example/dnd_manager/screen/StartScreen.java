@@ -27,6 +27,7 @@
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
 
+    import java.text.MessageFormat;
     import java.util.List;
     import java.util.Locale;
     import java.util.Objects;
@@ -270,7 +271,7 @@
                             AppConfirmDialog confirmDialog = new AppConfirmDialog(
                                     stage,
                                     I18n.t("update.title"),
-                                    java.text.MessageFormat.format(I18n.t("update.header"), release.tagName) + "\n" + I18n.t("update.content"),
+                                    MessageFormat.format(I18n.t("update.header"), release.tagName) + "\n" + I18n.t("update.content"),
                                     true
                             );
                             confirmDialog.show();
