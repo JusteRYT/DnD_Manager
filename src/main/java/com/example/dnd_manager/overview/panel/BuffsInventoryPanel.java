@@ -11,16 +11,20 @@ import javafx.stage.Stage;
  * Right panel: Buffs/Debuffs + Inventory
  */
 public class BuffsInventoryPanel extends VBox {
+    private final BuffsView buffsView;
+    private final Character character;
 
     /**
      * Creates right-side panel with buffs and inventory.
      *
      * @param character character instance
      */
-    public BuffsInventoryPanel(Character character, StorageService storageService, Stage stage) {
+    public BuffsInventoryPanel(Character character, StorageService storageService, Stage stage, Runnable onRefresh) {
         setSpacing(15);
+        this.character = character;
+        this.buffsView = new BuffsView(character);
 
-        VBox buffsContainer = new VBox(new BuffsView(character));
+        VBox buffsWrapper = new VBox(buffsView);
 
         String accentColor = "#3aa3c3";
         String commonStyle = """
@@ -35,15 +39,19 @@ public class BuffsInventoryPanel extends VBox {
         String idleStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, rgba(58, 163, 195, 0.2), 15, 0, 0, 0);";
         String hoverStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, %s, 10, 0.2, 0, 0);".formatted(accentColor);
 
-        buffsContainer.setStyle(idleStyle);
+        buffsWrapper.setStyle(idleStyle);
 
-        buffsContainer.setOnMouseEntered(e -> buffsContainer.setStyle(hoverStyle));
-        buffsContainer.setOnMouseExited(e -> buffsContainer.setStyle(idleStyle));
+        buffsWrapper.setOnMouseEntered(e -> buffsWrapper.setStyle(hoverStyle));
+        buffsWrapper.setOnMouseExited(e -> buffsWrapper.setStyle(idleStyle));
 
-        InventoryPanel inventoryPanel = new InventoryPanel(character, storageService::saveCharacter);
+        InventoryPanel inventoryPanel = new InventoryPanel(character, c -> {
+            onRefresh.run();
+        });
 
-        FamiliarsPanel familiarsPanel = new FamiliarsPanel(character, stage, storageService);
+        getChildren().addAll(buffsWrapper, inventoryPanel, new FamiliarsPanel(character, stage, storageService));
+    }
 
-        getChildren().addAll(buffsContainer, inventoryPanel, familiarsPanel);
+    public void refreshBuffs() {
+        buffsView.refresh(character);
     }
 }

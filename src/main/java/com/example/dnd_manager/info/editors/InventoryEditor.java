@@ -5,6 +5,7 @@ import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.inventory.InventoryRow;
 import com.example.dnd_manager.info.skills.Skill;
+import com.example.dnd_manager.info.utils.SubEditorManager;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -108,27 +109,9 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
     }
 
     private <E> void openSubEditor(AbstractEntityEditor<E> editor, List<E> targetList, String title) {
-        Stage stage = new Stage();
-        stage.initModality(Modality.APPLICATION_MODAL);
-        stage.setTitle(title);
-
-        editor.getItems().setAll(targetList);
-        editor.refreshUI();
-
-        Button saveBtn = AppButtonFactory.actionSave("Apply to Item");
-        saveBtn.setOnAction(e -> {
-            targetList.clear();
-            targetList.addAll(editor.getItems());
-            updateEffectsLabel();
-            stage.close();
-        });
-
-        VBox layout = new VBox(10, editor, saveBtn);
-        layout.setPadding(new Insets(15));
-        layout.setStyle("-fx-background-color: #1e1e1e;");
-
-        stage.setScene(new Scene(layout, 600, 700));
-        stage.showAndWait();
+        // Здесь owner можно получить через getScene().getWindow()
+        Stage owner = (Stage) this.getScene().getWindow();
+        SubEditorManager.open(owner, editor, targetList, title, this::updateEffectsLabel);
     }
 
     private void updateEffectsLabel() {

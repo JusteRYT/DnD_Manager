@@ -135,7 +135,7 @@ public abstract class AbstractEntityEditor<T> extends VBox {
         return (icon == null || icon.isEmpty()) ? "" : icon;
     }
 
-    protected void refreshUI() {
+    public void refreshUI() {
         itemsContainer.getChildren().clear();
         for (T item : items) {
             renderItemRow(item);

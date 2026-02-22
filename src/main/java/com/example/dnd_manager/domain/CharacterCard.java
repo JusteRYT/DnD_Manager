@@ -52,8 +52,8 @@ public class CharacterCard extends VBox {
         try {
             Image img = new Image(CharacterAssetResolver.resolve(character.getName(), character.getAvatarImage()), true);
             avatar.setImage(img);
-        } catch (Exception e) {
-            // Заглушка, если картинка не найдена
+        } catch (Exception ignored) {
+
         }
 
         avatar.setFitWidth(CARD_WIDTH - 24);

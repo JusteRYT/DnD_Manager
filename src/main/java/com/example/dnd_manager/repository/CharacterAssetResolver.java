@@ -39,7 +39,7 @@ public final class CharacterAssetResolver {
             name = "";
         }
 
-        if (iconPath == null || iconPath.isBlank()) {
+        if (iconPath == null || iconPath.isBlank() || iconPath.contains("no_image.png")) {
             return getDefaultImage();
         }
 

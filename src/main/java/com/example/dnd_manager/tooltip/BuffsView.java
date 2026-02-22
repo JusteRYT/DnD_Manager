@@ -10,6 +10,7 @@ import com.example.dnd_manager.lang.I18n;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,27 +20,31 @@ import java.util.Objects;
 public class BuffsView extends HBox {
 
     public BuffsView(Character character) {
-              List<Buff> buffs = character.getBuffs();
-              for (InventoryItem item : character.getInventory()) {
-                  buffs.addAll(item.getAttachedBuffs());
-              }
+         refresh(character);
+    }
 
-        BuffListView buffsView = new BuffListView(
+    public void refresh(Character character) {
+        getChildren().clear();
+        List<Buff> buffs = new ArrayList<>(character.getBuffs());
+        for (InventoryItem item : character.getInventory()) {
+            buffs.addAll(item.getAttachedBuffs());
+        }
+
+        BuffListView buffsListView = new BuffListView(
                 I18n.t("buffsView.titleBuff"),
                 buffs.stream().filter(b -> Objects.equals(b.type(), BuffType.BUFF.getName())).toList(),
                 BuffColumnStyle.BUFF, character.getName()
         );
 
-        BuffListView debuffsView = new BuffListView(
+        BuffListView debuffsListView = new BuffListView(
                 I18n.t("buffsView.titleDebuff"),
                 buffs.stream().filter(b -> Objects.equals(b.type(), BuffType.DEBUFF.getName())).toList(),
                 BuffColumnStyle.DEBUFF,
                 character.getName()
         );
 
-        HBox.setHgrow(buffsView, Priority.ALWAYS);
-        HBox.setHgrow(debuffsView, Priority.ALWAYS);
-
-        getChildren().addAll(buffsView, debuffsView);
+        HBox.setHgrow(buffsListView, Priority.ALWAYS);
+        HBox.setHgrow(debuffsListView, Priority.ALWAYS);
+        getChildren().addAll(buffsListView, debuffsListView);
     }
 }

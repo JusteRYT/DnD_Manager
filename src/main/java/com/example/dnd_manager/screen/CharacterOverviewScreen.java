@@ -19,15 +19,19 @@ public class CharacterOverviewScreen extends BorderPane {
     private final StorageService storageService;
     private final ManaBar manaBar;
     private final Stage stage;
+    private final BuffsInventoryPanel buffsInventoryPanel;
+    private final SkillsView skillsView;
+    private final Character character;
 
     public CharacterOverviewScreen(Stage stage, Character character, StorageService storageService) {
         this.storageService = storageService;
         this.stage = stage;
+        this.character = character;
         setStyle("-fx-background-color: #1e1e1e;");
 
         // --- Top Bar (Всегда сверху) ---
         TopBar topBar = new TopBar(character, this, storageService);
-        topBar.setPadding(new Insets(0,35,0,25));
+        topBar.setPadding(new Insets(0, 35, 0, 25));
         setTop(topBar);
 
         // --- Основной контент ---
@@ -36,7 +40,7 @@ public class CharacterOverviewScreen extends BorderPane {
         mainGrid.setVgap(15);
         mainGrid.setPadding(new Insets(10));
 
-        BuffsInventoryPanel buffsInventoryPanel = new BuffsInventoryPanel(character, storageService, stage);
+        this.buffsInventoryPanel = new BuffsInventoryPanel(character, storageService, stage, this::refreshUI);
         StatsPanel statsPanel = new StatsPanel(character);
         ResourcePanel resourcePanel = new ResourcePanel(character, storageService);
         manaBar = resourcePanel.getManaBar();
@@ -53,7 +57,7 @@ public class CharacterOverviewScreen extends BorderPane {
         rightCol.setPercentWidth(50);
         mainGrid.getColumnConstraints().setAll(leftCol, rightCol);
 
-        SkillsView skillsView = new SkillsView(character);
+        this.skillsView = new SkillsView(character);
         // Панель скиллов
         VBox skillsBar = new VBox();
         skillsBar.setPadding(new Insets(10));
@@ -69,5 +73,14 @@ public class CharacterOverviewScreen extends BorderPane {
         contentContainer.getChildren().addAll(mainGrid, spacer, skillsBar);
 
         setCenter(contentContainer);
+    }
+
+    public void refreshUI() {
+        // 1. Сохраняем данные
+        storageService.saveCharacter(character);
+
+        // 2. Обновляем визуальные компоненты
+        skillsView.refresh(character);
+        buffsInventoryPanel.refreshBuffs();
     }
 }

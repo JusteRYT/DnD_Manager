@@ -22,17 +22,19 @@ public class SkillsView extends FlowPane {
         setPadding(new Insets(20));
         setPrefWidth(Region.USE_COMPUTED_SIZE);
 
-        List<Skill> allSkills = new ArrayList<>(character.getSkills());
+        refresh(character);
+    }
 
+    public void refresh(Character character) {
+        getChildren().clear();
+        List<Skill> allSkills = new ArrayList<>(character.getSkills());
         for (InventoryItem item : character.getInventory()) {
             if (item.getAttachedSkills() != null) {
                 allSkills.addAll(item.getAttachedSkills());
             }
         }
-
         for (Skill skill : allSkills) {
-            SkillCardView card = new SkillCardView(skill, character);
-            getChildren().add(card);
+            getChildren().add(new SkillCardView(skill, character));
         }
     }
 }
