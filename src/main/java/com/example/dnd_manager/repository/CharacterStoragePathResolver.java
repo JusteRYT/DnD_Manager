@@ -1,5 +1,8 @@
 package com.example.dnd_manager.repository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
@@ -10,6 +13,7 @@ public final class CharacterStoragePathResolver {
     private static final String APP_FOLDER_NAME = "DnD_Manager";
     private static final String ROOT_DIR_NAME = "Characters"; // Новое (множественное)
     private static final String LEGACY_DIR_NAME = "Character"; // Старое (единственное)
+    private static final Logger log = LoggerFactory.getLogger(CharacterStoragePathResolver.class);
 
     private CharacterStoragePathResolver() {
     }
@@ -30,6 +34,7 @@ public final class CharacterStoragePathResolver {
     }
 
     public static void migrateIfNeeded() {
+        log.info("Starting migration check...");
         Path legacyPath = Paths.get(LEGACY_DIR_NAME).toAbsolutePath();
         Path newRoot = getRoot();
 
@@ -43,6 +48,7 @@ public final class CharacterStoragePathResolver {
                     Path targetDir = newRoot.resolve(charName);
 
                     if (shouldReplace(sourceDir, targetDir, charName)) {
+                        log.warn("Version conflict detected for {}. Legacy is newer. Migrating...", charName);
                         moveContentsRecursive(sourceDir, targetDir);
                     } else {
                         // Если в AppData версия новее, просто удаляем старую
