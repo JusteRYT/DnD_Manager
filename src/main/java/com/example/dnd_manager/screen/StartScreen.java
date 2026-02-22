@@ -2,6 +2,7 @@
 
     import com.example.dnd_manager.info.version.AppInfo;
     import com.example.dnd_manager.lang.I18n;
+    import com.example.dnd_manager.overview.dialogs.AppConfirmDialog;
     import com.example.dnd_manager.overview.dialogs.AppErrorDialog;
     import com.example.dnd_manager.service.CharacterImageIntegrityService;
     import com.example.dnd_manager.service.CharacterTransferServiceImpl;
@@ -15,9 +16,7 @@
     import javafx.geometry.Insets;
     import javafx.geometry.Pos;
     import javafx.scene.Parent;
-    import javafx.scene.control.Alert;
     import javafx.scene.control.Button;
-    import javafx.scene.control.ButtonType;
     import javafx.scene.control.Label;
     import javafx.scene.image.Image;
     import javafx.scene.image.ImageView;
@@ -25,6 +24,8 @@
     import javafx.scene.layout.HBox;
     import javafx.scene.layout.VBox;
     import javafx.stage.Stage;
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
 
     import java.util.List;
     import java.util.Locale;
@@ -37,6 +38,7 @@
     public class StartScreen {
 
         private static final double SCALE = 2;
+        private static final Logger log = LoggerFactory.getLogger(StartScreen.class);
 
         private final Stage stage;
         private final StorageService storageService;
@@ -47,6 +49,7 @@
         public StartScreen(Stage stage, StorageService storageService) {
             this.stage = stage;
             this.storageService = storageService;
+            log.debug("Initializing StartScreen and running integrity checks...");
             CharacterImageIntegrityService imageService = new CharacterImageIntegrityService(storageService);
             imageService.validateAndRepairAllCharacters();
         }
@@ -57,6 +60,7 @@
          * @return root UI node
          */
         public Parent getView() {
+            log.debug("Building StartScreen UI nodes...");
             BorderPane root = new BorderPane();
             root.setStyle("""
                         -fx-background-color: %s;
@@ -88,7 +92,7 @@
             );
 
             Button updateBtn = AppButtonFactory.primaryButton(
-                    "Check Updates", 120, 40, 14
+                    I18n.t("button.checkUpdate"), 120, 40, 14
             );
 
             ButtonSizeConfigurer.applyFixedSize(createButton, 400, 50);
@@ -155,38 +159,32 @@
         }
 
         private void openCharacterCreate() {
+            log.info("Navigation: Opening Character Creation screen");
             CharacterCreateScreen createScreen = new CharacterCreateScreen(stage, storageService);
             ScreenManager.setScreen(stage, createScreen.getView());
         }
 
         private void openCharacterEdit() {
-            List<String> names = storageService.listCharacterNames();
-            if (names.isEmpty()) {
-                showError(I18n.t("error.no_characters_title"), I18n.t("error.no_characters_msg"));
-                return;
-            }
-
-            CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(
-                    stage,
-                    storageService,
-                    character -> {
-                        CharacterEditScreen editScreen = new CharacterEditScreen(stage, character, storageService);
-                        ScreenManager.setScreen(stage, editScreen.getView());
-                    }, true
-            );
-
-            ScreenManager.setScreen(stage, selectionScreen);
+            log.info("Navigation: Opening Character Selection (Edit mode)");
+            checkCharacter();
         }
 
         private void openCharacterLoad() {
+            log.info("Navigation: Opening Character Selection (Load/View mode)");
+            checkCharacter();
+        }
+
+        private void checkCharacter() {
             List<String> names = storageService.listCharacterNames();
             if (names.isEmpty()) {
+                log.warn("Navigation failed: No characters available for loading");
                 showError(I18n.t("error.no_characters_title"), I18n.t("error.no_characters_msg"));
                 return;
             }
 
             CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(stage, storageService,
                     character -> {
+                        log.info("Character selected for view: {}", character.getName());
                         CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(stage, character, storageService);
                         ScreenManager.setScreen(stage, overviewScreen);
                     }, false);
@@ -195,6 +193,7 @@
         }
 
         private void openCharacterTransfer() {
+            log.info("Navigation: Opening Import/Export screen");
             CharacterImportExportScreen screen = new CharacterImportExportScreen(
                     stage, storageService, new CharacterTransferServiceImpl()
             );
@@ -202,11 +201,9 @@
         }
 
         private void changeLanguage() {
-            if (I18n.isEnglish()) {
-                I18n.setLocale(Locale.forLanguageTag("ru"));
-            } else {
-                I18n.setLocale(Locale.ENGLISH);
-            }
+            Locale newLocale = I18n.isEnglish() ? Locale.forLanguageTag("ru") : Locale.ENGLISH;
+            log.info("UI: Changing language to {}", newLocale);
+            I18n.setLocale(newLocale);
 
             StartScreen newScreen = new StartScreen(stage, storageService);
             ScreenManager.setScreen(stage, newScreen.getView());
@@ -238,39 +235,62 @@
         }
 
         private void handleUpdateCheck(Button btn) {
+            log.info("Update: Manual update check requested");
             btn.setDisable(true);
-            btn.setText("Checking...");
+            btn.setText(I18n.t("button.checking"));
 
             new Thread(() -> {
-                UpdateChecker checker = new UpdateChecker();
-                var releaseOpt = checker.check();
+                try {
+                    UpdateChecker checker = new UpdateChecker();
+                    var releaseOpt = checker.check();
 
-                Platform.runLater(() -> {
-                    btn.setDisable(false);
-                    btn.setText("Check Updates");
+                    Platform.runLater(() -> {
+                        btn.setDisable(false);
+                        btn.setText(I18n.t("button.checkUpdate"));
 
-                    if (releaseOpt.isPresent()) {
-                        var release = releaseOpt.get();
-                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                        alert.setTitle("Update Available");
-                        alert.setHeaderText("New version " + release.tagName + " is available!");
-                        alert.setContentText("Do you want to download and restart the app?");
+                        if (releaseOpt.isPresent()) {
+                            var release = releaseOpt.get();
+                            log.info("Update found: {}", release.tagName);
 
-                        if (alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-                            try {
-                                new UpdateManager().applyUpdate(release);
-                            } catch (Exception e) {
-                                showError("Update Error", "Failed to apply update: " + e.getMessage());
+                            // ИСПОЛЬЗУЕМ КАСТОМНЫЙ ДИАЛОГ ПОДТВЕРЖДЕНИЯ
+                            AppConfirmDialog confirmDialog = new AppConfirmDialog(
+                                    stage,
+                                    I18n.t("update.title"),
+                                    java.text.MessageFormat.format(I18n.t("update.header"), release.tagName) + "\n" + I18n.t("update.content"),
+                                    true
+                            );
+                            confirmDialog.show();
+
+                            if (confirmDialog.isConfirmed()) {
+                                log.info("User accepted update: {}", release.tagName);
+                                try {
+                                    new UpdateManager().applyUpdate(release);
+                                } catch (Exception e) {
+                                    log.error("Update application failed", e);
+                                    showError(I18n.t("update.error_title"),
+                                            java.text.MessageFormat.format(I18n.t("update.error_apply"), e.getMessage()));
+                                }
                             }
+                        } else {
+                            log.info("Update: Current version is up to date");
+                            // ИСПОЛЬЗУЕМ КАСТОМНЫЙ ДИАЛОГ ИНФОРМАЦИИ
+                            AppConfirmDialog infoDialog = new AppConfirmDialog(
+                                    stage,
+                                    I18n.t("update.no_updates_title"),
+                                    I18n.t("update.no_updates_content"),
+                                    false
+                            );
+                            infoDialog.show();
                         }
-                    } else {
-                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                        alert.setTitle("No Updates");
-                        alert.setHeaderText(null);
-                        alert.setContentText("You are using the latest version.");
-                        alert.showAndWait();
-                    }
-                });
+                    });
+                } catch (Exception e) {
+                    log.error("Update check failed", e);
+                    Platform.runLater(() -> {
+                        btn.setDisable(false);
+                        btn.setText(I18n.t("button.checkUpdate"));
+                        showError(I18n.t("update.error_connection_title"), I18n.t("update.error_connection_content"));
+                    });
+                }
             }).start();
         }
     }

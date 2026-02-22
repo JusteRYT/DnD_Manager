@@ -21,7 +21,7 @@ public class AppErrorDialog extends BaseDialog {
     private final String message;
 
     public AppErrorDialog(Stage owner, String title, String message) {
-        super(owner, title, 450, 250); // Немного увеличил высоту для комфортного расположения
+        super(owner, title, 450, 250);
         this.message = message;
     }
 
