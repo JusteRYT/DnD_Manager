@@ -59,9 +59,12 @@ public class EditInventoryItemDialog extends BaseDialog {
         VBox attachmentsBox = new VBox(10);
         attachmentsBox.setStyle("-fx-padding: 10; -fx-background-color: #252525; -fx-background-radius: 5; -fx-border-color: #3a3a3a; -fx-border-radius: 5;");
 
+        Label itemSectionLabel = new Label();
+        itemSectionLabel.setText("Item Effects:");
+        itemSectionLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-font-weight: bold;");
         buffsCountLabel = new Label();
         skillsCountLabel = new Label();
-        updateLabels(); // Инициализация текста
+        updateLabels();
 
         Button editBuffsBtn = AppButtonFactory.addIcon(I18n.t("buffsView.titleBuff"));
         editBuffsBtn.setOnAction(e -> openSubEditor(new BuffEditor(character), item.getAttachedBuffs(), "Edit Item Buffs"));
@@ -74,7 +77,7 @@ public class EditInventoryItemDialog extends BaseDialog {
         HBox skillRow = new HBox(15, skillsCountLabel, editSkillsBtn);
         skillRow.setAlignment(Pos.CENTER_LEFT);
 
-        attachmentsBox.getChildren().addAll(new Label("Item Effects:"), buffRow, skillRow);
+        attachmentsBox.getChildren().addAll(itemSectionLabel, buffRow, skillRow);
 
         // --- Кнопки сохранения ---
         Button iconBtn = AppButtonFactory.actionSave(I18n.t("editDialog.changeIcon"));
@@ -115,7 +118,9 @@ public class EditInventoryItemDialog extends BaseDialog {
 
     private void updateLabels() {
         buffsCountLabel.setText(I18n.t("buffsView.titleBuff") + ": " + item.getAttachedBuffs().size());
+        buffsCountLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-style: italic;");
         skillsCountLabel.setText(I18n.t("label.familiarsSKILLS") + ": " + item.getAttachedSkills().size());
+        skillsCountLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-style: italic;");
     }
 
     private String chooseIcon() {
