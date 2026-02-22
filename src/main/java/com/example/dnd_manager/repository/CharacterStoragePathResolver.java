@@ -1,23 +1,22 @@
 package com.example.dnd_manager.repository;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
+import java.nio.file.attribute.FileTime;
+import java.util.stream.Stream;
 
 public final class CharacterStoragePathResolver {
 
     private static final String APP_FOLDER_NAME = "DnD_Manager";
-    private static final String ROOT_DIR_NAME = "Characters";
-    private static final String LEGACY_DIR_NAME = "Character";
+    private static final String ROOT_DIR_NAME = "Characters"; // Новое (множественное)
+    private static final String LEGACY_DIR_NAME = "Character"; // Старое (единственное)
 
-    private CharacterStoragePathResolver() {}
+    private CharacterStoragePathResolver() {
+    }
 
     public static Path getRoot() {
         String os = System.getProperty("os.name").toLowerCase();
         Path basePath;
-
         if (os.contains("win")) {
             basePath = Paths.get(System.getenv("APPDATA"), APP_FOLDER_NAME);
         } else {
@@ -30,64 +29,79 @@ public final class CharacterStoragePathResolver {
         return getRoot().resolve(characterName);
     }
 
-    /**
-     * Проверяет наличие старой папки и переносит данные в новую локацию.
-     */
     public static void migrateIfNeeded() {
-        // Получаем абсолютный путь к старой папке в корне проекта
         Path legacyPath = Paths.get(LEGACY_DIR_NAME).toAbsolutePath();
-        Path newPath = getRoot();
+        Path newRoot = getRoot();
 
-        if (!Files.exists(legacyPath) || !Files.isDirectory(legacyPath)) {
-            return;
-        }
+        if (!Files.exists(legacyPath) || !Files.isDirectory(legacyPath)) return;
 
         try {
-            Files.createDirectories(newPath);
+            Files.createDirectories(newRoot);
+            try (Stream<Path> stream = Files.list(legacyPath)) {
+                for (Path sourceDir : stream.filter(Files::isDirectory).toList()) {
+                    String charName = sourceDir.getFileName().toString();
+                    Path targetDir = newRoot.resolve(charName);
 
-            try (var stream = Files.list(legacyPath)) {
-                for (Path sourceFolder : stream.toList()) {
-                    if (Files.isDirectory(sourceFolder)) {
-                        Path targetFolder = newPath.resolve(sourceFolder.getFileName());
-                        moveDirectoryRecursive(sourceFolder, targetFolder);
+                    if (shouldReplace(sourceDir, targetDir, charName)) {
+                        moveContentsRecursive(sourceDir, targetDir);
+                    } else {
+                        // Если в AppData версия новее, просто удаляем старую
+                        deleteDirectoryRecursive(sourceDir);
                     }
                 }
             }
-
-            // После того как всё содержимое перемещено, пробуем удалить старый корень
-            deleteDirectoryRecursive(legacyPath);
-            System.out.println("Migration successful: all characters moved to " + newPath);
+            // Удаляем корень старой папки, если она пуста
+            if (isDirEmpty(legacyPath)) Files.delete(legacyPath);
 
         } catch (IOException e) {
-            System.err.println("Migration failed: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("CRITICAL: Migration failed! Check permissions. " + e.getMessage());
         }
     }
 
-    private static void moveDirectoryRecursive(Path source, Path target) throws IOException {
-        Files.createDirectories(target);
-        try (var stream = Files.list(source)) {
+    private static boolean shouldReplace(Path sourceDir, Path targetDir, String charName) throws IOException {
+        if (!Files.exists(targetDir)) return true;
+
+        Path sourceJson = sourceDir.resolve(charName + ".json");
+        Path targetJson = targetDir.resolve(charName + ".json");
+
+        if (!Files.exists(targetJson)) return true;
+        if (!Files.exists(sourceJson)) return false;
+
+        FileTime sourceTime = Files.getLastModifiedTime(sourceJson);
+        FileTime targetTime = Files.getLastModifiedTime(targetJson);
+
+        // Возвращаем true, если файл в старой папке новее
+        return sourceTime.compareTo(targetTime) > 0;
+    }
+
+    private static void moveContentsRecursive(Path source, Path target) throws IOException {
+        if (!Files.exists(target)) Files.createDirectories(target);
+        try (Stream<Path> stream = Files.list(source)) {
             for (Path file : stream.toList()) {
-                Path targetFile = target.resolve(file.getFileName());
+                Path dest = target.resolve(file.getFileName());
                 if (Files.isDirectory(file)) {
-                    moveDirectoryRecursive(file, targetFile);
+                    moveContentsRecursive(file, dest);
                 } else {
-                    Files.move(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(file, dest, StandardCopyOption.REPLACE_EXISTING);
                 }
             }
         }
-        Files.delete(source);
+        Files.deleteIfExists(source);
     }
 
     private static void deleteDirectoryRecursive(Path path) throws IOException {
         if (Files.isDirectory(path)) {
-            try (var stream = Files.list(path)) {
-                for (Path p : stream.toList()) {
-                    deleteDirectoryRecursive(p);
-                }
+            try (Stream<Path> stream = Files.list(path)) {
+                for (Path p : stream.toList()) deleteDirectoryRecursive(p);
             }
         }
         Files.deleteIfExists(path);
+    }
+
+    private static boolean isDirEmpty(Path path) throws IOException {
+        try (Stream<Path> stream = Files.list(path)) {
+            return stream.findAny().isEmpty();
+        }
     }
 
     public static void ensureRootExists() throws IOException {
