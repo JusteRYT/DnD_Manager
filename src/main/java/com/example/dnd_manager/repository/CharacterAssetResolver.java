@@ -2,27 +2,21 @@ package com.example.dnd_manager.repository;
 
 import com.example.dnd_manager.domain.Character;
 import javafx.scene.image.Image;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
-/**
- * Resolves character asset paths to file URLs.
- */
 public final class CharacterAssetResolver {
 
+    private static final Logger log = LoggerFactory.getLogger(CharacterAssetResolver.class);
     private static final String DEFAULT_ICON = "/com/example/dnd_manager/icon/no_image.png";
 
-    private CharacterAssetResolver() {
-    }
+    private CharacterAssetResolver() {}
 
-    /**
-     * Resolves relative characterName asset path to file URL.
-     *
-     * @param characterName characterName directory name
-     * @param relativePath relative asset path (e.g. icon/avatar.png)
-     * @return file URL string
-     */
     public static String resolve(String characterName, String relativePath) {
         return CharacterStoragePathResolver
                 .getCharacterDir(characterName)
@@ -32,34 +26,39 @@ public final class CharacterAssetResolver {
     }
 
     public static Image getImage(Character character, String iconPath) {
-        String name;
-        if (character != null) {
-            name = character.getName();
-        } else {
-            name = "";
-        }
+        String name = (character != null) ? character.getName() : "";
 
         if (iconPath == null || iconPath.isBlank() || iconPath.contains("no_image.png")) {
             return getDefaultImage();
         }
 
         try {
+            Path targetPath = null;
+
+            if (iconPath.startsWith("file:")) {
+                targetPath = Path.of(java.net.URI.create(iconPath));
+            } else {
+                Path path = Path.of(iconPath);
+                if (
+                        path.isAbsolute()) {
+                    targetPath = path;
+                } else if (!name.isBlank()) {
+                    targetPath = CharacterStoragePathResolver.getCharacterDir(name).resolve(iconPath);
+                }
+            }
+
+            if (targetPath != null && Files.exists(targetPath)) {
+                try (InputStream is = Files.newInputStream(targetPath)) {
+                    return new Image(is);
+                }
+            }
+
             if (iconPath.contains(":/")) {
-                return new Image(iconPath, true); // true для фоновой загрузки
-            }
-
-            Path path = Path.of(iconPath);
-            if (path.isAbsolute()) {
-                return new Image(path.toUri().toString(), true);
-            }
-
-            if (name != null && !name.isBlank()) {
-                String resolvedPath = resolve(name, iconPath);
-                return new Image(resolvedPath, true);
+                return new Image(iconPath, true);
             }
 
         } catch (Exception e) {
-            System.err.println("Failed to load image: " + iconPath + " - " + e.getMessage());
+            log.error("Failed to load image safely: {} (Character: {})", iconPath, name, e);
         }
 
         return getDefaultImage();

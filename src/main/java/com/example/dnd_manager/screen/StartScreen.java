@@ -165,8 +165,22 @@
         }
 
         private void openCharacterEdit() {
-            log.info("Navigation: Opening Character Selection (Edit mode)");
-            checkCharacter();
+            List<String> names = storageService.listCharacterNames();
+            if (names.isEmpty()) {
+                showError(I18n.t("error.no_characters_title"), I18n.t("error.no_characters_msg"));
+                return;
+            }
+
+            CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(
+                    stage,
+                    storageService,
+                    character -> {
+                        CharacterEditScreen editScreen = new CharacterEditScreen(stage, character, storageService);
+                        ScreenManager.setScreen(stage, editScreen.getView());
+                    }, true
+            );
+
+            ScreenManager.setScreen(stage, selectionScreen);
         }
 
         private void openCharacterLoad() {

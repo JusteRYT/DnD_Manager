@@ -1,5 +1,6 @@
 package com.example.dnd_manager.overview.dialogs;
 
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Pos;
@@ -36,7 +37,7 @@ public class AppConfirmDialog extends BaseDialog {
         HBox buttonBox = new HBox(15);
         buttonBox.setAlignment(Pos.CENTER);
 
-        Button okBtn = AppButtonFactory.primaryButton(isConfirmation ? "OK" : "Закрыть", 120, 35, 14);
+        Button okBtn = AppButtonFactory.primaryButton(isConfirmation ? I18n.t("error.buttonOk") : I18n.t("button.close"), 120, 35, 14);
         okBtn.setOnAction(e -> {
             confirmed = true;
             close();

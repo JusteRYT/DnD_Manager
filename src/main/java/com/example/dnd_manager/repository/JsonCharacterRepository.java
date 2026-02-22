@@ -6,8 +6,11 @@ import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.skills.Skill;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,12 +30,14 @@ public class JsonCharacterRepository implements CharacterRepository {
 
     private static final String ICON_DIR = "icon";
     private final ObjectMapper mapper = new ObjectMapper();
+    private static final Logger log = LoggerFactory.getLogger(JsonCharacterRepository.class);
 
     public JsonCharacterRepository() {
         CharacterStoragePathResolver.migrateIfNeeded();
         try {
             CharacterStoragePathResolver.ensureRootExists();
         } catch (IOException e) {
+            log.error("Could not initialize storage", e);
             throw new RuntimeException("Could not initialize storage", e);
         }
     }
@@ -43,6 +48,7 @@ public class JsonCharacterRepository implements CharacterRepository {
 
     @Override
     public void save(Character character) {
+        log.info("Saving character: {}", character.getName());
         validate(character);
         try {
             Path characterDir = CharacterStoragePathResolver.getCharacterDir(character.getName());
@@ -53,20 +59,25 @@ public class JsonCharacterRepository implements CharacterRepository {
 
             Path jsonFile = characterDir.resolve(character.getName() + ".json");
             mapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile.toFile(), character);
+            log.debug("Character JSON saved to: {}", jsonFile);
         } catch (Exception e) {
+            log.error("Failed to save character: {}", character.getName(), e);
             throw new RuntimeException("Failed to save character", e);
         }
     }
 
     @Override
     public Optional<Character> load(String name) {
+        log.debug("Loading character: {}", name);
         try {
             Path jsonFile = CharacterStoragePathResolver.getCharacterDir(name).resolve(name + ".json");
             if (!Files.exists(jsonFile)) {
+                log.warn("Character file not found: {}", jsonFile);
                 return Optional.empty();
             }
             return Optional.of(mapper.readValue(jsonFile.toFile(), Character.class));
         } catch (Exception e) {
+            log.error("Failed to load character: {}", name, e);
             throw new RuntimeException("Failed to load character", e);
         }
     }
@@ -92,12 +103,14 @@ public class JsonCharacterRepository implements CharacterRepository {
                     .map(p -> p.getFileName().toString())
                     .collect(Collectors.toList());
         } catch (Exception e) {
+            log.error("Failed to list characters", e);
             throw new RuntimeException("Failed to list characters", e);
         }
     }
 
     @Override
     public void delete(String name) {
+        log.info("Deleting character: {}", name);
         Path characterDir = CharacterStoragePathResolver.getCharacterDir(name);
         if (!Files.exists(characterDir)) return;
 
@@ -108,10 +121,12 @@ public class JsonCharacterRepository implements CharacterRepository {
                         try {
                             Files.delete(path);
                         } catch (IOException e) {
+                            log.error("Failed to delete path: {}", path, e);
                             throw new RuntimeException(e);
                         }
                     });
         } catch (IOException e) {
+            log.error("Failed to delete character directory: {}", name, e);
             throw new RuntimeException("Failed to delete character " + name, e);
         }
     }
@@ -120,57 +135,61 @@ public class JsonCharacterRepository implements CharacterRepository {
      * Copies all icon files used by character into icon directory
      * and rewrites paths to relative ones.
      */
-    private void copyIcon(
-            String sourcePath,
-            Path iconDir,
-            Consumer<String> pathSetter
-    ) throws IOException {
-
+    private void copyIcon(String sourcePath, Path iconDir, Consumer<String> pathSetter) throws IOException {
         if (sourcePath == null || sourcePath.isBlank()) {
             return;
         }
 
-        // Если иконка уже в папке icon/, ничего не делаем
         if (sourcePath.startsWith(ICON_DIR + "/")) {
             return;
         }
 
-        // 1. Извлекаем имя файла (обрабатываем и системные пути, и JAR-пути)
-        String fileName;
-        if (sourcePath.contains("/") || sourcePath.contains("\\")) {
-            String[] parts = sourcePath.split("[/\\\\]");
-            fileName = parts[parts.length - 1];
-        } else {
-            fileName = sourcePath;
-        }
-
-        // Убираем лишние символы, если имя файла пришло из JAR URL (например, "user.png")
-        if (fileName.contains("!")) {
-            fileName = fileName.substring(fileName.lastIndexOf("!") + 1);
-        }
-
+        String fileName = extractFileName(sourcePath);
         Path target = iconDir.resolve(fileName);
 
-        // 2. Копируем через универсальный поток ввода
-        try (java.io.InputStream in = openStream(sourcePath)) {
+        try {
+            Path sourceFile = Path.of(sourcePath);
+            if (Files.exists(sourceFile) && Files.exists(target) && Files.isSameFile(sourceFile, target)) {
+                log.trace("Source and target are the same file: {}, skipping copy", fileName);
+                pathSetter.accept(ICON_DIR + "/" + fileName);
+                return;
+            }
+        } catch (Exception ignored) {
+        }
+
+        // 3. Копируем только если файлы реально разные
+        log.debug("Copying icon from {} to {}", sourcePath, target);
+        try (InputStream in = openStream(sourcePath)) {
             Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            log.error("Error copying icon: {}", sourcePath, e);
+            throw e;
         }
 
         pathSetter.accept(ICON_DIR + "/" + fileName);
     }
 
-    private java.io.InputStream openStream(String sourcePath) throws IOException {
+    public String extractFileName(String sourcePath) {
+        String name = sourcePath;
+        if (sourcePath.contains("/") || sourcePath.contains("\\")) {
+            String[] parts = sourcePath.split("[/\\\\]");
+            name = parts[parts.length - 1];
+        }
+        if (name.contains("!")) {
+            name = name.substring(name.lastIndexOf("!") + 1);
+        }
+        return name;
+    }
+
+    private InputStream openStream(String sourcePath) throws IOException {
         if (sourcePath.startsWith("file:") || sourcePath.startsWith("jar:")) {
-            // Если это URL (как в вашей ошибке)
             return new URL(sourcePath).openStream();
         } else {
-            // Если это обычный путь к файлу на диске
             Path path = Path.of(sourcePath);
             if (Files.exists(path)) {
                 return Files.newInputStream(path);
             } else {
-                // Пытаемся загрузить как ресурс из classpath, если файл не найден
-                java.io.InputStream is = getClass().getResourceAsStream(sourcePath.startsWith("/") ? sourcePath : "/" + sourcePath);
+                InputStream is = getClass().getResourceAsStream(sourcePath.startsWith("/") ? sourcePath : "/" + sourcePath);
                 if (is == null) throw new IOException("Resource not found: " + sourcePath);
                 return is;
             }
@@ -185,7 +204,7 @@ public class JsonCharacterRepository implements CharacterRepository {
         List<Skill> skills = c.getSkills();
         for (int i = 0; i < skills.size(); i++) {
             Skill skill = skills.get(i);
-            int index = i; // final переменная для лямбды
+            int index = i;
             copyIcon(skill.iconPath(), iconDir, newPath ->
                     skills.set(index, new Skill(
                             skill.name(),
