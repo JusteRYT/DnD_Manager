@@ -10,7 +10,7 @@ public final class CharacterStoragePathResolver {
 
     private static final String APP_FOLDER_NAME = "DnD_Manager";
     private static final String ROOT_DIR_NAME = "Characters";
-    private static final String LEGACY_DIR_NAME = "Character"; // Старое имя папки
+    private static final String LEGACY_DIR_NAME = "Character";
 
     private CharacterStoragePathResolver() {}
 
@@ -34,32 +34,60 @@ public final class CharacterStoragePathResolver {
      * Проверяет наличие старой папки и переносит данные в новую локацию.
      */
     public static void migrateIfNeeded() {
+        // Получаем абсолютный путь к старой папке в корне проекта
         Path legacyPath = Paths.get(LEGACY_DIR_NAME).toAbsolutePath();
         Path newPath = getRoot();
 
-        if (Files.exists(legacyPath) && Files.isDirectory(legacyPath)) {
-            try {
-                // Создаем родительскую папку в AppData
-                Files.createDirectories(newPath);
+        if (!Files.exists(legacyPath) || !Files.isDirectory(legacyPath)) {
+            return;
+        }
 
-                // Переносим все содержимое из старой папки в новую
-                try (var stream = Files.list(legacyPath)) {
-                    for (Path source : stream.toList()) {
-                        Path target = newPath.resolve(source.getFileName());
-                        // Если персонаж с таким именем уже есть, заменяем (обновляем)
-                        Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+        try {
+            Files.createDirectories(newPath);
+
+            try (var stream = Files.list(legacyPath)) {
+                for (Path sourceFolder : stream.toList()) {
+                    if (Files.isDirectory(sourceFolder)) {
+                        Path targetFolder = newPath.resolve(sourceFolder.getFileName());
+                        moveDirectoryRecursive(sourceFolder, targetFolder);
                     }
                 }
+            }
 
-                // Удаляем пустую старую папку
-                Files.deleteIfExists(legacyPath);
-                System.out.println("Migration successful: moved characters to " + newPath);
+            // После того как всё содержимое перемещено, пробуем удалить старый корень
+            deleteDirectoryRecursive(legacyPath);
+            System.out.println("Migration successful: all characters moved to " + newPath);
 
-            } catch (IOException e) {
-                System.err.println("Migration failed: " + e.getMessage());
-                e.printStackTrace();
+        } catch (IOException e) {
+            System.err.println("Migration failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static void moveDirectoryRecursive(Path source, Path target) throws IOException {
+        Files.createDirectories(target);
+        try (var stream = Files.list(source)) {
+            for (Path file : stream.toList()) {
+                Path targetFile = target.resolve(file.getFileName());
+                if (Files.isDirectory(file)) {
+                    moveDirectoryRecursive(file, targetFile);
+                } else {
+                    Files.move(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                }
             }
         }
+        Files.delete(source);
+    }
+
+    private static void deleteDirectoryRecursive(Path path) throws IOException {
+        if (Files.isDirectory(path)) {
+            try (var stream = Files.list(path)) {
+                for (Path p : stream.toList()) {
+                    deleteDirectoryRecursive(p);
+                }
+            }
+        }
+        Files.deleteIfExists(path);
     }
 
     public static void ensureRootExists() throws IOException {

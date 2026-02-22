@@ -39,7 +39,7 @@ public class EditInventoryItemDialog extends BaseDialog {
     private Label skillsCountLabel;
 
     public EditInventoryItemDialog(Stage owner, Character character, InventoryItem item, Consumer<InventoryItem> onItemEdited) {
-        super(owner, "Edit Item: " + item.getName(), 450, 480);
+        super(owner, I18n.t("title.editDialog") + item.getName(), 450, 480);
         this.character = character;
         this.item = item;
         this.onItemEdited = onItemEdited;
@@ -60,7 +60,7 @@ public class EditInventoryItemDialog extends BaseDialog {
         attachmentsBox.setStyle("-fx-padding: 10; -fx-background-color: #252525; -fx-background-radius: 5; -fx-border-color: #3a3a3a; -fx-border-radius: 5;");
 
         Label itemSectionLabel = new Label();
-        itemSectionLabel.setText("Item Effects:");
+        itemSectionLabel.setText(I18n.t("label.editDialog"));
         itemSectionLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-font-weight: bold;");
         buffsCountLabel = new Label();
         skillsCountLabel = new Label();

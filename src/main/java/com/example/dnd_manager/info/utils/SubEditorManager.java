@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.utils;
 
 import com.example.dnd_manager.info.editors.AbstractEntityEditor;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
@@ -30,7 +31,7 @@ public class SubEditorManager {
         editor.getItems().setAll(targetList);
         editor.refreshUI();
 
-        Button saveBtn = AppButtonFactory.actionSave("Apply to Item");
+        Button saveBtn = AppButtonFactory.actionSave(I18n.t("button.applyToItem"));
         saveBtn.setPrefWidth(200);
         saveBtn.setOnAction(e -> {
             targetList.clear();

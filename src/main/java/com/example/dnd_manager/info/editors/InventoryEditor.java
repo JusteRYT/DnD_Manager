@@ -93,7 +93,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
                 createFieldLabel(I18n.t("textFieldLabel.itemName")), nameBox,
                 createFieldLabel(I18n.t("textFieldLabel.description")), descriptionField,
                 createFieldLabel(I18n.t("textField.inventoryCount")), countField.getField(),
-                createFieldLabel("Item Effects"), effectsRow,
+                createFieldLabel(I18n.t("label.editDialog")), effectsRow,
                 settingsRow, buttonsRow
         );
 
