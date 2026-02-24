@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -15,7 +17,8 @@ public final class CharacterAssetResolver {
     private static final Logger log = LoggerFactory.getLogger(CharacterAssetResolver.class);
     private static final String DEFAULT_ICON = "/com/example/dnd_manager/icon/no_image.png";
 
-    private CharacterAssetResolver() {}
+    private CharacterAssetResolver() {
+    }
 
     public static String resolve(String characterName, String relativePath) {
         return CharacterStoragePathResolver
@@ -33,17 +36,17 @@ public final class CharacterAssetResolver {
         }
 
         try {
+            String decodedPath = URLDecoder.decode(iconPath, StandardCharsets.UTF_8);
             Path targetPath = null;
 
-            if (iconPath.startsWith("file:")) {
-                targetPath = Path.of(java.net.URI.create(iconPath));
+            if (decodedPath.startsWith("file:")) {
+                targetPath = Path.of(java.net.URI.create(decodedPath));
             } else {
-                Path path = Path.of(iconPath);
-                if (
-                        path.isAbsolute()) {
+                Path path = Path.of(decodedPath);
+                if (path.isAbsolute()) {
                     targetPath = path;
                 } else if (!name.isBlank()) {
-                    targetPath = CharacterStoragePathResolver.getCharacterDir(name).resolve(iconPath);
+                    targetPath = CharacterStoragePathResolver.getCharacterDir(name).resolve(decodedPath);
                 }
             }
 

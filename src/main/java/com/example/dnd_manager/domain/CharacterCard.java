@@ -50,7 +50,7 @@ public class CharacterCard extends VBox {
         // --- Аватар (Вертикальный) ---
         ImageView avatar = new ImageView();
         try {
-            Image img = new Image(CharacterAssetResolver.resolve(character.getName(), character.getAvatarImage()), true);
+            Image img = CharacterAssetResolver.getImage(character, character.getAvatarImage());
             avatar.setImage(img);
         } catch (Exception ignored) {
 

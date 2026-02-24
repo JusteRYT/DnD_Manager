@@ -21,6 +21,7 @@ public class AvatarPicker extends VBox {
     private static final String DEFAULT_AVATAR = "/com/example/dnd_manager/icon/user.png";
     private final ImageView imageView = new ImageView();
     private final double AVATAR_SIZE = 220;
+    private String currentPath;
 
     public AvatarPicker() {
         this(null);
@@ -29,6 +30,7 @@ public class AvatarPicker extends VBox {
     public AvatarPicker(Character character) {
         setSpacing(12);
         setAlignment(Pos.TOP_CENTER);
+        this.currentPath = (character != null) ? character.getAvatarImage() : null;
 
         StackPane imageContainer = new StackPane();
 
@@ -67,7 +69,7 @@ public class AvatarPicker extends VBox {
 
         getChildren().addAll(imageContainer, uploadBtn);
 
-        initImage(character == null ? null : CharacterAssetResolver.resolve(character.getName(), character.getAvatarImage()));
+        initImage(character == null ? null : CharacterAssetResolver.resolve(character.getName(), currentPath));
     }
 
     private void initImage(String url) {
@@ -82,11 +84,12 @@ public class AvatarPicker extends VBox {
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
         File file = chooser.showOpenDialog(getScene().getWindow());
         if (file != null) {
+            this.currentPath = file.getAbsolutePath();
             imageView.setImage(new Image(file.toURI().toString()));
         }
     }
 
     public AvatarData getData() {
-        return new AvatarData(imageView.getImage().getUrl());
+        return new AvatarData(currentPath);
     }
 }
