@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.inventory;
 
+import com.example.dnd_manager.lang.I18n;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -32,7 +33,7 @@ public class InventoryItemPopup extends VBox {
                 "-fx-font-weight: bold; " +
                 "-fx-font-size: 14px;");
 
-        Label count = new Label("Количество: " + item.getCount());
+        Label count = new Label(I18n.t("textField.showInventoryCount") + " " + item.getCount());
         count.setStyle("""
                     -fx-text-fill: #c89b3c;
                     -fx-font-weight: bold;
@@ -43,7 +44,7 @@ public class InventoryItemPopup extends VBox {
         if (!item.getDescription().isEmpty()) {
             Label description = new Label(item.getDescription());
             description.setWrapText(true);
-            description.setStyle("-fx-text-fill: #dddddd; -fx-font-style: italic;");
+            description.setStyle("-fx-text-fill: #dddddd;");
             getChildren().addAll(description);
         }
 
@@ -56,10 +57,10 @@ public class InventoryItemPopup extends VBox {
         int buffsCount = item.getAttachedBuffs() != null ? item.getAttachedBuffs().size() : 0;
 
         if (skillsCount > 0) {
-            statsBox.getChildren().add(createBadge("Skills: " + skillsCount, "#3d5afe"));
+            statsBox.getChildren().add(createBadge(I18n.t("label.skillsEditor") + ": " + skillsCount, "#3d5afe"));
         }
         if (buffsCount > 0) {
-            statsBox.getChildren().add(createBadge("Buffs: " + buffsCount, "#00e676"));
+            statsBox.getChildren().add(createBadge(I18n.t("textLabel.buffsItemInventory") + buffsCount, "#00e676"));
         }
 
         if (!statsBox.getChildren().isEmpty()) {
