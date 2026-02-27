@@ -17,7 +17,7 @@ public class InventoryItemPopup extends VBox {
     public InventoryItemPopup(InventoryItem item) {
         setSpacing(10);
         setPadding(new Insets(12));
-        setMinWidth(200);
+        setMaxWidth(300);
 
         setStyle("""
             -fx-background-color: #1e1e1e;
