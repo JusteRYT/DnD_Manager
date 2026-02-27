@@ -77,6 +77,10 @@ public class ManaBar extends VBox {
             -fx-font-size: 14px;
             """);
 
+        manaLabel.setMinWidth(85);
+        manaLabel.setPrefWidth(85);
+        manaLabel.setAlignment(Pos.CENTER);
+
         var addBtn = AppButtonFactory.createValueAdjustButton(true, 28, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
         addBtn.setOnAction(e -> changeMana(1));
 
