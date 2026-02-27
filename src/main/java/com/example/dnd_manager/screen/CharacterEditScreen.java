@@ -32,7 +32,7 @@ public class CharacterEditScreen extends AbstractCharacterFormScreen {
 
     @Override
     protected void handleSave() {
-        if (!baseInfoForm.validate()) return;
+        if (baseInfoForm.validate()) return;
 
         syncDataToCharacter();
         storageService.saveCharacter(character);

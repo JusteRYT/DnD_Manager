@@ -22,14 +22,11 @@ public class BaseInfoForm extends VBox {
     private final IntegerField levelField = new IntegerField(I18n.t("levelField.name"));
     private final Label nameRequiredLabel = new Label(I18n.t("labelField.nameRequired"));
 
-    private final FormMode mode;
-
     public BaseInfoForm() {
         this(FormMode.CREATE, null);
     }
 
     public BaseInfoForm(FormMode mode, BaseInfoData data) {
-        this.mode = mode;
         setPadding(new Insets(20));
         setSpacing(15);
 
@@ -108,7 +105,7 @@ public class BaseInfoForm extends VBox {
     }
 
     public boolean validate() {
-        return validateName();
+        return !validateName();
     }
 
     // --- Остальные методы без изменений ---
