@@ -4,16 +4,17 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Popup;
@@ -26,36 +27,44 @@ public class SkillCardView extends VBox {
     private static final int CARD_HEIGHT = 310;
     private static final int ICON_SIZE = 70;
 
+    private static final String ACCENT_COLOR = "#c89b3c";
+    private static final String IDLE_BORDER = "#4a4a4a";
+
+    private static final String BASE_STYLE = """
+            -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1a1a1a);
+            -fx-background-radius: 12;
+            -fx-border-radius: 12;
+            -fx-border-width: 1.5;
+            -fx-padding: 15 10 15 10;
+            """;
+
+    private static final String IDLE_STYLE = BASE_STYLE + "-fx-border-color: " + IDLE_BORDER + ";";
+    private static final String HOVER_STYLE = BASE_STYLE +
+            "-fx-border-color: " + ACCENT_COLOR + ";" +
+            "-fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.4), 20, 0.1, 0, 0);";
+
     private final Popup customPopup = new Popup();
     private boolean isMouseInPopup = false;
     private boolean isMouseInDesc = false;
-
-    private final Timeline glowTimeline = new Timeline();
     private final Timeline appearanceTimer = new Timeline();
-    private final DropShadow glowEffect = new DropShadow(0, Color.color(0.78, 0.61, 0.24, 0.0));
-
     private final Label briefDesc = new Label();
 
     public SkillCardView(Skill skill, Character character) {
         setSpacing(6);
-        setPadding(new Insets(15, 10, 15, 10));
         setAlignment(Pos.TOP_CENTER);
         setPrefSize(CARD_WIDTH, CARD_HEIGHT);
         setMinSize(CARD_WIDTH, CARD_HEIGHT);
         setMaxWidth(CARD_WIDTH);
 
-        glowEffect.setSpread(0.1);
-        setEffect(glowEffect);
-
-        setStyle("-fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1a1a1a);" +
-                "-fx-background-radius: 12; -fx-border-radius: 12; -fx-border-width: 1.5; -fx-border-color: #4a4a4a;");
+        // Устанавливаем начальный вид
+        setStyle(IDLE_STYLE);
 
         // --- 1. ICON ---
         ImageView icon = new ImageView();
         icon.setImage(CharacterAssetResolver.getImage(character, skill.iconPath()));
-
         icon.setFitWidth(ICON_SIZE);
         icon.setFitHeight(ICON_SIZE);
+
         StackPane iconFrame = new StackPane(icon);
         iconFrame.setMaxSize(ICON_SIZE + 4, ICON_SIZE + 4);
         iconFrame.setStyle("-fx-border-color: #c89b3c; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-color: #1e1e1e;");
@@ -67,24 +76,17 @@ public class SkillCardView extends VBox {
         nameLabel.setTextAlignment(TextAlignment.CENTER);
         nameLabel.setAlignment(Pos.CENTER);
         nameLabel.setMaxWidth(CARD_WIDTH - 20);
-        nameLabel.setMinHeight(Region.USE_PREF_SIZE);
 
-        // --- 3. EFFECTS (FIXED) ---
+        // --- 3. EFFECTS ---
         FlowPane effectsPane = new FlowPane(5, 5);
         effectsPane.setAlignment(Pos.CENTER);
-
-        // ВАЖНО: Указываем ширину, после которой FlowPane должен переносить элементы
         effectsPane.setPrefWrapLength(CARD_WIDTH - 20);
-        effectsPane.setMaxWidth(CARD_WIDTH - 20);
 
         for (SkillEffect effect : skill.effects()) {
-            // ВАЖНО: Берем DisplayName (он вернет кастомное имя или тип) + Значение
-            Label eLabel = getLabel(effect);
-
-            effectsPane.getChildren().add(eLabel);
+            effectsPane.getChildren().add(getLabel(effect));
         }
 
-        // --- 4. DESCRIPTION (Trigger Area) ---
+        // --- 4. DESCRIPTION ---
         Separator separator = new Separator();
         separator.setOpacity(0.2);
         VBox.setMargin(nameLabel, new Insets(5, 0, 5, 0));
@@ -177,8 +179,8 @@ public class SkillCardView extends VBox {
     private void setupInteractions() {
         appearanceTimer.getKeyFrames().add(new KeyFrame(Duration.millis(350), ae -> showPopup()));
 
-        setOnMouseEntered(e -> animateGlow(true));
-        setOnMouseExited(e -> animateGlow(false));
+        setOnMouseEntered(e -> setStyle(HOVER_STYLE));
+        setOnMouseExited(e -> setStyle(IDLE_STYLE));
 
         briefDesc.setOnMouseEntered(e -> {
             isMouseInDesc = true;
@@ -188,8 +190,7 @@ public class SkillCardView extends VBox {
         briefDesc.setOnMouseExited(e -> {
             isMouseInDesc = false;
             appearanceTimer.stop();
-            Timeline closeDelay = new Timeline(new KeyFrame(Duration.millis(150), ae -> checkAndClosePopup()));
-            closeDelay.play();
+            new Timeline(new KeyFrame(Duration.millis(150), ae -> checkAndClosePopup())).play();
         });
     }
 
@@ -211,16 +212,6 @@ public class SkillCardView extends VBox {
         }
 
         customPopup.show(this.getScene().getWindow(), x, y);
-    }
-
-    private void animateGlow(boolean show) {
-        glowTimeline.stop();
-        glowTimeline.getKeyFrames().clear();
-        KeyValue kvRadius = new KeyValue(glowEffect.radiusProperty(), show ? 30.0 : 0.0);
-        KeyValue kvColor = new KeyValue(glowEffect.colorProperty(),
-                show ? Color.color(0.78, 0.61, 0.24, 0.7) : Color.color(0.78, 0.61, 0.24, 0.0));
-        glowTimeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.4), kvRadius, kvColor));
-        glowTimeline.play();
     }
 
     private void checkAndClosePopup() {
