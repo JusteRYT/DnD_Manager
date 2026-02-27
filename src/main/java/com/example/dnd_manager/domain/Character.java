@@ -5,6 +5,7 @@ import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.skills.Skill;
 import com.example.dnd_manager.info.stats.Stats;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,8 @@ import java.util.List;
 public class Character {
 
     private String name;
+    @JsonIgnore
+    private String originalName;
     private String race;
     private String characterClass;
     private int maxHp;
@@ -44,4 +47,7 @@ public class Character {
     private int totalCooper = 0;
     private int inspiration = 0;
 
+    public void markSaved() {
+        this.originalName = this.name;
+    }
 }

@@ -61,7 +61,6 @@ public class BaseInfoForm extends VBox {
         getChildren().add(grid);
 
         if (mode == FormMode.EDIT && data != null) applyEditData(data);
-        if (mode == FormMode.EDIT) nameField.getField().setDisable(true);
     }
 
     private void add(GridPane grid, String labelText, AppTextField appField, int col, int row, int colSpan) {

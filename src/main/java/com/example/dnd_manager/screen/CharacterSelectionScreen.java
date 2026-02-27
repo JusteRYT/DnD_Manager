@@ -44,6 +44,7 @@ public class CharacterSelectionScreen extends VBox {
 
             for (String name : names) {
                 storageService.loadCharacter(name).ifPresent(character -> {
+                    character.markSaved();
                     CharacterCard card = new CharacterCard(character, onCharacterSelected, isEdit, () -> {
                         cardsGrid.getChildren().removeIf(node -> node.getUserData() == character);
                         storageService.deleteCharacter(character);

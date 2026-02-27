@@ -50,19 +50,32 @@ public class JsonCharacterRepository implements CharacterRepository {
     public void save(Character character) {
         log.info("Saving character: {}", character.getName());
         validate(character);
-        try {
-            Path characterDir = CharacterStoragePathResolver.getCharacterDir(character.getName());
-            Path iconDir = characterDir.resolve(ICON_DIR);
 
+        try {
+            String oldName = character.getOriginalName();
+            String newName = character.getName();
+            Path characterDir = CharacterStoragePathResolver.getCharacterDir(newName);
+
+            if (oldName != null && !oldName.equals(newName)) {
+                Path oldDir = CharacterStoragePathResolver.getCharacterDir(oldName);
+                if (Files.exists(oldDir)) {
+                    log.info("Renaming character directory from {} to {}", oldName, newName);
+                    Files.move(oldDir, characterDir, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    Files.deleteIfExists(characterDir.resolve(oldName + ".json"));
+                }
+            }
+
+            Path iconDir = characterDir.resolve(ICON_DIR);
             Files.createDirectories(iconDir);
             copyIcons(character, iconDir);
 
-            Path jsonFile = characterDir.resolve(character.getName() + ".json");
+            Path jsonFile = characterDir.resolve(newName + ".json");
             mapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile.toFile(), character);
-            log.debug("Character JSON saved to: {}", jsonFile);
+            character.markSaved();
+
         } catch (Exception e) {
-            log.error("Failed to save character: {}", character.getName(), e);
-            throw new RuntimeException("Failed to save character", e);
+            log.error("Failed to save character", e);
+            throw new RuntimeException("Save failed", e);
         }
     }
 

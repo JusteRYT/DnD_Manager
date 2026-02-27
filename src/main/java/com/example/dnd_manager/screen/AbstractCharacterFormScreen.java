@@ -42,12 +42,14 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
     protected InventoryEditor inventoryEditor;
     protected SkillsEditor skillsEditor;
     protected FamiliarsSection familiarsSection;
+    protected String originalName;
 
     public AbstractCharacterFormScreen(Stage stage, StorageService storageService, Character character, FormMode mode) {
         this.stage = stage;
         this.storageService = storageService;
         this.character = character;
         this.mode = mode;
+        this.originalName = (character != null) ? character.getName() : null;
     }
 
     @Override
