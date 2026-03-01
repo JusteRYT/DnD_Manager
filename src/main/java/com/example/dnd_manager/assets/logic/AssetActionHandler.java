@@ -2,12 +2,8 @@ package com.example.dnd_manager.assets.logic;
 
 import com.example.dnd_manager.overview.dialogs.ConfirmDialog;
 import com.example.dnd_manager.overview.dialogs.RenameDialog;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;

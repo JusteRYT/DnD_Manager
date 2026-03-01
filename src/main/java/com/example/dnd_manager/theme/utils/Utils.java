@@ -3,12 +3,6 @@ package com.example.dnd_manager.theme.utils;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Stream;
-
 public class Utils {
     /**
      * Вспомогательный метод для создания жирных иконок + и -
@@ -34,15 +28,5 @@ public class Utils {
 
         iconPane.setAlignment(Pos.CENTER);
         return iconPane;
-    }
-
-    public static void deleteDirectory(Path directory) throws IOException {
-        if (Files.exists(directory)) {
-            try (Stream<Path> walk = Files.walk(directory)) {
-                walk.sorted(java.util.Comparator.reverseOrder())
-                        .map(Path::toFile)
-                        .forEach(File::delete);
-            }
-        }
     }
 }

@@ -215,20 +215,12 @@ public final class AppButtonFactory {
         return button;
     }
 
-    public static Button customButton(String text, int width) {
-        Button button = new Button(text);
-        button.setPrefWidth(width);
-        acceptColorTheme(button, DEFAULT_SIZE_FONT, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
-
-        return button;
-    }
-
     public static Button customButton(String text, int width, String primaryColor, String secondaryColor) {
         Button button = new Button(text);
         if (width != 0) {
             button.setPrefWidth(width);
         }
-        acceptColorTheme(button, DEFAULT_SIZE_FONT, primaryColor, secondaryColor);
+        acceptColorTheme(button, primaryColor, secondaryColor);
 
         return button;
     }
@@ -354,7 +346,7 @@ public final class AppButtonFactory {
         return button;
     }
 
-    private static void acceptColorTheme(Button button, int fontSize, String primaryColor, String secondaryColor) {
+    private static void acceptColorTheme(Button button, String primaryColor, String secondaryColor) {
         String common = """
                 -fx-font-weight: bold;
                 -fx-background-radius: 6;
@@ -363,7 +355,7 @@ public final class AppButtonFactory {
                 -fx-border-color: transparent;
                 -fx-font-size: %dpx;
                 -fx-text-fill: %s;
-                """.formatted(fontSize, AppTheme.BUTTON_TEXT);
+                """.formatted(AppButtonFactory.DEFAULT_SIZE_FONT, AppTheme.BUTTON_TEXT);
 
         String base = common + "-fx-background-color: " + primaryColor + ";";
         String hover = common + "-fx-background-color: " + secondaryColor + ";";
@@ -395,21 +387,13 @@ public final class AppButtonFactory {
      * Прозрачная кнопка с оранжевой рамкой для импорта/важных действий.
      */
     public static Button actionImport(String text, int width) {
-        final String IDLE_STYLE = """
-                -fx-background-color: transparent; 
-                -fx-text-fill: #777; 
-                -fx-border-color: #444; 
-                -fx-border-radius: 4; 
-                -fx-cursor: hand;
-                """;
-
         final String HOVER_STYLE = """
-                -fx-background-color: rgba(200, 155, 60, 0.1); 
-                -fx-text-fill: #f6bb4a; 
-                -fx-border-color: #f6bb4a; 
-                -fx-border-radius: 4; 
+                -fx-background-color: rgba(200, 155, 60, 0.1);\s
+                -fx-text-fill: #f6bb4a;\s
+                -fx-border-color: #f6bb4a;\s
+                -fx-border-radius: 4;\s
                 -fx-cursor: hand;
-                """;
+               \s""";
 
         return getButton(text, width, HOVER_STYLE);
     }
@@ -418,14 +402,6 @@ public final class AppButtonFactory {
      * Прозрачная кнопка с рамкой для выхода/отмены.
      */
     public static Button actionExit(String text, int width) {
-        final String IDLE_STYLE = """
-                -fx-background-color: transparent; 
-                -fx-text-fill: #777; 
-                -fx-border-color: #444; 
-                -fx-border-radius: 4; 
-                -fx-cursor: hand;
-                """;
-
         final String HOVER_STYLE = """
                 -fx-background-color: rgba(232, 17, 35, 0.1); 
                 -fx-text-fill: #ff6b6b; 
@@ -494,17 +470,6 @@ public final class AppButtonFactory {
             -fx-border-radius: 4;\s
             -fx-cursor: hand;
            \s""";
-        return getButton(text, width, HOVER_STYLE);
-    }
-
-    public static Button actionSubCategory(String text, int width) {
-        final String HOVER_STYLE = """
-            -fx-background-color: rgba(78, 205, 196, 0.1); 
-            -fx-text-fill: #4ecdc4; 
-            -fx-border-color: #4ecdc4; 
-            -fx-border-radius: 4; 
-            -fx-cursor: hand;
-            """;
         return getButton(text, width, HOVER_STYLE);
     }
 }
