@@ -84,6 +84,9 @@
             Button loadButton = AppButtonFactory.primaryButton(
                     I18n.t("button.load"), BUTTON_WIDTH, BUTTON_HEIGHT, FONT_SIZE
             );
+            Button assetManagerBtn = AppButtonFactory.primaryButton(
+                    I18n.t("button.assets"), BUTTON_WIDTH, BUTTON_HEIGHT, FONT_SIZE
+            );
             Button transferButton = AppButtonFactory.primaryButton(
                     I18n.t("button.importExport"), BUTTON_WIDTH, BUTTON_HEIGHT, FONT_SIZE
             );
@@ -99,6 +102,7 @@
             ButtonSizeConfigurer.applyFixedSize(createButton, 400, 50);
             ButtonSizeConfigurer.applyFixedSize(editButton, 400, 50);
             ButtonSizeConfigurer.applyFixedSize(loadButton, 400, 50);
+            ButtonSizeConfigurer.applyFixedSize(assetManagerBtn, 400, 50);
             ButtonSizeConfigurer.applyFixedSize(transferButton, 400, 50);
             ButtonSizeConfigurer.applyFixedSize(languageBtn, 150, 40);
             ButtonSizeConfigurer.applyFixedSize(updateBtn, 150, 40);
@@ -112,6 +116,10 @@
             editButton.setOnAction(e -> openCharacterEdit());
             loadButton.setOnAction(e -> openCharacterLoad());
             transferButton.setOnAction(e -> openCharacterTransfer());
+            assetManagerBtn.setOnAction(e -> {
+                AssetManagerScreen assetScreen = new AssetManagerScreen(stage, storageService);
+                ScreenManager.setScreen(stage, assetScreen);
+            });
 
             HBox bottomButtons = new HBox(15);
             bottomButtons.setAlignment(Pos.CENTER);
@@ -123,6 +131,7 @@
                     createButton,
                     editButton,
                     loadButton,
+                    assetManagerBtn,
                     transferButton,
                     bottomButtons
             );
