@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum AssetCategory {
+    ALL("All", "Все"),
     SKILLS("Skills", "Навыки"),
     BUFFS("Buffs", "Баффы/Дебаффы"),
     ITEMS("Items", "Предметы"),
@@ -15,5 +16,9 @@ public enum AssetCategory {
     AssetCategory(String folderName, String displayName) {
         this.folderName = folderName;
         this.displayName = displayName;
+    }
+
+    public boolean isAll() {
+        return this == ALL;
     }
 }

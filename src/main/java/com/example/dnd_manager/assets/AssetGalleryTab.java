@@ -9,8 +9,8 @@ import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.FlowPane;
@@ -26,65 +26,79 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public class AssetGalleryTab extends VBox {
     private static final Logger log = LoggerFactory.getLogger(AssetGalleryTab.class);
 
-    private final Path categoryPath;
+    private final Path rootCategoryPath;
     private final FlowPane galleryPane;
     private final Stage stage;
-    private final String categoryName;
+    private Thread loadingThread;
 
-    // Хранилище выделенных файлов
-    private final Set<Path> selectedFiles = new HashSet<>();
     private final AssetSelectionModel selectionModel = new AssetSelectionModel();
     private final AssetActionHandler actionHandler;
     private final AssetDnDManager dndManager;
+    private final AssetCategory category;
+    private final Path baseAssetsPath;
 
     public AssetGalleryTab(AssetCategory category, Path basePath, Stage stage, AssetDnDManager dndManager) {
+        this.category = category;
+        this.baseAssetsPath = basePath;
         this.stage = stage;
-        this.categoryName = category.getDisplayName();
-        this.categoryPath = basePath.resolve(category.getFolderName());
+        this.rootCategoryPath = category.isAll() ? baseAssetsPath : baseAssetsPath.resolve(category.getFolderName());
         this.dndManager = dndManager;
         this.actionHandler = new AssetActionHandler(this::loadImages, stage);
 
-        setSpacing(20);
-        setPadding(new Insets(20, 0, 0, 0));
+        // Настройка контейнера: убираем лишние отступы, чтобы занять всё пространство
+        setSpacing(15);
+        setPadding(new Insets(10, 0, 0, 0));
+        setFillWidth(true); // VBox будет растягивать детей по горизонтали
+        setMaxHeight(Double.MAX_VALUE);
         setStyle("-fx-background-color: transparent;");
 
+        // Создаем папку категории, если её нет
         try {
-            Files.createDirectories(categoryPath);
+            Files.createDirectories(rootCategoryPath);
         } catch (Exception e) {
-            log.error("Critical: Could not create asset directory: {}", categoryPath, e);
+            log.error("Dir error", e);
         }
 
-        Button uploadBtn = AppButtonFactory.actionAdd("+ Add to " + categoryName, 200);
+        Button uploadBtn = AppButtonFactory.actionAdd("Add assets", 150);
         uploadBtn.setOnAction(e -> handleUpload());
 
-        Button addSubCategoryBtn = AppButtonFactory.actionSubCategory("+ Subcategory", 100);
-        addSubCategoryBtn.setDisable(true);
+        if (category.isAll()) {
+            uploadBtn.setVisible(false);
+            uploadBtn.setManaged(false);
+        }
 
-        HBox controls = new HBox(15, uploadBtn, addSubCategoryBtn);
+        HBox controls = new HBox(20, uploadBtn);
         controls.setAlignment(Pos.CENTER_LEFT);
+        controls.setPadding(new Insets(0, 10, 0, 10));
 
-        galleryPane = new FlowPane(20, 20);
+        // --- Сетка галереи ---
+        galleryPane = new FlowPane(15, 15);
         galleryPane.setAlignment(Pos.TOP_LEFT);
         galleryPane.setPadding(new Insets(10));
 
-        // Клик по пустому месту сбрасывает выделение
+        // Клик по пустому месту сбрасывает выделение через модель
         galleryPane.setOnMouseClicked(e -> {
             if (e.getButton() == MouseButton.PRIMARY && e.getTarget() == galleryPane) {
-                clearSelection();
+                selectionModel.clear();
             }
         });
 
+        // --- Скролл и растяжение ---
         ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(galleryPane);
         scrollPane.setFitToWidth(true);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-control-inner-background: transparent;");
+
+        // Позволяем ScrollPane забирать всё свободное место в VBox
+        VBox.setVgrow(this, Priority.ALWAYS);
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        // Биндинг ширины для корректного переноса иконок
+        galleryPane.prefWidthProperty().bind(scrollPane.widthProperty().subtract(20));
 
         getChildren().addAll(controls, scrollPane);
 
@@ -92,53 +106,51 @@ public class AssetGalleryTab extends VBox {
     }
 
     public void loadImages() {
-        log.debug("Loading images for category: {}", categoryPath);
+        if (loadingThread != null && loadingThread.isAlive()) loadingThread.interrupt();
+
         Platform.runLater(() -> {
+            selectionModel.clear();
             galleryPane.getChildren().clear();
-            selectedFiles.clear();
         });
 
-        new Thread(() -> {
-            try (Stream<Path> paths = Files.list(categoryPath)) {
-                paths.filter(Files::isRegularFile)
+        loadingThread = new Thread(() -> {
+            try {
+                Stream<Path> stream;
+                if (category.isAll()) {
+                    stream = Files.walk(baseAssetsPath, 2);
+                } else {
+                    stream = Files.list(rootCategoryPath);
+                }
+
+                stream.filter(Files::isRegularFile)
                         .filter(p -> p.toString().toLowerCase().matches(".*\\.(png|jpg|jpeg|webp)$"))
+                        .distinct()
                         .forEach(path -> {
-                            Image img = new Image(path.toUri().toString(), 100, 100, true, true, true);
-                            Platform.runLater(() -> addImageToGallery(img, path));
+                            if (Thread.currentThread().isInterrupted()) return;
+                            Image img = new Image(path.toUri().toString(), 110, 110, true, true, true);
+                            Platform.runLater(() -> {
+                                AssetCard card = new AssetCard(path, img, selectionModel, actionHandler, dndManager, this::loadImages);
+                                galleryPane.getChildren().add(card);
+                            });
                         });
             } catch (Exception e) {
-                log.error("Failed to list files in {}", categoryPath, e);
+                log.error("Load error", e);
             }
-        }).start();
-    }
-
-    private void addImageToGallery(Image img, Path path) {
-        AssetCard card = new AssetCard(path, img, selectionModel, actionHandler, dndManager, this::loadImages);
-        galleryPane.getChildren().add(card);
-    }
-
-    private void clearSelection() {
-        selectedFiles.clear();
-        String idleStyle = "-fx-background-color: #2b2b2b; -fx-background-radius: 8; -fx-border-color: transparent; -fx-border-radius: 8; -fx-border-width: 2;";
-        for (Node node : galleryPane.getChildren()) {
-            node.setStyle(idleStyle);
-        }
+        });
+        loadingThread.setDaemon(true);
+        loadingThread.start();
     }
 
     private void handleUpload() {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Import Assets to " + categoryName);
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
-
         var files = chooser.showOpenMultipleDialog(stage);
-        if (files != null && !files.isEmpty()) {
-            log.info("Attempting to upload {} files to {}", files.size(), categoryName);
+        if (files != null) {
             for (File file : files) {
                 try {
-                    Path dest = categoryPath.resolve(file.getName());
-                    Files.copy(file.toPath(), dest, StandardCopyOption.REPLACE_EXISTING);
+                    Files.copy(file.toPath(), rootCategoryPath.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
                 } catch (Exception ex) {
-                    log.error("Error copying file: {}", file.getName(), ex);
+                    log.error("Copy error", ex);
                 }
             }
             loadImages();

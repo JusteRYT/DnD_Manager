@@ -346,6 +346,14 @@ public final class AppButtonFactory {
         return button;
     }
 
+    public static Button deleteSubCategoryButton(int size) {
+        Button button = new Button();
+        button.setStyle("-fx-background-color: transparent; -fx-text-fill: #ff6b6b; -fx-cursor: hand; -fx-font-weight: bold;");
+        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: rgba(255, 107, 107, 0.1); -fx-text-fill: #ff6b6b; -fx-cursor: hand;"));
+        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: transparent; -fx-text-fill: #ff6b6b;"));
+        return button;
+    }
+
     private static void acceptColorTheme(Button button, int fontSize, String primaryColor, String secondaryColor) {
         String common = """
                 -fx-font-weight: bold;

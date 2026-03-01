@@ -26,11 +26,11 @@ public class RenameDialog extends BaseDialog {
 
         inputField = new TextField(oldName);
         inputField.setStyle("""
-            -fx-background-color: #2b2b2b; 
-            -fx-text-fill: white; 
+            -fx-background-color: #2b2b2b;\s
+            -fx-text-fill: white;\s
             -fx-border-color: #3a3a3a;
             -fx-padding: 8;
-        """);
+       \s""");
 
         var saveBtn = AppButtonFactory.actionSave("Save");
         saveBtn.setOnAction(e -> {

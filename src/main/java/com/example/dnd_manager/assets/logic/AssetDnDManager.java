@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,16 +47,15 @@ public class AssetDnDManager {
 
     public void setupTarget(Node targetNode, Path targetDirectory, Runnable onTargetRefresh) {
         targetNode.setOnDragOver(event -> {
-            if (event.getDragboard().hasContent(ASSET_LIST_FORMAT)) {
-                event.acceptTransferModes(TransferMode.MOVE);
+            if (event.getDragboard().hasContent(ASSET_LIST_FORMAT) || event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
             event.consume();
         });
 
         targetNode.setOnDragEntered(event -> {
-            if (event.getDragboard().hasContent(ASSET_LIST_FORMAT)) {
-                targetNode.setStyle("-fx-scale-x: 1.1; -fx-scale-y: 1.1; -fx-text-fill: #ffcc00;");
-            }
+            // Подсветка при наведении (эффект HUD)
+            targetNode.setStyle("-fx-scale-x: 1.1; -fx-scale-y: 1.1; -fx-text-fill: #FFC107; -fx-cursor: hand;");
         });
 
         targetNode.setOnDragExited(event -> targetNode.setStyle(""));
@@ -66,25 +66,29 @@ public class AssetDnDManager {
 
             if (db.hasContent(ASSET_LIST_FORMAT)) {
                 String[] pathsAsStrings = ((String) db.getContent(ASSET_LIST_FORMAT)).split(";");
-
                 for (String pathStr : pathsAsStrings) {
-                    Path sourcePath = Paths.get(pathStr);
-                    Path targetPath = targetDirectory.resolve(sourcePath.getFileName());
-
                     try {
-                        if (!sourcePath.getParent().equals(targetDirectory)) {
-                            Files.move(sourcePath, targetPath);
+                        Path source = Paths.get(pathStr);
+                        Path target = targetDirectory.resolve(source.getFileName());
+
+                        if (!source.getParent().equals(targetDirectory)) {
+                            Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
                             success = true;
                         }
-                    } catch (IOException e) {
-                        log.error("Failed to move {}", sourcePath, e);
-                    }
-                }
-
-                if (success) {
-                    onTargetRefresh.run();
+                    } catch (IOException e) { log.error("Move failed", e); }
                 }
             }
+            else if (db.hasFiles()) {
+                for (java.io.File file : db.getFiles()) {
+                    try {
+                        Files.copy(file.toPath(), targetDirectory.resolve(file.getName()),
+                                StandardCopyOption.REPLACE_EXISTING);
+                        success = true;
+                    } catch (IOException e) { log.error("Copy failed", e); }
+                }
+            }
+
+            if (success) onTargetRefresh.run();
             event.setDropCompleted(success);
             event.consume();
         });

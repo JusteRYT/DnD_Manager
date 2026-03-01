@@ -1,9 +1,11 @@
 package com.example.dnd_manager.assets.logic;
 
+import com.example.dnd_manager.overview.dialogs.ConfirmDialog;
 import com.example.dnd_manager.overview.dialogs.RenameDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
+@Slf4j
 public class AssetActionHandler {
-    private static final Logger log = LoggerFactory.getLogger(AssetActionHandler.class);
     private final Runnable refreshCallback;
     private final Stage currentStage;
 
@@ -33,15 +35,25 @@ public class AssetActionHandler {
             try {
                 Files.move(target, target.resolveSibling(finalName));
                 refreshCallback.run();
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                log.error("Error renaming file", e);
+            }
         }).show();
     }
 
     public void delete(Set<Path> targets) {
         if (targets.isEmpty()) return;
 
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Удалить " + targets.size() + " элементов?");
-        alert.showAndWait().filter(r -> r == ButtonType.OK).ifPresent(r -> {
+        String message;
+        if (targets.size() == 1) {
+            String fileName = targets.iterator().next().getFileName().toString();
+            message = String.format("Вы действительно хотите удалить файл \"%s\"?\nЭто действие необратимо.", fileName);
+        } else {
+            message = String.format("Вы действительно хотите удалить %d элементов?\nЭто действие необратимо.", targets.size());
+        }
+
+        // Вызываем наш красивый ConfirmDialog
+        new ConfirmDialog(currentStage, "Подтверждение удаления", message, () -> {
             targets.forEach(path -> {
                 try {
                     Files.deleteIfExists(path);
@@ -50,6 +62,6 @@ public class AssetActionHandler {
                 }
             });
             refreshCallback.run();
-        });
+        }).show();
     }
 }

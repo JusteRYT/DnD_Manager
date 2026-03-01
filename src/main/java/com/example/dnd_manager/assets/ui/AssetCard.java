@@ -1,16 +1,18 @@
 package com.example.dnd_manager.assets.ui;
 
-import com.example.dnd_manager.assets.logic.*;
+import com.example.dnd_manager.assets.logic.AssetActionHandler;
+import com.example.dnd_manager.assets.logic.AssetDnDManager;
+import com.example.dnd_manager.assets.logic.AssetSelectionModel;
 import com.example.dnd_manager.theme.AppContextMenu;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.collections.SetChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 
 import java.nio.file.Path;
