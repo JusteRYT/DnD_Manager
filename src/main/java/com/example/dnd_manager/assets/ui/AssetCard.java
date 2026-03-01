@@ -33,8 +33,8 @@ public class AssetCard extends VBox {
             updateStyle();
 
             ImageView view = new ImageView(img);
-            view.setFitWidth(90);
-            view.setFitHeight(90);
+            view.setFitWidth(120);
+            view.setFitHeight(120);
             view.setPreserveRatio(true);
 
             Label label = new Label(filePath.getFileName().toString());

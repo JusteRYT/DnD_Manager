@@ -127,7 +127,7 @@ public class AssetGalleryTab extends VBox {
                         .distinct()
                         .forEach(path -> {
                             if (Thread.currentThread().isInterrupted()) return;
-                            Image img = new Image(path.toUri().toString(), 110, 110, true, true, true);
+                            Image img = new Image(path.toUri().toString(), 150, 150, true, true, true);
                             Platform.runLater(() -> {
                                 AssetCard card = new AssetCard(path, img, selectionModel, actionHandler, dndManager, this::loadImages);
                                 galleryPane.getChildren().add(card);

@@ -55,6 +55,12 @@ public class AssetManagerScreen extends BorderPane {
             tabPane.getTabs().add(new AppCustomTab(category, rootAssetsPath, stage, assetDnDManager));
         }
 
+        tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
+            if (newTab instanceof AppCustomTab customTab) {
+                customTab.getGalleryTab().loadImages();
+            }
+        });
+
         setCenter(tabPane);
 
         // --- Нижняя панель (Кнопки) ---

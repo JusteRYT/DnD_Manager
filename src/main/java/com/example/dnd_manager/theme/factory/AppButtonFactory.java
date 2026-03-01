@@ -338,14 +338,6 @@ public final class AppButtonFactory {
         return button;
     }
 
-    public static Button deleteSubCategoryButton(int size) {
-        Button button = new Button();
-        button.setStyle("-fx-background-color: transparent; -fx-text-fill: #ff6b6b; -fx-cursor: hand; -fx-font-weight: bold;");
-        button.setOnMouseEntered(e -> button.setStyle("-fx-background-color: rgba(255, 107, 107, 0.1); -fx-text-fill: #ff6b6b; -fx-cursor: hand;"));
-        button.setOnMouseExited(e -> button.setStyle("-fx-background-color: transparent; -fx-text-fill: #ff6b6b;"));
-        return button;
-    }
-
     private static void acceptColorTheme(Button button, String primaryColor, String secondaryColor) {
         String common = """
                 -fx-font-weight: bold;
@@ -403,12 +395,12 @@ public final class AppButtonFactory {
      */
     public static Button actionExit(String text, int width) {
         final String HOVER_STYLE = """
-                -fx-background-color: rgba(232, 17, 35, 0.1); 
-                -fx-text-fill: #ff6b6b; 
-                -fx-border-color: #ff6b6b; 
-                -fx-border-radius: 4; 
+                -fx-background-color: rgba(232, 17, 35, 0.1);\s
+                -fx-text-fill: #ff6b6b;\s
+                -fx-border-color: #ff6b6b;\s
+                -fx-border-radius: 4;\s
                 -fx-cursor: hand;
-                """;
+               \s""";
 
         return getButton(text, width, HOVER_STYLE);
     }
