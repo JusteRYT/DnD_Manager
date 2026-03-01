@@ -49,7 +49,7 @@ public class AssetGalleryTab extends VBox {
         this.categoryName = category.getDisplayName();
         this.categoryPath = basePath.resolve(category.getFolderName());
         this.dndManager = dndManager;
-        this.actionHandler = new AssetActionHandler(this::loadImages);
+        this.actionHandler = new AssetActionHandler(this::loadImages, stage);
 
         setSpacing(20);
         setPadding(new Insets(20, 0, 0, 0));
@@ -61,12 +61,10 @@ public class AssetGalleryTab extends VBox {
             log.error("Critical: Could not create asset directory: {}", categoryPath, e);
         }
 
-        Button uploadBtn = AppButtonFactory.actionSave("+ Add to " + categoryName);
-        uploadBtn.setPrefWidth(200);
+        Button uploadBtn = AppButtonFactory.actionAdd("+ Add to " + categoryName, 200);
         uploadBtn.setOnAction(e -> handleUpload());
 
-        Button addSubCategoryBtn = new Button("+ Subcategory");
-        addSubCategoryBtn.setPrefWidth(150);
+        Button addSubCategoryBtn = AppButtonFactory.actionSubCategory("+ Subcategory", 100);
         addSubCategoryBtn.setDisable(true);
 
         HBox controls = new HBox(15, uploadBtn, addSubCategoryBtn);

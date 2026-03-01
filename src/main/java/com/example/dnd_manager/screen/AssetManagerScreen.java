@@ -64,10 +64,9 @@ public class AssetManagerScreen extends BorderPane {
 
     private void applyTabPaneStyles(TabPane tabPane) {
         tabPane.setStyle("""
-            -fx-background-color: transparent;
-            -fx-tab-min-width: 100px;
-            -fx-tab-min-height: 30px;
-            """);
+                    -fx-tab-max-height: 40;
+                    -fx-tab-min-height: 40;
+                """);
 
         tabPane.getStylesheets().add("data:text/css," +
                 ".tab-header-background { -fx-background-color: transparent; }" +

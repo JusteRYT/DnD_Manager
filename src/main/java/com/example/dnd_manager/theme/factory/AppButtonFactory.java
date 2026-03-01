@@ -477,4 +477,26 @@ public final class AppButtonFactory {
 
         return button;
     }
+
+    public static Button actionAdd(String text, int width) {
+        final String HOVER_STYLE = """
+            -fx-background-color: rgba(200, 155, 60, 0.1);\s
+            -fx-text-fill: #c89b3c;\s
+            -fx-border-color: #c89b3c;\s
+            -fx-border-radius: 4;\s
+            -fx-cursor: hand;
+           \s""";
+        return getButton(text, width, HOVER_STYLE);
+    }
+
+    public static Button actionSubCategory(String text, int width) {
+        final String HOVER_STYLE = """
+            -fx-background-color: rgba(78, 205, 196, 0.1); 
+            -fx-text-fill: #4ecdc4; 
+            -fx-border-color: #4ecdc4; 
+            -fx-border-radius: 4; 
+            -fx-cursor: hand;
+            """;
+        return getButton(text, width, HOVER_STYLE);
+    }
 }

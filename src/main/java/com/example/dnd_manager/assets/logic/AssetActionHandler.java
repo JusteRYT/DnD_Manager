@@ -1,57 +1,40 @@
 package com.example.dnd_manager.assets.logic;
 
+import com.example.dnd_manager.overview.dialogs.RenameDialog;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextInputDialog;
+import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.Set;
 
 public class AssetActionHandler {
     private static final Logger log = LoggerFactory.getLogger(AssetActionHandler.class);
     private final Runnable refreshCallback;
+    private final Stage currentStage;
 
-    public AssetActionHandler(Runnable refreshCallback) {
+    public AssetActionHandler(Runnable refreshCallback, Stage currentStage) {
         this.refreshCallback = refreshCallback;
+        this.currentStage = currentStage;
     }
 
     public void rename(Path target) {
-        String oldFullPath = target.getFileName().toString();
-        // Отделяем расширение
-        int dotIndex = oldFullPath.lastIndexOf('.');
-        String extension = (dotIndex == -1) ? "" : oldFullPath.substring(dotIndex);
-        String oldNameWithoutExt = (dotIndex == -1) ? oldFullPath : oldFullPath.substring(0, dotIndex);
+        String fileName = target.getFileName().toString();
+        int dot = fileName.lastIndexOf('.');
+        String baseName = (dot == -1) ? fileName : fileName.substring(0, dot);
+        String ext = (dot == -1) ? "" : fileName.substring(dot);
 
-        TextInputDialog dialog = new TextInputDialog(oldNameWithoutExt);
-        dialog.setTitle("Rename Asset");
-        dialog.setHeaderText("Переименование файла");
-        dialog.setContentText("Новое имя:");
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(newName -> {
-            if (newName.trim().isEmpty()) return;
-
-            // Если пользователь не ввел расширение сам, добавляем его
-            String finalName = newName.endsWith(extension) ? newName : newName + extension;
-            Path destination = target.resolveSibling(finalName);
-
+        new RenameDialog(currentStage, baseName, newName -> {
+            String finalName = newName.endsWith(ext) ? newName : newName + ext;
             try {
-                if (Files.exists(target)) {
-                    Files.move(target, destination);
-                    log.info("Renamed: {} -> {}", target.getFileName(), finalName);
-                    refreshCallback.run();
-                } else {
-                    log.error("Rename failed: Source file does not exist at {}", target);
-                }
-            } catch (IOException e) {
-                log.error("Error during rename", e);
-            }
-        });
+                Files.move(target, target.resolveSibling(finalName));
+                refreshCallback.run();
+            } catch (Exception e) { e.printStackTrace(); }
+        }).show();
     }
 
     public void delete(Set<Path> targets) {
