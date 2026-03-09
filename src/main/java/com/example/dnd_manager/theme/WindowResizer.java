@@ -6,10 +6,22 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class WindowResizer {
+
     private final Stage stage;
     private final int margin;
-    private Cursor cursor = Cursor.DEFAULT;
-    private double lastMouseX, lastMouseY;
+
+    // Начальные координаты мыши в момент клика
+    private double startMouseX;
+    private double startMouseY;
+
+    // Начальные параметры окна в момент клика
+    private double startX;
+    private double startY;
+    private double startW;
+    private double startH;
+
+    private boolean resizing = false;
+    private Cursor activeResizeCursor = Cursor.DEFAULT;
 
     public WindowResizer(Stage stage, int margin) {
         this.stage = stage;
@@ -22,6 +34,7 @@ public class WindowResizer {
 
         scene.addEventFilter(MouseEvent.MOUSE_MOVED, resizer::handleMoved);
         scene.addEventFilter(MouseEvent.MOUSE_PRESSED, resizer::handlePressed);
+        scene.addEventFilter(MouseEvent.MOUSE_RELEASED, resizer::handleReleased);
         scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, resizer::handleDragged);
     }
 
@@ -33,8 +46,8 @@ public class WindowResizer {
 
         double x = event.getSceneX();
         double y = event.getSceneY();
-        double w = stage.getScene().getWidth();
-        double h = stage.getScene().getHeight();
+        double w = stage.getWidth();
+        double h = stage.getHeight();
 
         Cursor newCursor = Cursor.DEFAULT;
 
@@ -48,52 +61,71 @@ public class WindowResizer {
         else if (right) newCursor = Cursor.E_RESIZE;
         else if (bottom) newCursor = Cursor.S_RESIZE;
 
-        this.cursor = newCursor;
-        stage.getScene().setCursor(newCursor);
+        if (!resizing) {
+            stage.getScene().setCursor(newCursor);
+        }
     }
 
     private void handlePressed(MouseEvent event) {
-        lastMouseX = event.getScreenX();
-        lastMouseY = event.getScreenY();
-        if (cursor != Cursor.DEFAULT) {
-            event.consume();
-        }
+        // Запоминаем начальные координаты
+        startMouseX = event.getScreenX();
+        startMouseY = event.getScreenY();
+
+        // Запоминаем начальное состояние окна
+        startX = stage.getX();
+        startY = stage.getY();
+        startW = stage.getWidth();
+        startH = stage.getHeight();
+
+        double x = event.getSceneX();
+        double y = event.getSceneY();
+        double w = stage.getWidth();
+        double h = stage.getHeight();
+
+        boolean left = x <= margin;
+        boolean right = x >= w - margin;
+        boolean bottom = y >= h - margin;
+
+        if (left && bottom) activeResizeCursor = Cursor.SW_RESIZE;
+        else if (right && bottom) activeResizeCursor = Cursor.SE_RESIZE;
+        else if (left) activeResizeCursor = Cursor.W_RESIZE;
+        else if (right) activeResizeCursor = Cursor.E_RESIZE;
+        else if (bottom) activeResizeCursor = Cursor.S_RESIZE;
+        else activeResizeCursor = Cursor.DEFAULT;
+
+        resizing = activeResizeCursor != Cursor.DEFAULT;
+        if (resizing) event.consume();
+    }
+
+    private void handleReleased(MouseEvent event) {
+        resizing = false;
+        activeResizeCursor = Cursor.DEFAULT;
     }
 
     private void handleDragged(MouseEvent event) {
-        if (cursor == Cursor.DEFAULT || stage.isMaximized()) return;
+        if (!resizing || stage.isMaximized()) return;
 
-        double deltaX = event.getScreenX() - lastMouseX;
-        double deltaY = event.getScreenY() - lastMouseY;
+        // Считаем общее смещение от точки нажатия
+        double totalDeltaX = event.getScreenX() - startMouseX;
+        double totalDeltaY = event.getScreenY() - startMouseY;
 
-        double newW = stage.getWidth();
-        double newH = stage.getHeight();
-        double newX = stage.getX();
+        // Ресайз вправо
+        if (activeResizeCursor == Cursor.E_RESIZE || activeResizeCursor == Cursor.SE_RESIZE) {
+            stage.setWidth(Math.max(startW + totalDeltaX, stage.getMinWidth()));
+        }
+        // Ресайз влево (меняется и ширина, и X координата)
+        else if (activeResizeCursor == Cursor.W_RESIZE || activeResizeCursor == Cursor.SW_RESIZE) {
+            double maxDeltaX = startW - stage.getMinWidth();
+            double clampedDeltaX = Math.min(totalDeltaX, maxDeltaX);
 
-        if (cursor == Cursor.E_RESIZE || cursor == Cursor.SE_RESIZE) {
-            newW = stage.getWidth() + deltaX;
-        } else if (cursor == Cursor.W_RESIZE || cursor == Cursor.SW_RESIZE) {
-            double potentialWidth = stage.getWidth() - deltaX;
-            if (potentialWidth > stage.getMinWidth()) {
-                newW = potentialWidth;
-                newX = stage.getX() + deltaX;
-            }
+            stage.setWidth(startW - clampedDeltaX);
+            stage.setX(startX + clampedDeltaX);
         }
 
-        if (cursor == Cursor.S_RESIZE || cursor == Cursor.SW_RESIZE || cursor == Cursor.SE_RESIZE) {
-            newH = stage.getHeight() + deltaY;
+        // Вертикальный ресайз (низ)
+        if (activeResizeCursor == Cursor.S_RESIZE || activeResizeCursor == Cursor.SE_RESIZE || activeResizeCursor == Cursor.SW_RESIZE) {
+            stage.setHeight(Math.max(startH + totalDeltaY, stage.getMinHeight()));
         }
-
-        if (newW >= stage.getMinWidth()) {
-            stage.setX(newX);
-            stage.setWidth(newW);
-        }
-        if (newH >= stage.getMinHeight()) {
-            stage.setHeight(newH);
-        }
-
-        lastMouseX = event.getScreenX();
-        lastMouseY = event.getScreenY();
 
         event.consume();
     }

@@ -43,6 +43,10 @@ public class MainApp extends Application {
 
         Scene scene = new Scene(root, 1200, 800);
         primaryStage.setScene(scene);
+
+        primaryStage.setMinWidth(800);
+        primaryStage.setMinHeight(600);
+
         primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/com/example/dnd_manager/icon/App_icon.ico"))));
 
         // 3. Используем менеджер для загрузки первого экрана
