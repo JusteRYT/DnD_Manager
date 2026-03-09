@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -40,13 +41,21 @@ public final class CharacterAssetResolver {
             Path targetPath = null;
 
             if (decodedPath.startsWith("file:")) {
-                targetPath = Path.of(java.net.URI.create(decodedPath));
+                targetPath = Path.of(URI.create(decodedPath));
             } else {
                 Path path = Path.of(decodedPath);
+
                 if (path.isAbsolute()) {
                     targetPath = path;
-                } else if (!name.isBlank()) {
-                    targetPath = CharacterStoragePathResolver.getCharacterDir(name).resolve(decodedPath);
+                } else {
+                    Path directPath = path.toAbsolutePath();
+                    if (Files.exists(directPath)) {
+                        targetPath = directPath;
+                    } else if (!name.isBlank()) {
+                        targetPath = CharacterStoragePathResolver
+                                .getCharacterDir(name)
+                                .resolve(decodedPath);
+                    }
                 }
             }
 

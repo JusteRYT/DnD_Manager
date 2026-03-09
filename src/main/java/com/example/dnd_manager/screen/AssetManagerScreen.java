@@ -14,17 +14,25 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.function.Consumer;
 
+@Slf4j
 public class AssetManagerScreen extends BorderPane {
-    private static final Logger log = LoggerFactory.getLogger(AssetManagerScreen.class);
+    private final Consumer<Path> onAssetSelected;
+    private final boolean isPickerMode;
 
     public AssetManagerScreen(Stage stage, StorageService storageService) {
-        log.info("Opening Asset Manager Screen");
+        this(stage, storageService, null);
+    }
+
+    public AssetManagerScreen(Stage stage, StorageService storageService, Consumer<Path> onAssetSelected) {
+        this.onAssetSelected = onAssetSelected;
+        this.isPickerMode = (onAssetSelected != null);
+        log.info("Opening Asset Manager in {} mode", isPickerMode ? "PICKER" : "MANAGER");
 
         // Главное: заставляем BorderPane растягиваться на всё окно
         setPrefSize(stage.getWidth(), stage.getHeight());
@@ -48,11 +56,18 @@ public class AssetManagerScreen extends BorderPane {
         tabPane.setMaxHeight(Double.MAX_VALUE);
         applyTabPaneStyles(tabPane);
 
+        if (isPickerMode) {
+            title.setText(I18n.t("title.selectAsset").toUpperCase());
+        }
+
         AssetDnDManager assetDnDManager = new AssetDnDManager();
         Path rootAssetsPath = Paths.get("Assets");
 
         for (AssetCategory category : AssetCategory.values()) {
-            tabPane.getTabs().add(new AppCustomTab(category, rootAssetsPath, stage, assetDnDManager));
+            AppCustomTab tab = new AppCustomTab(category, rootAssetsPath, stage, assetDnDManager);
+            // Передаем callback в галерею
+            tab.getGalleryTab().setPickerMode(onAssetSelected);
+            tabPane.getTabs().add(tab);
         }
 
         tabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
@@ -64,11 +79,8 @@ public class AssetManagerScreen extends BorderPane {
         setCenter(tabPane);
 
         // --- Нижняя панель (Кнопки) ---
-        var backBtn = AppButtonFactory.actionExit(I18n.t("button.exit"), 120);
-        backBtn.setOnAction(e -> {
-            log.debug("Exiting Asset Manager");
-            ScreenManager.setScreen(stage, new StartScreen(stage, storageService).getView());
-        });
+        var backBtn = AppButtonFactory.actionExit(isPickerMode ? I18n.t("button.cancel") : I18n.t("button.exit"), 120);
+        backBtn.setOnAction(e -> handleExit(stage, storageService));
 
         HBox bottomBar = new HBox(backBtn);
         bottomBar.setAlignment(Pos.BOTTOM_RIGHT);
@@ -121,5 +133,13 @@ public class AssetManagerScreen extends BorderPane {
                     -fx-border-color: transparent;
                 }
                \s""".formatted(AppTheme.TEXT_ACCENT).replace("\n", ""));
+    }
+
+    private void handleExit(Stage stage, StorageService storageService) {
+        if (isPickerMode) {
+            ((Stage) getScene().getWindow()).close();
+        } else {
+            ScreenManager.setScreen(stage, new StartScreen(stage, storageService).getView());
+        }
     }
 }

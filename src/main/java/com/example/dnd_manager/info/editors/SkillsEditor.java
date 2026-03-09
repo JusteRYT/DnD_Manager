@@ -69,6 +69,12 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
         addSkillButton = AppButtonFactory.actionSave(I18n.t("button.addSkill"));
         addSkillButton.setPrefWidth(200);
 
+        Button btnAssetsIcon = AppButtonFactory.assetPickerButton();
+        AppButtonFactory.attachAssetPicker(btnAssetsIcon, path -> {
+            iconPath.set(path);
+            iconPathLabel.setText(path);
+        });
+
         // Layout (topRow и т.д.)
         HBox topRow = new HBox(15,
                 new VBox(5, createFieldLabel(I18n.t("textFieldLabel.skillName")),
@@ -81,7 +87,7 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
                 new VBox(5, createFieldLabel(I18n.t("textFieldLabel.description")), descriptionSection),
                 effectsBuilder,
                 new HBox(15, new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)),
-                new HBox(15, addSkillButton, iconButton)
+                new HBox(15, addSkillButton, iconButton, btnAssetsIcon)
         );
 
         iconButton.setOnAction(e -> {

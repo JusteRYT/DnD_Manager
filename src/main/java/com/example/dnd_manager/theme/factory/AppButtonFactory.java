@@ -1,5 +1,7 @@
 package com.example.dnd_manager.theme.factory;
 
+import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.screen.AssetManagerScreen;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.utils.Utils;
 import javafx.animation.Interpolator;
@@ -14,10 +16,12 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /**
  * Factory for creating styled application buttons.
@@ -464,4 +468,61 @@ public final class AppButtonFactory {
            \s""";
         return getButton(text, width, HOVER_STYLE);
     }
+
+    public static Button assetPickerButton() {
+        Button btn = new Button(I18n.t("button.Assets"));
+        btn.setPrefWidth(110);
+
+        String accent = AppTheme.TEXT_ACCENT;
+
+        String baseStyle = """
+        -fx-background-color: transparent;
+        -fx-text-fill: %s;
+        -fx-font-family: 'Cinzel';
+        -fx-font-size: 13px;
+        -fx-font-weight: bold;
+        -fx-border-color: #3f3f3f;
+        -fx-border-radius: 6;
+        -fx-background-radius: 6;
+        -fx-padding: 6 14;
+        -fx-cursor: hand;
+    """.formatted(accent);
+
+        String hoverStyle = """
+        -fx-background-color: rgba(200,155,60,0.08);
+        -fx-text-fill: %s;
+        -fx-font-family: 'Cinzel';
+        -fx-font-size: 13px;
+        -fx-font-weight: bold;
+        -fx-border-color: %s;
+        -fx-border-radius: 6;
+        -fx-background-radius: 6;
+        -fx-padding: 6 14;
+        -fx-cursor: hand;
+    """.formatted(accent, accent);
+
+        btn.setStyle(baseStyle);
+
+        btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
+        btn.setOnMouseExited(e -> btn.setStyle(baseStyle));
+
+        btn.setOnMousePressed(e -> btn.setTranslateY(1));
+        btn.setOnMouseReleased(e -> btn.setTranslateY(0));
+
+        return btn;
+    }
+
+
+    public static void attachAssetPicker(Button button, Consumer<String> onPathSelected) {
+        button.setOnAction(e -> {
+            Stage owner = (Stage) button.getScene().getWindow();
+
+            AssetManagerScreen picker = new AssetManagerScreen(owner, null, selectedPath -> {
+                onPathSelected.accept(selectedPath.toString());
+            });
+
+            WindowFactory.openModal(owner, picker, 1100, 750);
+        });
+    }
+
 }

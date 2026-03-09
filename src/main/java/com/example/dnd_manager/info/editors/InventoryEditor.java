@@ -11,15 +11,12 @@ import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
 import com.example.dnd_manager.theme.IntegerField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -79,6 +76,12 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         addButton = AppButtonFactory.actionSave(I18n.t("button.addItem"));
         addButton.setPrefWidth(150);
 
+        Button btnAssetsIcon = AppButtonFactory.assetPickerButton();
+        AppButtonFactory.attachAssetPicker(btnAssetsIcon, path -> {
+            iconPath.set(path);
+            iconPathLabel.setText(path);
+        });
+
         HBox effectsRow = new HBox(10, addBuffBtn, addSkillBtn, effectsInfoLabel);
         effectsRow.setAlignment(Pos.CENTER_LEFT);
 
@@ -87,7 +90,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         );
         settingsRow.setAlignment(Pos.BOTTOM_LEFT);
 
-        HBox buttonsRow = new HBox(15, addButton, iconButton);
+        HBox buttonsRow = new HBox(15, addButton, iconButton, btnAssetsIcon);
 
         inputCard.getChildren().addAll(
                 createFieldLabel(I18n.t("textFieldLabel.itemName")), nameBox,

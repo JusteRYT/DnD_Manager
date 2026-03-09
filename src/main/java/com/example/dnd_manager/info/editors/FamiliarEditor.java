@@ -73,9 +73,17 @@ public class FamiliarEditor extends VBox {
         Button btnIcon = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
         btnIcon.setOnAction(e -> chooseAvatar());
 
+        Button btnAssetsIcon = AppButtonFactory.assetPickerButton();
+        AppButtonFactory.attachAssetPicker(btnAssetsIcon, path -> {
+            avatarPath.set(path);
+            iconPathLabel.setText(path);
+        });
+
+        HBox buttonBox = new HBox(10);
+        buttonBox.getChildren().addAll(btnIcon, btnAssetsIcon);
         baseCard.getChildren().addAll(
                 new VBox(2, createLabel(I18n.t("textFieldLabel.name")), nameField.getField()),
-                typeRow, statsRow, iconPathLabel, btnIcon
+                typeRow, statsRow, iconPathLabel, buttonBox
         );
 
         // 2. Добавляем вложенные редакторы

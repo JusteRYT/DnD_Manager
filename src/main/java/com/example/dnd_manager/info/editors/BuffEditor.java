@@ -61,7 +61,11 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
         addButton = AppButtonFactory.actionSave(I18n.t("button.addBuff"));
         addButton.setPrefWidth(150);
 
-        // ... (layout code: settingsRow, buttonsRow - оставляем как было) ...
+        Button chooseAssetsIcon = AppButtonFactory.assetPickerButton();
+        AppButtonFactory.attachAssetPicker(chooseAssetsIcon, path -> {
+            iconPath.set(path);
+            iconPathLabel.setText(path);
+        });
 
         chooseIconButton.setOnAction(e -> {
             String path = chooseIcon();
@@ -78,7 +82,7 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
                 createFieldLabel(I18n.t("textFieldLabel.description")), descriptionField,
                 new HBox(15, new VBox(5, createFieldLabel(I18n.t("textFieldLabel.type")), typeBox),
                         new VBox(5, createFieldLabel(I18n.t("textFieldLabel.iconName")), iconPathLabel)),
-                new HBox(15, addButton, chooseIconButton)
+                new HBox(15, addButton, chooseIconButton,  chooseAssetsIcon)
         );
     }
 

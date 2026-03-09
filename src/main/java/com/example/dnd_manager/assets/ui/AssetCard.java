@@ -16,13 +16,15 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 public class AssetCard extends VBox {
     private final Path filePath;
     private final AssetSelectionModel selectionModel;
 
     public AssetCard(Path filePath, Image img, AssetSelectionModel selectionModel,
-                     AssetActionHandler actionHandler, AssetDnDManager dndManager, Runnable refreshGallery) {
+                     AssetActionHandler actionHandler, AssetDnDManager dndManager,
+                     Runnable refreshGallery, Consumer<Path> selectionCallback) {
         {
             this.filePath = filePath;
             this.selectionModel = selectionModel;
@@ -49,9 +51,16 @@ public class AssetCard extends VBox {
             // Клики
             setOnMouseClicked(e -> {
                 if (e.getButton() == MouseButton.PRIMARY) {
-                    if (e.isControlDown()) selectionModel.toggle(filePath);
-                    else selectionModel.clearAndSelect(filePath);
-                } else if (e.getButton() == MouseButton.SECONDARY) {
+                    if (selectionCallback != null) {
+                        selectionCallback.accept(filePath);
+                        if (getScene() != null && getScene().getWindow() instanceof javafx.stage.Stage stage) {
+                            stage.close();
+                        }
+                    } else {
+                        if (e.isControlDown()) selectionModel.toggle(filePath);
+                        else selectionModel.clearAndSelect(filePath);
+                    }
+                } else if (e.getButton() == MouseButton.SECONDARY && selectionCallback == null) {
                     if (!selectionModel.isSelected(filePath)) selectionModel.clearAndSelect(filePath);
                     showMenu(e, actionHandler);
                 }

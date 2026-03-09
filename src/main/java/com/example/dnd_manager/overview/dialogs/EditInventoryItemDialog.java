@@ -8,19 +8,16 @@ import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.utils.SubEditorManager;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.IconStorageService;
-import com.example.dnd_manager.theme.IntegerField;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
-import javafx.geometry.Insets;
+import com.example.dnd_manager.theme.IntegerField;
+import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -83,6 +80,9 @@ public class EditInventoryItemDialog extends BaseDialog {
         Button iconBtn = AppButtonFactory.actionSave(I18n.t("editDialog.changeIcon"));
         iconBtn.setOnAction(e -> iconPath = chooseIcon());
 
+        Button chooseButton = AppButtonFactory.assetPickerButton();
+        AppButtonFactory.attachAssetPicker(chooseButton, path -> iconPath = path);
+
         Button saveBtn = AppButtonFactory.actionSave(I18n.t("button.save"));
         saveBtn.setPrefWidth(120);
         saveBtn.setOnAction(e -> {
@@ -97,7 +97,7 @@ public class EditInventoryItemDialog extends BaseDialog {
             close();
         });
 
-        HBox buttonBox = new HBox(15, iconBtn, saveBtn);
+        HBox buttonBox = new HBox(15, iconBtn, saveBtn, chooseButton);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
 
         contentArea.getChildren().addAll(

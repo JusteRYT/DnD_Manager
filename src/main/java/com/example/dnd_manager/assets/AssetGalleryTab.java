@@ -26,6 +26,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class AssetGalleryTab extends VBox {
@@ -41,6 +42,7 @@ public class AssetGalleryTab extends VBox {
     private final AssetDnDManager dndManager;
     private final AssetCategory category;
     private final Path baseAssetsPath;
+    private Consumer<Path> selectionCallback;
 
     public AssetGalleryTab(AssetCategory category, Path basePath, Stage stage, AssetDnDManager dndManager) {
         this.category = category;
@@ -105,8 +107,15 @@ public class AssetGalleryTab extends VBox {
         loadImages();
     }
 
+    public void setPickerMode(Consumer<Path> onAssetSelected) {
+        selectionCallback = onAssetSelected;
+    }
+
     public void loadImages() {
-        if (loadingThread != null && loadingThread.isAlive()) loadingThread.interrupt();
+
+        if (loadingThread != null && loadingThread.isAlive()) {
+            loadingThread.interrupt();
+        }
 
         Platform.runLater(() -> {
             selectionModel.clear();
@@ -114,31 +123,70 @@ public class AssetGalleryTab extends VBox {
         });
 
         loadingThread = new Thread(() -> {
-            try {
-                Stream<Path> stream;
-                if (category.isAll()) {
-                    stream = Files.walk(baseAssetsPath, 2);
-                } else {
-                    stream = Files.list(rootCategoryPath);
-                }
+
+            try (Stream<Path> stream = category.isAll()
+                    ? Files.walk(baseAssetsPath, 2)
+                    : Files.list(rootCategoryPath)) {
 
                 stream.filter(Files::isRegularFile)
-                        .filter(p -> p.toString().toLowerCase().matches(".*\\.(png|jpg|jpeg|webp)$"))
-                        .distinct()
-                        .forEach(path -> {
-                            if (Thread.currentThread().isInterrupted()) return;
-                            Image img = new Image(path.toUri().toString(), 150, 150, true, true, true);
-                            Platform.runLater(() -> {
-                                AssetCard card = new AssetCard(path, img, selectionModel, actionHandler, dndManager, this::loadImages);
-                                galleryPane.getChildren().add(card);
-                            });
-                        });
+                        .filter(this::isImageFile)
+                        .sorted()
+                        .forEach(this::addCard);
+
             } catch (Exception e) {
                 log.error("Load error", e);
             }
+
         });
+
         loadingThread.setDaemon(true);
         loadingThread.start();
+    }
+
+    private void addCard(Path path) {
+
+        // Если поток отменён — ничего не делаем
+        if (Thread.currentThread().isInterrupted()) {
+            return;
+        }
+
+        Image image = new Image(
+                path.toUri().toString(),
+                150,
+                150,
+                true,
+                true,
+                true
+        );
+
+        Platform.runLater(() -> {
+            if (Thread.currentThread().isInterrupted()) {
+                return;
+            }
+
+            AssetCard card = new AssetCard(
+                    path,
+                    image,
+                    selectionModel,
+                    actionHandler,
+                    dndManager,
+                    this::loadImages,
+                    selectionCallback
+            );
+
+            galleryPane.getChildren().add(card);
+        });
+    }
+
+    /**
+     * Checks if file is supported image format.
+     */
+    private boolean isImageFile(Path path) {
+        String name = path.getFileName().toString().toLowerCase();
+        return name.endsWith(".png")
+                || name.endsWith(".jpg")
+                || name.endsWith(".jpeg")
+                || name.endsWith(".webp");
     }
 
     private void handleUpload() {
