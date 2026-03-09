@@ -25,7 +25,7 @@ public class IconSlot extends StackPane {
         // Иконка
         ImageView iv = new ImageView();
         try {
-            iv.setImage(CharacterAssetResolver.getImage(character, item.getIconPath()));
+            iv.setImage(CharacterAssetResolver.getImage(character, item.getIconPath(), 50, 50));
         } catch (Exception e) {
             Label placeholder = new Label(item.getName().substring(0, 1).toUpperCase());
             placeholder.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");

@@ -91,6 +91,6 @@ public class SkillCard extends VBox {
     }
 
     public static Image getImage(Character character, String iconPath) {
-       return CharacterAssetResolver.getImage(character, iconPath);
+       return CharacterAssetResolver.getImage(character, iconPath, 60, 60);
     }
 }

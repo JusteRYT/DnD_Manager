@@ -30,18 +30,27 @@ public final class BuffIconViewFactory {
         try {
             if (buff.iconPath() == null || buff.iconPath().isBlank()) {
                 image = new Image(
-                        Objects.requireNonNull(
-                                BuffIconViewFactory.class.getResource(DEFAULT_ICON_PATH)
-                        ).toExternalForm()
+                        Objects.requireNonNull(BuffIconViewFactory.class.getResource(DEFAULT_ICON_PATH))
+                                .toExternalForm(),
+                        64, 64,
+                        true, false,  // preserveRatio, smooth
+                        true         // backgroundLoading
                 );
             } else {
-                image = new Image(CharacterAssetResolver.resolve(characterName, buff.iconPath()));
+                image = new Image(
+                        CharacterAssetResolver.resolve(characterName, buff.iconPath()),
+                        64, 64,
+                        true, false,
+                        true
+                );
             }
         } catch (Exception e) {
             image = new Image(
-                    Objects.requireNonNull(
-                            BuffIconViewFactory.class.getResource(DEFAULT_ICON_PATH)
-                    ).toExternalForm()
+                    Objects.requireNonNull(BuffIconViewFactory.class.getResource(DEFAULT_ICON_PATH))
+                            .toExternalForm(),
+                    64, 64,
+                    true, false,
+                    true
             );
         }
 

@@ -91,6 +91,6 @@ public abstract class AbstractEntityRow<T> extends HBox {
 
     // Общая логика загрузки картинки
     private Image resolveIcon(T item, Character character) {
-        return CharacterAssetResolver.getImage(character, getIconPath(item));
+        return CharacterAssetResolver.getImage(character, getIconPath(item), 32, 32);
     }
 }

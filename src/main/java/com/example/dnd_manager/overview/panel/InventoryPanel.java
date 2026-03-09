@@ -16,7 +16,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.FlowPane;
@@ -27,7 +26,6 @@ import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -195,7 +193,7 @@ public class InventoryPanel extends VBox {
         }
 
         public void refresh() {
-            icon.setImage(CharacterAssetResolver.getImage(character, item.getIconPath()));
+            icon.setImage(CharacterAssetResolver.getImage(character, item.getIconPath(), ITEM_SIZE, ITEM_SIZE));
 
             if (popup != null) {
                 popup.getContent().clear();

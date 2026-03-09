@@ -29,11 +29,11 @@ public final class CharacterAssetResolver {
                 .toString();
     }
 
-    public static Image getImage(Character character, String iconPath) {
+    public static Image getImage(Character character, String iconPath, double width, double height) {
         String name = (character != null) ? character.getName() : "";
 
         if (iconPath == null || iconPath.isBlank() || iconPath.contains("no_image.png")) {
-            return getDefaultImage();
+            return getDefaultImage(width, height);
         }
 
         try {
@@ -61,23 +61,23 @@ public final class CharacterAssetResolver {
 
             if (targetPath != null && Files.exists(targetPath)) {
                 try (InputStream is = Files.newInputStream(targetPath)) {
-                    return new Image(is);
+                    return new Image(is, width, height, true, false);
                 }
             }
 
             if (iconPath.contains(":/")) {
-                return new Image(iconPath, true);
+                return new Image(iconPath, width, height, true, false, true);
             }
 
         } catch (Exception e) {
             log.error("Failed to load image safely: {} (Character: {})", iconPath, name, e);
         }
 
-        return getDefaultImage();
+        return getDefaultImage(width, height);
     }
 
-    private static Image getDefaultImage() {
+    private static Image getDefaultImage(double width, double height) {
         return new Image(Objects.requireNonNull(
-                CharacterAssetResolver.class.getResource(DEFAULT_ICON)).toExternalForm());
+                CharacterAssetResolver.class.getResource(DEFAULT_ICON)).toExternalForm(), width, height, true, false, true);
     }
 }

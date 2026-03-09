@@ -61,7 +61,7 @@ public class SkillCardView extends VBox {
 
         // --- 1. ICON ---
         ImageView icon = new ImageView();
-        icon.setImage(CharacterAssetResolver.getImage(character, skill.iconPath()));
+        icon.setImage(CharacterAssetResolver.getImage(character, skill.iconPath(), ICON_SIZE, ICON_SIZE));
         icon.setFitWidth(ICON_SIZE);
         icon.setFitHeight(ICON_SIZE);
 
