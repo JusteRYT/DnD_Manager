@@ -1,6 +1,8 @@
 package com.example.dnd_manager.info.skills;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.inventory.InventoryItem;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.animation.KeyFrame;
@@ -10,6 +12,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Tooltip;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Priority;
@@ -48,8 +53,10 @@ public class SkillCardView extends VBox {
     private boolean isMouseInDesc = false;
     private final Timeline appearanceTimer = new Timeline();
     private final Label briefDesc = new Label();
+    private final InventoryItem sourceItem;
 
-    public SkillCardView(Skill skill, Character character) {
+    public SkillCardView(Skill skill, Character character, InventoryItem sourceItem) {
+        this.sourceItem = sourceItem;
         setSpacing(6);
         setAlignment(Pos.TOP_CENTER);
         setPrefSize(CARD_WIDTH, CARD_HEIGHT);
@@ -67,7 +74,25 @@ public class SkillCardView extends VBox {
 
         StackPane iconFrame = new StackPane(icon);
         iconFrame.setMaxSize(ICON_SIZE + 4, ICON_SIZE + 4);
-        iconFrame.setStyle("-fx-border-color: #c89b3c; -fx-border-width: 2; -fx-border-radius: 6; -fx-background-color: #1e1e1e;");
+        iconFrame.setStyle("""
+                    -fx-border-color: #c89b3c;
+                    -fx-border-width: 2;
+                    -fx-border-radius: 6;
+                    -fx-background-color: #1e1e1e;
+                    -fx-background-radius: 6;
+                """);
+
+        DropShadow frameGlow = new DropShadow();
+        frameGlow.setBlurType(BlurType.THREE_PASS_BOX);
+        frameGlow.setColor(Color.web("#c89b3c", 0.7));
+        frameGlow.setRadius(12);
+        frameGlow.setSpread(0.1);
+        iconFrame.setEffect(frameGlow);
+
+        Label sourceBadge = getSourceBadge(sourceItem);
+        StackPane.setAlignment(sourceBadge, Pos.TOP_RIGHT);
+        StackPane.setMargin(sourceBadge, new Insets(-8, -8, 0, 0));
+        iconFrame.getChildren().add(sourceBadge);
 
         // --- 2. NAME ---
         Label nameLabel = new Label(skill.name().toUpperCase());
@@ -91,7 +116,8 @@ public class SkillCardView extends VBox {
         separator.setOpacity(0.2);
         VBox.setMargin(nameLabel, new Insets(5, 0, 5, 0));
 
-        briefDesc.setText(skill.description());
+        String fulltext = I18n.t("skill.attrActivation") + ": " + skill.activationType() + "\n" + skill.description();
+        briefDesc.setText(fulltext);
         briefDesc.setStyle("-fx-font-size: 10px; -fx-text-fill: #888888; -fx-font-style: italic;");
         briefDesc.setWrapText(true);
         briefDesc.setTextAlignment(TextAlignment.CENTER);
@@ -105,19 +131,37 @@ public class SkillCardView extends VBox {
     }
 
     private Label getLabel(SkillEffect effect) {
-        String labelText = effect.getDisplayName() + " " + effect.getValue();
-
+        String labelText = String.format("%s %s", effect.getDisplayName().toUpperCase(), effect.getValue());
         Label eLabel = new Label(labelText);
-        String color = colorByEffect(effect.getType());
 
-        eLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: white; -fx-padding: 3 6; " +
-                "-fx-background-color: " + color + "33; -fx-background-radius: 4; " +
-                "-fx-border-color: " + color + "; -fx-border-width: 1;");
+        String baseColor = colorByEffect(effect.getType());
 
-        // Заставляем лейбл не быть шире карточки, если текст очень длинный
+        eLabel.setStyle(String.format("""
+                    -fx-background-color: %1$s26;
+                    -fx-border-color: %1$s80;
+                    -fx-border-width: 1;
+                    -fx-border-radius: 10;
+                    -fx-background-radius: 10;
+                    -fx-text-fill: white;
+                    -fx-font-size: 10px;
+                    -fx-font-weight: bold;
+                    -fx-padding: 3 10 3 10;
+                    -fx-letter-spacing: 0.5px;
+                """, baseColor));
+
+        DropShadow externalGlow = new DropShadow();
+        externalGlow.setBlurType(BlurType.THREE_PASS_BOX);
+        externalGlow.setRadius(8);
+        externalGlow.setSpread(0.15);
+        externalGlow.setColor(Color.web(baseColor, 0.5));
+
+        eLabel.setEffect(externalGlow);
+
+        // Constraint management
         eLabel.setMaxWidth(CARD_WIDTH - 25);
-        eLabel.setWrapText(true); // Разрешаем перенос внутри самого лейбла, если одно слово супер длинное
+        eLabel.setWrapText(true);
         eLabel.setTextAlignment(TextAlignment.CENTER);
+
         return eLabel;
     }
 
@@ -174,6 +218,13 @@ public class SkillCardView extends VBox {
             isMouseInPopup = false;
             checkAndClosePopup();
         });
+
+        if (sourceItem != null) {
+            Label itemSourceInfo = new Label(I18n.t("skill.provided_by") + ": " + sourceItem.getName());
+            itemSourceInfo.setStyle("-fx-text-fill: #55ccff; -fx-font-size: 11px; -fx-font-weight: bold;");
+            VBox.setMargin(itemSourceInfo, new Insets(0, 0, 10, 0));
+            popupContent.getChildren().addFirst(itemSourceInfo);
+        }
     }
 
     private void setupInteractions() {
@@ -227,5 +278,60 @@ public class SkillCardView extends VBox {
             case "HEAL" -> "#55ff55";
             default -> "#55ccff";
         };
+    }
+
+    /**
+     * Creates a circular source indicator.
+     * If from an item, it highlights with a glow. If innate, stays subtle.
+     *
+     * @param sourceItem The providing item or null.
+     * @return A circular styled Label.
+     */
+    private Label getSourceBadge(InventoryItem sourceItem) {
+        boolean isFromItem = sourceItem != null;
+
+        String iconText = isFromItem ? "📦" : "\uD83D\uDC64";
+        String bgColor = isFromItem ? "#55ccff" : "#4a4a4a";
+        String textColor = isFromItem ? "#1a1a1a" : "#c89b3c";
+
+        Label label = new Label(iconText);
+
+        // Fixed size for perfect circle
+        double size = 22;
+        label.setMinSize(size, size);
+        label.setMaxSize(size, size);
+        label.setPrefSize(size, size);
+        label.setAlignment(Pos.CENTER);
+
+        label.setStyle(String.format("""
+                    -fx-background-color: %1$s;
+                    -fx-text-fill: %2$s;
+                    -fx-font-size: 11px;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 50;
+                    -fx-border-color: #1a1a1a;
+                    -fx-border-width: 1.5;
+                    -fx-border-radius: 50;
+                """, bgColor, textColor));
+
+        Tooltip tooltip = new Tooltip(
+                isFromItem ? sourceItem.getName() : I18n.t("skill.source.innate")
+        );
+        tooltip.setShowDelay(Duration.millis(100));
+        label.setTooltip(tooltip);
+
+        DropShadow glow = new DropShadow();
+        glow.setBlurType(BlurType.THREE_PASS_BOX);
+        glow.setRadius(10);
+        glow.setSpread(0.3);
+
+        if (isFromItem) {
+            glow.setColor(Color.web(bgColor, 0.8));
+        } else {
+            glow.setColor(Color.web("#c89b3c", 0.6));
+        }
+        label.setEffect(glow);
+
+        return label;
     }
 }

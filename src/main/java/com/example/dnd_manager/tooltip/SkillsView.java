@@ -8,9 +8,6 @@ import javafx.geometry.Insets;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Region;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Теперь использует FlowPane для автоматического заполнения строки
  */
@@ -27,14 +24,15 @@ public class SkillsView extends FlowPane {
 
     public void refresh(Character character) {
         getChildren().clear();
-        List<Skill> allSkills = new ArrayList<>(character.getSkills());
+        for (Skill skill : character.getSkills()) {
+            getChildren().add(new SkillCardView(skill, character, null));
+        }
         for (InventoryItem item : character.getInventory()) {
             if (item.getAttachedSkills() != null) {
-                allSkills.addAll(item.getAttachedSkills());
+                for (Skill skill : item.getAttachedSkills()) {
+                    getChildren().add(new SkillCardView(skill, character, item));
+                }
             }
-        }
-        for (Skill skill : allSkills) {
-            getChildren().add(new SkillCardView(skill, character));
         }
     }
 }

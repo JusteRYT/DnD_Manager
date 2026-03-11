@@ -26,7 +26,7 @@ public class AvatarPicker extends VBox {
     private final double AVATAR_SIZE = 220;
 
     private String currentPath;
-    private Character character;
+    private final Character character;
 
     public AvatarPicker() {
         this(null);
