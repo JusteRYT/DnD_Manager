@@ -10,6 +10,7 @@
     import com.example.dnd_manager.theme.AppTheme;
     import com.example.dnd_manager.theme.ButtonSizeConfigurer;
     import com.example.dnd_manager.theme.factory.AppButtonFactory;
+    import com.example.dnd_manager.updater.AppUpdateProgressDialog;
     import com.example.dnd_manager.updater.UpdateChecker;
     import com.example.dnd_manager.updater.UpdateManager;
     import javafx.application.Platform;
@@ -27,7 +28,6 @@
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
 
-    import java.text.MessageFormat;
     import java.util.List;
     import java.util.Locale;
     import java.util.Objects;
@@ -280,20 +280,35 @@
                             AppConfirmDialog confirmDialog = new AppConfirmDialog(
                                     stage,
                                     I18n.t("update.title"),
-                                    MessageFormat.format(I18n.t("update.header"), release.tagName) + "\n" + I18n.t("update.content"),
+                                    java.text.MessageFormat.format(I18n.t("update.header"), release.tagName) + "\n" + I18n.t("update.content"),
                                     true
                             );
                             confirmDialog.show();
 
                             if (confirmDialog.isConfirmed()) {
                                 log.info("User accepted update: {}", release.tagName);
-                                try {
-                                    new UpdateManager().applyUpdate(release);
-                                } catch (Exception e) {
-                                    log.error("Update application failed", e);
-                                    showError(I18n.t("update.error_title"),
-                                            java.text.MessageFormat.format(I18n.t("update.error_apply"), e.getMessage()));
-                                }
+
+                                // Создаем диалог прогресса
+                                AppUpdateProgressDialog progressDialog = new AppUpdateProgressDialog(stage);
+                                progressDialog.show();
+
+                                new Thread(() -> {
+                                    try {
+                                        UpdateManager manager = new UpdateManager();
+                                        manager.applyUpdate(release, (downloaded, total) -> {
+                                            double progress = (double) downloaded / total;
+                                            String msg = String.format("Downloading: %.2f MB / %.2f MB",
+                                                    downloaded / (1024.0 * 1024.0), total / (1024.0 * 1024.0));
+                                            progressDialog.update(progress, msg);
+                                        });
+                                    } catch (Exception e) {
+                                        log.error("Update failed", e);
+                                        Platform.runLater(() -> {
+                                            progressDialog.close();
+                                            showError(I18n.t("update.error_title"), e.getMessage());
+                                        });
+                                    }
+                                }).start();
                             }
                         } else {
                             log.info("Update: Current version is up to date");

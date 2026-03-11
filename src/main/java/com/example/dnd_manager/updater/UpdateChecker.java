@@ -2,6 +2,7 @@ package com.example.dnd_manager.updater;
 
 import com.example.dnd_manager.info.version.AppInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -9,6 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Optional;
 
+@Slf4j
 public class UpdateChecker {
 
     private static final String API_URL = "https://api.github.com/repos/JusteRYT/DnD_Manager/releases/latest";
@@ -34,7 +36,7 @@ public class UpdateChecker {
                 return Optional.of(mapper.readValue(response.body(), GitHubRelease.class));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error while fetching latest release", e);
         }
         return Optional.empty();
     }
