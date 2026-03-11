@@ -13,13 +13,13 @@ import javafx.scene.layout.VBox;
 
 public class BaseInfoForm extends VBox {
 
-    private final AppTextField nameField = new AppTextField(I18n.t("nameField.name"));
-    private final AppTextField raceField = new AppTextField(I18n.t("raceField.name"));
-    private final AppTextField classField = new AppTextField(I18n.t("classField.name"));
-    private final IntegerField hpField = new IntegerField(I18n.t("hpField.name"));
-    private final IntegerField armorField = new IntegerField(I18n.t("armorField.name"));
-    private final IntegerField manaField = new IntegerField(I18n.t("manaField.name"));
-    private final IntegerField levelField = new IntegerField(I18n.t("levelField.name"));
+    private final AppTextField nameField = new AppTextField(I18n.t("nameField.name"), true);
+    private final AppTextField raceField = new AppTextField(I18n.t("raceField.name"), true);
+    private final AppTextField classField = new AppTextField(I18n.t("classField.name"), true);
+    private final IntegerField hpField = new IntegerField(I18n.t("hpField.name"), true);
+    private final IntegerField armorField = new IntegerField(I18n.t("armorField.name"), true);
+    private final IntegerField manaField = new IntegerField(I18n.t("manaField.name"), true);
+    private final IntegerField levelField = new IntegerField(I18n.t("levelField.name"), true);
     private final Label nameRequiredLabel = new Label(I18n.t("labelField.nameRequired"));
 
     public BaseInfoForm() {

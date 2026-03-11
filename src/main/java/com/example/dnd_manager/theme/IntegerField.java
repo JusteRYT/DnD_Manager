@@ -5,8 +5,8 @@ package com.example.dnd_manager.theme;
  */
 public class IntegerField extends AppTextField {
 
-    public IntegerField(String prompt) {
-        super(prompt);
+    public IntegerField(String prompt, boolean isPrompt) {
+        super(prompt, isPrompt);
         allowOnlyInteger();
     }
 

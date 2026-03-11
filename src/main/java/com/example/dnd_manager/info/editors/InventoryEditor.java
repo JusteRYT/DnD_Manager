@@ -50,7 +50,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
 
     @Override
     protected void fillInputCard(VBox inputCard) {
-        nameField = new AppTextField(I18n.t("textField.inventoryName"));
+        nameField = new AppTextField(I18n.t("textField.inventoryName"), true);
         configureNameValidation(nameField);
 
         VBox nameBox = new VBox(2, nameField.getField(), nameRequiredLabel);
@@ -58,7 +58,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         nameBox.setAlignment(Pos.TOP_LEFT);
 
         descriptionField = new AppTextSection("", 3, I18n.t("textSection.inventoryDescription"));
-        countField = new IntegerField(I18n.t("textField.inventoryCountPrompt"));
+        countField = new IntegerField(I18n.t("textField.inventoryCountPrompt"), true);
 
         iconPathLabel = new Label();
         iconPathLabel.setStyle("-fx-text-fill: #FFC107; -fx-font-size: 11px;");

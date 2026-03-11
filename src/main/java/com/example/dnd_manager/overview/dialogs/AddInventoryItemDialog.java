@@ -57,13 +57,13 @@ public class AddInventoryItemDialog extends BaseDialog {
         contentArea.setSpacing(15);
 
         AppTextField nameField = new AppTextField(
-                existingItem != null ? existingItem.getName() : "Item name"
+                existingItem != null ? existingItem.getName() : "Item name", true
         );
         AppTextSection descriptionField = new AppTextSection(
                 existingItem != null ? existingItem.getDescription() : "", 3, "Description"
         );
         IntegerField countField = new IntegerField(
-                existingItem != null ? String.valueOf(existingItem.getCount()) : "1"
+                existingItem != null ? String.valueOf(existingItem.getCount()) : "1", true
         );
 
         Button iconBtn = AppButtonFactory.addIcon(I18n.t("buttonText.icon"));

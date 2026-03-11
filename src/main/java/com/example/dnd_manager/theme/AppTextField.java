@@ -8,11 +8,15 @@ public class AppTextField {
 
     private final TextField field;
 
-    public AppTextField(String promptText) {
+    public AppTextField(String text, boolean isPrompt) {
         field = new TextField();
-        field.setPromptText(promptText);
+        if (isPrompt) {
+            field.setPromptText(text);
+        } else {
+            field.setText(text);
+        }
 
-        styleField(field, promptText);
+        styleField(field, text);
 
 
         field.focusedProperty().addListener((obs, old, newVal) -> {

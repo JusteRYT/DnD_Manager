@@ -43,8 +43,8 @@ public class EffectsBuilderField extends VBox {
         for (TypeEffects type : TypeEffects.values()) typeBox.getItems().add(type.getName());
         typeBox.setValue(TypeEffects.DAMAGE.getName());
 
-        valueField = new AppTextField(I18n.t("textField.promptText.effectValue"));
-        customField = new AppTextField(I18n.t("textField.promptText.effectType"));
+        valueField = new AppTextField(I18n.t("textField.promptText.effectValue"), true);
+        customField = new AppTextField(I18n.t("textField.promptText.effectType"), true);
         customField.getField().setVisible(false);
         customField.getField().setManaged(false);
 

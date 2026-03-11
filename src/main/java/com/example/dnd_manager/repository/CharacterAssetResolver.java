@@ -17,6 +17,7 @@ public final class CharacterAssetResolver {
 
     private static final Logger log = LoggerFactory.getLogger(CharacterAssetResolver.class);
     private static final String DEFAULT_ICON = "/com/example/dnd_manager/icon/no_image.png";
+    private static final String DEFAULT_AVATAR_RESOURCE = "/com/example/dnd_manager/icon/user.png";
 
     private CharacterAssetResolver() {
     }
@@ -79,5 +80,30 @@ public final class CharacterAssetResolver {
     private static Image getDefaultImage(double width, double height) {
         return new Image(Objects.requireNonNull(
                 CharacterAssetResolver.class.getResource(DEFAULT_ICON)).toExternalForm(), width, height, true, false, true);
+    }
+
+    public static Image getAvatarImage(Character character, String path, double width, double height) {
+        if (path == null || path.isBlank()) {
+            return getResourceImage(width, height);
+        }
+
+        Image image = getImage(character, path, width, height);
+
+        if (isDefaultIcon(image)) {
+            return getResourceImage(width, height);
+        }
+
+        return image;
+    }
+
+    private static Image getResourceImage(double width, double height) {
+        String url = Objects.requireNonNull(CharacterAssetResolver.class.getResource(CharacterAssetResolver.DEFAULT_AVATAR_RESOURCE)).toExternalForm();
+        return new Image(url, width, height, true, false, true);
+    }
+
+    private static boolean isDefaultIcon(Image img) {
+        if (img == null) return true;
+        String url = img.getUrl();
+        return url != null && url.contains("no_image.png");
     }
 }

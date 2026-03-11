@@ -19,12 +19,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
+@Slf4j
 public class EditInventoryItemDialog extends BaseDialog {
 
     private final Character character;
@@ -47,10 +49,10 @@ public class EditInventoryItemDialog extends BaseDialog {
     protected void setupContent() {
         contentArea.setSpacing(15);
 
-        AppTextField nameField = new AppTextField(item.getName());
+        AppTextField nameField = new AppTextField(item.getName(), true);
         nameField.setText(item.getName());
-        AppTextSection descriptionField = new AppTextSection(item.getDescription(), 4, "Description");
-        IntegerField count = new IntegerField(String.valueOf(item.getCount()));
+        AppTextSection descriptionField = new AppTextSection(item.getDescription(), 4, I18n.t("label.familiarsDescription"));
+        IntegerField count = new IntegerField(String.valueOf(item.getCount()), false);
 
         // --- Секция баффов и скиллов ---
         VBox attachmentsBox = new VBox(10);
@@ -132,7 +134,7 @@ public class EditInventoryItemDialog extends BaseDialog {
         try {
             return new IconStorageService().storeIcon(character.getName(), file);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return iconPath;
         }
     }

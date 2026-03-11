@@ -52,17 +52,17 @@ public class FamiliarEditor extends VBox {
         VBox baseCard = new VBox(12);
         baseCard.setStyle("-fx-background-color: #252526; -fx-padding: 15; -fx-background-radius: 8;");
 
-        nameField = new AppTextField(I18n.t("familiar.prompt.name"));
+        nameField = new AppTextField(I18n.t("familiar.prompt.name"), true);
 
         HBox typeRow = new HBox(10,
-                new VBox(2, createLabel(I18n.t("raceField.name")), (raceField = new AppTextField("")).getField()),
-                new VBox(2, createLabel(I18n.t("classField.name")), (classField = new AppTextField("")).getField())
+                new VBox(2, createLabel(I18n.t("raceField.name")), (raceField = new AppTextField("", true)).getField()),
+                new VBox(2, createLabel(I18n.t("classField.name")), (classField = new AppTextField("", true)).getField())
         );
 
         HBox statsRow = new HBox(10,
-                new VBox(2, createLabel(I18n.t("label.familiarsHP")), (hpField = new IntegerField("")).getField()),
-                new VBox(2, createLabel(I18n.t("label.familiarsAC")), (armorField = new IntegerField("")).getField()),
-                new VBox(2, createLabel(I18n.t("label.familiarsMP")), (manaField = new IntegerField("")).getField())
+                new VBox(2, createLabel(I18n.t("label.familiarsHP")), (hpField = new IntegerField("", true)).getField()),
+                new VBox(2, createLabel(I18n.t("label.familiarsAC")), (armorField = new IntegerField("", true)).getField()),
+                new VBox(2, createLabel(I18n.t("label.familiarsMP")), (manaField = new IntegerField("", true)).getField())
         );
         hpField.getField().setPrefWidth(80);
         armorField.getField().setPrefWidth(80);

@@ -52,7 +52,7 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
     @Override
     protected void fillInputCard(VBox inputCard) {
         effectsBuilder = new EffectsBuilderField();
-        nameField = new AppTextField(I18n.t("textField.skillName"));
+        nameField = new AppTextField(I18n.t("textField.skillName"), true);
         configureNameValidation(nameField);
 
         activationBox = new AppComboBox<>();

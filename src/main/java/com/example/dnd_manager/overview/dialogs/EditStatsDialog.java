@@ -35,25 +35,25 @@ public class EditStatsDialog extends BaseDialog {
         // HP
         Label hpLabel = new Label(I18n.t("hpField.name") + ":");
         hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold;");
-        IntegerField hpField = new IntegerField(String.valueOf(character.getMaxHp()));
+        IntegerField hpField = new IntegerField(String.valueOf(character.getMaxHp()), true);
         VBox hpBox = new VBox(4, hpLabel, hpField.getField());
 
         // Armor
         Label armorLabel = new Label(I18n.t("armorField.name") + ":");
         armorLabel.setStyle("-fx-text-fill: #55aaff; -fx-font-weight: bold;");
-        IntegerField armorField = new IntegerField(String.valueOf(character.getArmor()));
+        IntegerField armorField = new IntegerField(String.valueOf(character.getArmor()), true);
         VBox armorBox = new VBox(4, armorLabel, armorField.getField());
 
         // Mana
         Label manaLabel = new Label(I18n.t("manaField.name") + ":");
         manaLabel.setStyle("-fx-text-fill: #3aa3c3; -fx-font-weight: bold;");
-        IntegerField manaField = new IntegerField(String.valueOf(character.getMaxMana()));
+        IntegerField manaField = new IntegerField(String.valueOf(character.getMaxMana()), true);
         VBox manaBox = new VBox(4, manaLabel, manaField.getField());
 
         // Level
         Label levelLabel = new Label(I18n.t("levelField.name") + ":");
         levelLabel.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold;");
-        IntegerField levelField = new IntegerField(String.valueOf(character.getLevel()));
+        IntegerField levelField = new IntegerField(String.valueOf(character.getLevel()), true);
         VBox levelBox = new VBox(4, levelLabel, levelField.getField());
 
         // Кнопка сохранения

@@ -41,7 +41,7 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
 
     @Override
     protected void fillInputCard(VBox inputCard) {
-        nameField = new AppTextField(I18n.t("buff.promptText.name"));
+        nameField = new AppTextField(I18n.t("buff.promptText.name"), true);
         configureNameValidation(nameField);
 
         VBox nameBox = new VBox(2, nameField.getField(), nameRequiredLabel);
