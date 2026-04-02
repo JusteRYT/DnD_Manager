@@ -16,6 +16,7 @@ public class AppCustomTab extends Tab {
 
     public AppCustomTab(AssetCategory category, Path rootPath, Stage stage, AssetDnDManager dndManager) {
         Label tabLabel = new Label(category.getDisplayName());
+        tabLabel.getStyleClass().add("tab-label");
         setGraphic(tabLabel);
         setClosable(false);
 
