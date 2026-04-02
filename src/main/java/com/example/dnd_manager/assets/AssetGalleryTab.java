@@ -111,8 +111,11 @@ public class AssetGalleryTab extends VBox {
         selectionCallback = onAssetSelected;
     }
 
+    /**
+     * Loads images from the specified category directory.
+     * Interrupts any ongoing loading process before starting a new one.
+     */
     public void loadImages() {
-
         if (loadingThread != null && loadingThread.isAlive()) {
             loadingThread.interrupt();
         }
@@ -123,29 +126,35 @@ public class AssetGalleryTab extends VBox {
         });
 
         loadingThread = new Thread(() -> {
-
             try (Stream<Path> stream = category.isAll()
                     ? Files.walk(baseAssetsPath, 2)
                     : Files.list(rootCategoryPath)) {
 
-                stream.filter(Files::isRegularFile)
+                var iterator = stream.filter(Files::isRegularFile)
                         .filter(this::isImageFile)
                         .sorted()
-                        .forEach(this::addCard);
+                        .iterator();
+
+                while (iterator.hasNext() && !Thread.currentThread().isInterrupted()) {
+                    addCard(iterator.next());
+                }
 
             } catch (Exception e) {
-                log.error("Load error", e);
+                log.error("Failed to load images from path: {}", rootCategoryPath, e);
             }
-
         });
 
         loadingThread.setDaemon(true);
         loadingThread.start();
     }
 
+    /**
+     * Creates and adds an asset card to the gallery.
+     * Loads the image synchronously to prevent JavaFX thread pool exhaustion.
+     *
+     * @param path the path to the image file
+     */
     private void addCard(Path path) {
-
-        // Если поток отменён — ничего не делаем
         if (Thread.currentThread().isInterrupted()) {
             return;
         }
@@ -156,11 +165,13 @@ public class AssetGalleryTab extends VBox {
                 150,
                 true,
                 true,
-                true
+                false
         );
 
+        Thread loadingThreadRef = Thread.currentThread();
+
         Platform.runLater(() -> {
-            if (Thread.currentThread().isInterrupted()) {
+            if (loadingThreadRef.isInterrupted()) {
                 return;
             }
 

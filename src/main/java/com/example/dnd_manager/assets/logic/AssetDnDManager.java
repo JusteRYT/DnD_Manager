@@ -8,6 +8,7 @@ import javafx.scene.input.TransferMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -79,7 +80,7 @@ public class AssetDnDManager {
                 }
             }
             else if (db.hasFiles()) {
-                for (java.io.File file : db.getFiles()) {
+                for (File file : db.getFiles()) {
                     try {
                         Files.copy(file.toPath(), targetDirectory.resolve(file.getName()),
                                 StandardCopyOption.REPLACE_EXISTING);

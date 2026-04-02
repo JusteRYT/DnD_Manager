@@ -517,9 +517,8 @@ public final class AppButtonFactory {
         button.setOnAction(e -> {
             Stage owner = (Stage) button.getScene().getWindow();
 
-            AssetManagerScreen picker = new AssetManagerScreen(owner, null, selectedPath -> {
-                onPathSelected.accept(selectedPath.toString());
-            });
+            AssetManagerScreen picker = new AssetManagerScreen(owner, null, selectedPath ->
+                    onPathSelected.accept(selectedPath.toString()));
 
             WindowFactory.openModal(owner, picker, 1100, 750);
         });
