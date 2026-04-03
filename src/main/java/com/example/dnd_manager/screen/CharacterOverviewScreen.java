@@ -22,6 +22,7 @@ public class CharacterOverviewScreen extends BorderPane {
     private final BuffsInventoryPanel buffsInventoryPanel;
     private final SkillsView skillsView;
     private final Character character;
+    private final TopBar topBar;
 
     public CharacterOverviewScreen(Stage stage, Character character, StorageService storageService) {
         this.storageService = storageService;
@@ -30,8 +31,8 @@ public class CharacterOverviewScreen extends BorderPane {
         setStyle("-fx-background-color: #1e1e1e;");
 
         // --- Top Bar (Всегда сверху) ---
-        TopBar topBar = new TopBar(character, this, storageService);
-        topBar.setPadding(new Insets(0, 35, 0, 25));
+        this.topBar = new TopBar(character, this, storageService);
+        this.topBar.setPadding(new Insets(0, 35, 0, 25));
         setTop(topBar);
 
         // --- Основной контент ---
@@ -82,5 +83,7 @@ public class CharacterOverviewScreen extends BorderPane {
         // 2. Обновляем визуальные компоненты
         skillsView.refresh(character);
         buffsInventoryPanel.refreshBuffs();
+
+        topBar.refresh(character);
     }
 }

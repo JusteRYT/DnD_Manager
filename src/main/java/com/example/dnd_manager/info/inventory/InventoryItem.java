@@ -17,6 +17,8 @@ public class InventoryItem {
 
     private String name, description, iconPath;
     private int count;
+    private boolean isEquipped;
+    private String customEffectName;
 
     private List<Buff> attachedBuffs = new ArrayList<>();
     private List<Skill> attachedSkills = new ArrayList<>();
@@ -31,6 +33,7 @@ public class InventoryItem {
         this.description = description;
         this.iconPath = iconPath;
         this.count = 1;
+        this.isEquipped = false;
     }
 
     public InventoryItem(String name, String description, String iconPath, int count) {

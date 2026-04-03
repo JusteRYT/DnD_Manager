@@ -1,6 +1,8 @@
 package com.example.dnd_manager.overview.ui;
 
 import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.info.buff_debuff.Buff;
+import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.EditStatsDialog;
 import com.example.dnd_manager.overview.dialogs.FullDescriptionDialog;
@@ -20,16 +22,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -38,6 +38,9 @@ import java.util.Objects;
  * Includes a button to increment level in the right block with confirmation dialog.
  */
 public class TopBar extends HBox {
+
+    private final VBox infoBox;
+    private VBox activeEffectsBox;
 
     public TopBar(Character character, CharacterOverviewScreen parentScreen, StorageService storageService) {
         setSpacing(10);
@@ -110,9 +113,11 @@ public class TopBar extends HBox {
         statsBox.setAlignment(Pos.CENTER_LEFT);
         statsBox.setPadding(new Insets(8, 0, 0, 0));
 
-        VBox infoBox = new VBox(8, nameLevelBox, metaLabel, statsBox);
-        infoBox.setAlignment(Pos.TOP_LEFT);
-        infoBox.setPadding(new Insets(10, 0, 0, 0));
+        this.activeEffectsBox = buildActiveEffectsBox(character);
+
+        this.infoBox = new VBox(8, nameLevelBox, metaLabel, statsBox, activeEffectsBox);
+        this.infoBox.setAlignment(Pos.TOP_LEFT);
+        this.infoBox.setPadding(new Insets(10, 0, 0, 0));
 
         HBox leftBox = new HBox(20, avatarContainer, infoBox);
         leftBox.setAlignment(Pos.CENTER_LEFT);
@@ -274,4 +279,83 @@ public class TopBar extends HBox {
         StartScreen startScreen = new StartScreen(stage, storageService);
         ScreenManager.setScreen(stage, startScreen.getView());
     }
+    /**
+     * Refreshes the active effects display by rebuilding the effects container.
+     * @param character the character to pull data from
+     */
+    public void refresh(Character character) {
+        // Удаляем старый блок эффектов
+        infoBox.getChildren().remove(activeEffectsBox);
+        // Создаем новый
+        activeEffectsBox = buildActiveEffectsBox(character);
+        // Добавляем в конец infoBox
+        infoBox.getChildren().add(activeEffectsBox);
+    }
+
+    private VBox buildActiveEffectsBox(Character character) {
+        VBox container = new VBox(4);
+        container.setPadding(new Insets(4, 0, 0, 0));
+
+        List<InventoryItem> equippedItems = character.getInventory().stream()
+                .filter(InventoryItem::isEquipped)
+                .toList();
+
+        FlowPane buffsPane = new FlowPane(6, 6);
+
+        for (InventoryItem item : equippedItems) {
+            // Если есть кастомное имя эффекта - выводим его как основной тег
+            if (item.getCustomEffectName() != null && !item.getCustomEffectName().isBlank()) {
+                buffsPane.getChildren().add(createEffectLabel(item.getCustomEffectName(), null, character));
+            } else {
+                // Если кастомного имени нет, выводим все прикрепленные баффы
+                for (Buff buff : item.getAttachedBuffs()) {
+                    buffsPane.getChildren().add(createEffectLabel(getBuffText(buff), buff.iconPath(), character));
+                }
+            }
+        }
+
+        // Если тегов нет, возвращаем пустой контейнер (чтобы не было надписи "Active Effects:")
+        if (buffsPane.getChildren().isEmpty()) {
+            return container;
+        }
+
+        Label title = new Label("Active Effects:");
+        title.setStyle("-fx-text-fill: #888888; -fx-font-size: 11px; -fx-font-style: italic;");
+
+        container.getChildren().addAll(title, buffsPane);
+        return container;
+    }
+
+    /**
+     * Creates a styled label for an effect.
+     */
+    private Label createEffectLabel(String text, String iconPath, Character character) {
+        Label label = new Label(text);
+        label.setStyle("""
+            -fx-background-color: rgba(200, 155, 60, 0.15);
+            -fx-text-fill: #c89b3c;
+            -fx-padding: 2 6 2 6;
+            -fx-background-radius: 4;
+            -fx-border-color: rgba(200, 155, 60, 0.3);
+            -fx-border-radius: 4;
+            -fx-font-size: 11px;
+            -fx-font-weight: bold;
+        """);
+
+        if (iconPath != null && !iconPath.isBlank()) {
+            ImageView icon = new ImageView(new Image(CharacterAssetResolver.resolve(character.getName(), iconPath)));
+            icon.setFitWidth(12);
+            icon.setFitHeight(12);
+            label.setGraphic(icon);
+        }
+        return label;
+    }
+
+    private String getBuffText(Buff buff) {
+        return (buff.type() != null && !buff.type().isBlank())
+                ? String.format("%s (%s)", buff.name(), buff.type())
+                : buff.name();
+    }
+
+
 }

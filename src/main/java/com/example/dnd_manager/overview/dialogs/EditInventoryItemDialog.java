@@ -8,14 +8,20 @@ import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.utils.SubEditorManager;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.IconStorageService;
+import com.example.dnd_manager.theme.AppCheckBox;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
 import com.example.dnd_manager.theme.IntegerField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -36,9 +42,11 @@ public class EditInventoryItemDialog extends BaseDialog {
 
     private Label buffsCountLabel;
     private Label skillsCountLabel;
+    private AppCheckBox equippedCheckBox;
+    private AppTextField effectDisplayField;
 
     public EditInventoryItemDialog(Stage owner, Character character, InventoryItem item, Consumer<InventoryItem> onItemEdited) {
-        super(owner, I18n.t("title.editDialog") + item.getName(), 450, 480);
+        super(owner, I18n.t("title.editDialog") + item.getName(), 450, 550);
         this.character = character;
         this.item = item;
         this.onItemEdited = onItemEdited;
@@ -47,7 +55,10 @@ public class EditInventoryItemDialog extends BaseDialog {
 
     @Override
     protected void setupContent() {
-        contentArea.setSpacing(15);
+        contentArea.setSpacing(0);
+
+        VBox scrollContent = new VBox(15);
+        scrollContent.setPadding(new Insets(0, 15, 10, 0));
 
         AppTextField nameField = new AppTextField(item.getName(), true);
         nameField.setText(item.getName());
@@ -58,9 +69,9 @@ public class EditInventoryItemDialog extends BaseDialog {
         VBox attachmentsBox = new VBox(10);
         attachmentsBox.setStyle("-fx-padding: 10; -fx-background-color: #252525; -fx-background-radius: 5; -fx-border-color: #3a3a3a; -fx-border-radius: 5;");
 
-        Label itemSectionLabel = new Label();
-        itemSectionLabel.setText(I18n.t("label.editDialog"));
+        Label itemSectionLabel = new Label(I18n.t("label.editDialog"));
         itemSectionLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-font-weight: bold;");
+
         buffsCountLabel = new Label();
         skillsCountLabel = new Label();
         updateLabels();
@@ -78,6 +89,31 @@ public class EditInventoryItemDialog extends BaseDialog {
 
         attachmentsBox.getChildren().addAll(itemSectionLabel, buffRow, skillRow);
 
+        effectDisplayField = new AppTextField(item.getCustomEffectName() != null ?
+                item.getCustomEffectName() : item.getName(), false);
+        effectDisplayField.getField().setPromptText("Display name in TopBar (e.g. +1 AC)");
+
+        VBox effectFieldContainer = new VBox(5, new Label("Effect Display Name:"), effectDisplayField.getField());
+        effectFieldContainer.setVisible(item.isEquipped());
+
+        equippedCheckBox = new AppCheckBox("Equip this item");
+        equippedCheckBox.setSelected(item.isEquipped());
+        equippedCheckBox.setOnAction(() -> {
+            effectFieldContainer.setVisible(equippedCheckBox.isSelected());
+        });
+
+        scrollContent.getChildren().addAll(
+                nameField.getField(),
+                descriptionField,
+                count.getField(),
+                equippedCheckBox,
+                effectFieldContainer,
+                attachmentsBox
+        );
+
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(scrollContent);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
         // --- Кнопки сохранения ---
         Button iconBtn = AppButtonFactory.actionSave(I18n.t("editDialog.changeIcon"));
         iconBtn.setOnAction(e -> iconPath = chooseIcon());
@@ -94,6 +130,8 @@ public class EditInventoryItemDialog extends BaseDialog {
             item.setDescription(descriptionField.getText());
             item.setCount(count.getValue());
             item.setIconPath(iconPath);
+            item.setEquipped(equippedCheckBox.isSelected());
+            item.setCustomEffectName(effectDisplayField.getText());
 
             onItemEdited.accept(item);
             close();
@@ -102,13 +140,7 @@ public class EditInventoryItemDialog extends BaseDialog {
         HBox buttonBox = new HBox(15, iconBtn, saveBtn, chooseButton);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
 
-        contentArea.getChildren().addAll(
-                nameField.getField(),
-                descriptionField,
-                count.getField(),
-                attachmentsBox,
-                buttonBox
-        );
+        contentArea.getChildren().addAll(scrollPane, buttonBox);
     }
 
     /**

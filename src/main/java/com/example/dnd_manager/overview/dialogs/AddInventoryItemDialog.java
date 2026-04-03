@@ -10,13 +10,19 @@ import com.example.dnd_manager.info.skills.Skill;
 import com.example.dnd_manager.info.utils.SubEditorManager;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.repository.IconStorageService;
+import com.example.dnd_manager.theme.AppCheckBox;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
 import com.example.dnd_manager.theme.IntegerField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -37,11 +43,13 @@ public class AddInventoryItemDialog extends BaseDialog {
     private final List<Skill> attachedSkills = new ArrayList<>();
     private Label buffsCountLabel;
     private Label skillsCountLabel;
+    private AppCheckBox equippedCheckBox;
+    private AppTextField effectDisplayField;
 
     public AddInventoryItemDialog(Stage owner, Character character, InventoryItem itemToEdit, Consumer<InventoryItem> onComplete) {
         super(owner,
                 itemToEdit == null ? "Add Inventory Item" : "Edit Inventory Item",
-                450, 500);
+                450, 550);
 
         this.character = character;
         this.existingItem = itemToEdit;
@@ -54,7 +62,11 @@ public class AddInventoryItemDialog extends BaseDialog {
 
     @Override
     protected void setupContent() {
-        contentArea.setSpacing(15);
+        contentArea.setSpacing(0); // Убираем дефолтный спейсинг
+
+        // 1. Создаем контейнер для полей, которые будут скроллиться
+        VBox scrollContent = new VBox(15);
+        scrollContent.setPadding(new Insets(0, 15, 10, 0));
 
         AppTextField nameField = new AppTextField(
                 existingItem != null ? existingItem.getName() : "Item name", true
@@ -66,6 +78,62 @@ public class AddInventoryItemDialog extends BaseDialog {
                 existingItem != null ? String.valueOf(existingItem.getCount()) : "1", true
         );
 
+        // --- Эффекты и чекбокс ---
+        equippedCheckBox = new AppCheckBox("Equipped (Apply Effects)");
+        equippedCheckBox.setSelected(existingItem != null && existingItem.isEquipped());
+
+        effectDisplayField = new AppTextField(
+                (existingItem != null && existingItem.getCustomEffectName() != null) ?
+                        existingItem.getCustomEffectName() : "Item Name", false
+        );
+        effectDisplayField.getField().setPromptText("Display name in TopBar (e.g. +1 AC)");
+
+        VBox effectFieldContainer = new VBox(5, new Label("Effect Display Name:"), effectDisplayField.getField());
+        effectFieldContainer.setVisible(equippedCheckBox.isSelected());
+
+        equippedCheckBox.setOnAction(() -> {
+            effectFieldContainer.setVisible(equippedCheckBox.isSelected());
+        });
+
+        // --- Секция баффов и скиллов ---
+        VBox attachmentsBox = new VBox(10);
+        attachmentsBox.setStyle("-fx-padding: 10; -fx-background-color: #252525; -fx-background-radius: 5; -fx-border-color: #3a3a3a; -fx-border-radius: 5;");
+
+        Label sectionLabel = new Label("Item Attachments");
+        sectionLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        buffsCountLabel = new Label();
+        skillsCountLabel = new Label();
+        updateLabels();
+
+        Button editBuffsBtn = AppButtonFactory.addIcon("Buffs");
+        editBuffsBtn.setOnAction(e -> openSubEditor(new BuffEditor(character), attachedBuffs, "Item Buffs"));
+
+        Button editSkillsBtn = AppButtonFactory.addIcon("Skills");
+        editSkillsBtn.setOnAction(e -> openSubEditor(new SkillsEditor(character), attachedSkills, "Item Skills"));
+
+        HBox buffRow = new HBox(15, buffsCountLabel, editBuffsBtn);
+        buffRow.setAlignment(Pos.CENTER_LEFT);
+        HBox skillRow = new HBox(15, skillsCountLabel, editSkillsBtn);
+        skillRow.setAlignment(Pos.CENTER_LEFT);
+
+        attachmentsBox.getChildren().addAll(sectionLabel, buffRow, skillRow);
+
+        // Собираем все прокручиваемые элементы
+        scrollContent.getChildren().addAll(
+                nameField.getField(),
+                descriptionField,
+                countField.getField(),
+                equippedCheckBox,
+                effectFieldContainer,
+                attachmentsBox
+        );
+
+        // 2. Оборачиваем в ScrollPane
+        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(scrollContent);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+        // 3. Фиксированная панель кнопок
         Button iconBtn = AppButtonFactory.addIcon(I18n.t("buttonText.icon"));
         iconBtn.setOnAction(e -> iconPath = chooseIcon());
 
@@ -79,42 +147,12 @@ public class AddInventoryItemDialog extends BaseDialog {
         Button chooseAssets = AppButtonFactory.assetPickerButton();
         AppButtonFactory.attachAssetPicker(chooseAssets, path -> iconPath = path);
 
-        HBox actions = new HBox(10, saveBtn, iconBtn, chooseAssets);
+        HBox actions = new HBox(10, iconBtn, chooseAssets, saveBtn);
+        actions.setAlignment(Pos.CENTER_RIGHT);
+        actions.setPadding(new Insets(15, 0, 0, 0)); // Отступ сверху от скролла
 
-        VBox attachmentsBox = new VBox(10);
-        attachmentsBox.setStyle("-fx-padding: 10; -fx-background-color: #252525; -fx-background-radius: 5; -fx-border-color: #3a3a3a; -fx-border-radius: 5;");
-
-        Label sectionLabel = new Label("Item Attachments");
-        sectionLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-font-weight: bold;");
-
-        buffsCountLabel = new Label();
-        skillsCountLabel = new Label();
-        updateLabels();
-
-        Button editBuffsBtn = AppButtonFactory.addIcon("Buffs");
-        editBuffsBtn.setOnAction(e ->
-                openSubEditor(new BuffEditor(character), attachedBuffs, "Item Buffs")
-        );
-
-        Button editSkillsBtn = AppButtonFactory.addIcon("Skills");
-        editSkillsBtn.setOnAction(e ->
-                openSubEditor(new SkillsEditor(character), attachedSkills, "Item Skills")
-        );
-
-        HBox buffRow = new HBox(15, buffsCountLabel, editBuffsBtn);
-        HBox skillRow = new HBox(15, skillsCountLabel, editSkillsBtn);
-
-        attachmentsBox.getChildren().addAll(sectionLabel, buffRow, skillRow);
-
-
-        contentArea.getChildren().addAll(
-                nameField.getField(),
-                descriptionField,
-                countField.getField(),
-                attachmentsBox,
-                actions
-        );
-
+        // 4. Компоновка
+        contentArea.getChildren().addAll(scrollPane, actions);
     }
 
     private void saveData(String name, String desc, String countStr) {
@@ -129,6 +167,8 @@ public class AddInventoryItemDialog extends BaseDialog {
             existingItem.setDescription(desc);
             existingItem.setCount(count);
             existingItem.setIconPath(iconPath != null ? iconPath : "icon/no_image.png");
+            existingItem.setEquipped(equippedCheckBox.isSelected());
+            existingItem.setCustomEffectName(effectDisplayField.getText());
             existingItem.setAttachedBuffs(new ArrayList<>(attachedBuffs));
             existingItem.setAttachedSkills(new ArrayList<>(attachedSkills));
             onItemAddedOrEdited.accept(existingItem);
@@ -139,6 +179,8 @@ public class AddInventoryItemDialog extends BaseDialog {
                     iconPath != null && !iconPath.equals("icon/no_image.png") ? iconPath : "icon/no_image.png"
             );
             item.setCount(count);
+            item.setEquipped(equippedCheckBox.isSelected());
+            item.setCustomEffectName(effectDisplayField.getText());
             item.setAttachedBuffs(new ArrayList<>(attachedBuffs));
             item.setAttachedSkills(new ArrayList<>(attachedSkills));
             character.getInventory().add(item);
