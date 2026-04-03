@@ -16,15 +16,21 @@ import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.service.CharacterExporter;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.File;
 import java.io.IOException;
@@ -241,6 +247,7 @@ public class TopBar extends HBox {
     private static StackPane getStackPane(ImageView avatar) {
         StackPane avatarContainer = new StackPane(avatar);
         avatarContainer.setPadding(new Insets(3));
+        avatarContainer.setCursor(Cursor.HAND);
 
         String baseStyle = """
                 -fx-background-color: #2b2b2b;
@@ -264,6 +271,18 @@ public class TopBar extends HBox {
 
         avatarContainer.setOnMouseEntered(e -> avatarContainer.setStyle(hoverStyle));
         avatarContainer.setOnMouseExited(e -> avatarContainer.setStyle(baseStyle));
+
+        // --- Click to Copy Logic ---
+        avatarContainer.setOnMouseClicked(e -> {
+            // 1. Копирование в буфер обмена
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putImage(avatar.getImage());
+            clipboard.setContent(content);
+
+            // 2. Визуальное уведомление
+            showCopiedNotification(avatarContainer);
+        });
 
         return avatarContainer;
     }
@@ -357,5 +376,49 @@ public class TopBar extends HBox {
                 : buff.name();
     }
 
+    /**
+     * Displays a temporary notification label over the avatar.
+     * * @param container The StackPane where the notification will be added.
+     */
+    private static void showCopiedNotification(StackPane container) {
+        Label notification = getLabel();
+
+        container.getChildren().add(notification);
+
+        // Анимация появления и исчезновения
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), notification);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(1));
+
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), notification);
+        fadeOut.setFromValue(1);
+        fadeOut.setToValue(0);
+        fadeOut.setOnFinished(actionEvent -> container.getChildren().remove(notification));
+
+        // Запуск последовательности
+        fadeIn.setOnFinished(e -> pause.play());
+        pause.setOnFinished(e -> fadeOut.play());
+        fadeIn.play();
+    }
+
+    private static Label getLabel() {
+        Label notification = new Label(I18n.t("text.clipboardImage"));
+        notification.setStyle("""
+            -fx-background-color: rgba(0, 0, 0, 0.7);
+            -fx-text-fill: #c89b3c;
+            -fx-font-weight: bold;
+            -fx-padding: 8 12;
+            -fx-background-radius: 4;
+            -fx-border-color: #c89b3c;
+            -fx-border-radius: 4;
+            -fx-font-size: 14px;
+        """);
+
+        // Предотвращаем прокликивание сквозь уведомление во время его показа
+        notification.setMouseTransparent(true);
+        return notification;
+    }
 
 }
