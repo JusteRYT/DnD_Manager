@@ -91,10 +91,10 @@ public class TopBar extends HBox {
         // --- Meta info: race + class ---
         Label metaLabel = new Label(character.getRace() + " • " + character.getCharacterClass());
         metaLabel.setStyle("""
-                    -fx-font-size: 20px; 
-                    -fx-text-fill: #c89b3c; 
-                    -fx-background-color: rgba(200, 155, 60, 0.1); 
-                    -fx-padding: 2 8 2 8; 
+                    -fx-font-size: 20px;
+                    -fx-text-fill: #c89b3c;
+                    -fx-background-color: rgba(200, 155, 60, 0.1);
+                    -fx-padding: 2 8 2 8;
                     -fx-background-radius: 4;
                 """);
 
@@ -210,7 +210,7 @@ public class TopBar extends HBox {
         rightPanel.setStyle("""
                 -fx-background-color: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
                 -fx-background-radius: 12;
-                -fx-border-color: rgba(200, 155, 60, 0.3); 
+                -fx-border-color: rgba(200, 155, 60, 0.3);
                 -fx-border-radius: 12;
                 -fx-border-width: 1.5;
                 -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 5);

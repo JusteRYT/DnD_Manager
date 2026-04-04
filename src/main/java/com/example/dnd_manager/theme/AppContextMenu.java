@@ -27,9 +27,8 @@ public class AppContextMenu extends ContextMenu {
         this.setOnShowing(e -> {
             if (this.getScene() != null && this.getScene().getRoot() != null) {
                 this.getScene().getRoot().setStyle("-fx-background-color: transparent;");
-                this.getScene().getRoot().lookupAll(".menu-item").forEach(n -> {
-                    n.setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;");
-                });
+                this.getScene().getRoot().lookupAll(".menu-item").forEach(n ->
+                        n.setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;"));
             }
         });
     }
