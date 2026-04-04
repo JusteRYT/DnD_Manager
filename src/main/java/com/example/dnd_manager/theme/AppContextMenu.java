@@ -6,6 +6,7 @@ import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 public class AppContextMenu extends ContextMenu {
 
@@ -48,6 +49,7 @@ public class AppContextMenu extends ContextMenu {
         label.setMaxWidth(Double.MAX_VALUE);
         label.setAlignment(Pos.CENTER_LEFT);
         label.setPadding(new Insets(8, 20, 8, 20));
+        label.setMinWidth(VBox.USE_PREF_SIZE);
 
         String fontStyle = "-fx-font-weight: bold; -fx-font-size: 13px;";
 

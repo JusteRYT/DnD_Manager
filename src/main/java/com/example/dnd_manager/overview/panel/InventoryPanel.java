@@ -186,7 +186,7 @@ public class InventoryPanel extends VBox {
         private AppContextMenu createContextMenu(BiConsumer<InventoryItem, InventoryItemCell> onRemove,
                                                  BiConsumer<InventoryItem, InventoryItemCell> onEdit) {
             AppContextMenu menu = new AppContextMenu();
-            menu.addActionItem(I18n.t("button.edit"), () -> onEdit.accept(item, this));
+            menu.addActionItem(I18n.t("button.editItem"), () -> onEdit.accept(item, this));
             menu.addDeleteItem(I18n.t("button.delete"), () -> onRemove.accept(item, this));
 
             return menu;
