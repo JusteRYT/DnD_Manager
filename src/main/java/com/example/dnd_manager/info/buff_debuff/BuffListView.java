@@ -90,24 +90,43 @@ public class BuffListView extends VBox {
     private Node createSourceBadge(InventoryItem sourceItem) {
         boolean isFromItem = sourceItem != null;
 
-        String iconText = isFromItem ? "📦" : "👤";
-        String bgColor = isFromItem ? "#55ccff" : "#4a4a4a";
-        String textColor = isFromItem ? "#1a1a1a" : "#c89b3c";
+        Label badge = getLabel(isFromItem);
 
-        Label badge = getLabel(iconText, bgColor, textColor);
+        // --- Настройка Tooltip ---
+        String tooltipText = isFromItem ? sourceItem.getName() : I18n.t("skill.source.innate");
+        Tooltip tooltip = new Tooltip(tooltipText);
 
-        Tooltip tooltip = new Tooltip(
-                isFromItem ? sourceItem.getName() : I18n.t("skill.source.innate")
-        );
-        tooltip.setShowDelay(Duration.millis(200));
+        // Увеличиваем шрифт и добавляем отступы для солидности
+        tooltip.setStyle("""
+            -fx-font-size: 14px;
+            -fx-font-weight: bold;
+            -fx-background-color: #1a1a1a;
+            -fx-text-fill: #55ccff;
+            -fx-border-color: #c89b3c;
+            -fx-border-width: 1;
+            -fx-padding: 5 10 5 10;
+        """);
+
+        // Настройка задержек (опционально)
+        tooltip.setShowDelay(Duration.millis(300));
+        tooltip.setShowDuration(Duration.seconds(10));
+
         Tooltip.install(badge, tooltip);
 
         return badge;
     }
 
-    private static Label getLabel(String iconText, String bgColor, String textColor) {
+    private static Label getLabel(boolean isFromItem) {
+        String iconText = isFromItem ? "📦" : "👤";
+        String bgColor = isFromItem ? "#55ccff" : "#4a4a4a";
+        String textColor = isFromItem ? "#1a1a1a" : "#c89b3c";
+
         Label badge = new Label(iconText);
 
+        return getLabelForBadge(bgColor, textColor, badge);
+    }
+
+    private static Label getLabelForBadge(String bgColor, String textColor, Label badge) {
         double size = 18;
         badge.setMinSize(size, size);
         badge.setMaxSize(size, size);
@@ -125,5 +144,11 @@ public class BuffListView extends VBox {
                     -fx-border-radius: 4;
                 """, bgColor, textColor));
         return badge;
+    }
+
+    private static Label getLabel(String iconText, String bgColor, String textColor) {
+        Label badge = new Label(iconText);
+
+        return getLabelForBadge(bgColor, textColor, badge);
     }
 }
