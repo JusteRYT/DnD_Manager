@@ -10,16 +10,21 @@ import javafx.scene.layout.VBox;
  */
 public class BuffPopupView extends VBox {
 
+    private static final double MAX_POPUP_WIDTH = 250;
     public BuffPopupView(Buff buff) {
         setSpacing(6);
-        setPadding(new Insets(10));
+        setPadding(new Insets(12));
         setAlignment(Pos.TOP_LEFT);
+
+        setPrefWidth(MAX_POPUP_WIDTH);
+        setMaxWidth(MAX_POPUP_WIDTH);
 
         setStyle("""
             -fx-background-color: #252526;
             -fx-background-radius: 8;
             -fx-border-color: #3c3c3c;
             -fx-border-radius: 8;
+            -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 10, 0, 0, 5);
         """);
 
         Label name = new Label(buff.name());
@@ -28,6 +33,10 @@ public class BuffPopupView extends VBox {
             -fx-font-weight: bold;
             -fx-text-fill: #c89b3c;
         """);
+
+        name.setWrapText(true);
+        name.setMaxWidth(MAX_POPUP_WIDTH - 24);
+        name.setMinHeight(VBox.USE_PREF_SIZE);
 
         Label type = new Label(buff.type());
         type.setStyle("""
@@ -41,8 +50,10 @@ public class BuffPopupView extends VBox {
         description.setStyle("""
             -fx-text-fill: #d4d4d4;
             -fx-font-size: 12px;
+            -fx-line-spacing: 2px;
         """);
 
+        description.setMinHeight(VBox.USE_PREF_SIZE);
         getChildren().addAll(name, type, description);
     }
 }

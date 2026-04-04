@@ -146,9 +146,4 @@ public class BuffListView extends VBox {
         return badge;
     }
 
-    private static Label getLabel(String iconText, String bgColor, String textColor) {
-        Label badge = new Label(iconText);
-
-        return getLabelForBadge(bgColor, textColor, badge);
-    }
 }
