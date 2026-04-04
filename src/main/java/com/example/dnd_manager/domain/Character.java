@@ -31,6 +31,7 @@ public class Character {
     private int currentMana;
     private int maxMana;
     private int level;
+    private String saveString = "";
 
     private String description;
     private String personality;

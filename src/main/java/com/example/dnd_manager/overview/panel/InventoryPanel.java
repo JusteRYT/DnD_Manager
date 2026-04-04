@@ -33,6 +33,7 @@ public class InventoryPanel extends VBox {
 
     private static final int ITEM_SIZE = 60;
     private static final int ITEM_CELL_SIZE = 70;
+    private static final int ICON_SIZE = 130;
 
     private final Character character;
     private final FlowPane itemsPane;
@@ -193,7 +194,7 @@ public class InventoryPanel extends VBox {
         }
 
         public void refresh() {
-            icon.setImage(CharacterAssetResolver.getImage(character, item.getIconPath(), ITEM_SIZE, ITEM_SIZE));
+            icon.setImage(CharacterAssetResolver.getImage(character, item.getIconPath(), ICON_SIZE, ICON_SIZE));
 
             if (popup != null) {
                 popup.getContent().clear();

@@ -16,6 +16,7 @@ import com.example.dnd_manager.screen.ScreenManager;
 import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.service.CharacterExporter;
 import com.example.dnd_manager.store.StorageService;
+import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
@@ -24,6 +25,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -36,6 +39,7 @@ import javafx.util.Duration;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -150,7 +154,7 @@ public class TopBar extends HBox {
             File file = fileChooser.showSaveDialog(stage);
 
             if (file != null) {
-                try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+                try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
                     String fullText = CharacterExporter.generateFullDescription(character);
                     writer.print(fullText);
                 } catch (IOException ex) {
@@ -195,7 +199,7 @@ public class TopBar extends HBox {
             new CharacterNotesDialog(owner, character).show();
         });
 
-        HBox rightPanel = new HBox(15,
+        HBox buttonsRow = new HBox(15,
                 exportBtn,
                 showDescBtn,
                 notesBtn,
@@ -203,11 +207,10 @@ public class TopBar extends HBox {
                 increaseLevelBtn,
                 backBtn
         );
-
-        rightPanel.setAlignment(Pos.CENTER);
-        rightPanel.setPadding(new Insets(20));
-        rightPanel.setMaxHeight(100);
-        rightPanel.setStyle("""
+        buttonsRow.setAlignment(Pos.CENTER);
+        buttonsRow.setPadding(new Insets(15, 20, 15, 20));
+        buttonsRow.setMaxHeight(100);
+        buttonsRow.setStyle("""
                 -fx-background-color: linear-gradient(to bottom, #2d2d2d, #1a1a1a);
                 -fx-background-radius: 12;
                 -fx-border-color: rgba(200, 155, 60, 0.3);
@@ -216,10 +219,15 @@ public class TopBar extends HBox {
                 -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 5);
                 """);
 
-        HBox.setMargin(rightPanel, new Insets(10, 10, 10, 0));
+        // --- VRChat Save String Field (using AppTextField) ---
+        VBox vrcContainer = getVrcSaveContainer(character, storageService);
+
+        VBox rightLayout = new VBox(12, buttonsRow, vrcContainer);
+        rightLayout.setAlignment(Pos.TOP_RIGHT);
+        HBox.setMargin(rightLayout, new Insets(10, 10, 10, 0));
 
 
-        getChildren().addAll(leftBox, rightPanel);
+        getChildren().addAll(leftBox, rightLayout);
 
         backBtn.setOnAction(e -> {
             Stage stage = (Stage) parentScreen.getScene().getWindow();
@@ -255,6 +263,48 @@ public class TopBar extends HBox {
                 notesBtn,
                 PopupFactory.tooltip(I18n.t("button.showNotesPopup"))
         );
+    }
+
+    private static VBox getVrcSaveContainer(Character character, StorageService storageService) {
+        Label vrcLabel = new Label(I18n.t("label.textFieldVRCHATSave"));
+        vrcLabel.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 11px; -fx-font-weight: bold;");
+
+        AppTextField vrcSaveAppField = new AppTextField(character.getSaveString(), false);
+        TextField field = vrcSaveAppField.getField();
+
+        field.setPromptText(I18n.t("prompt.saveVRCString"));
+
+        field.setStyle(field.getStyle() + """
+                -fx-font-family: 'Consolas', 'Monospace';
+                -fx-font-size: 12px;
+                -fx-opacity: 0.9;
+                -fx-padding: 8 12 8 12;
+                -fx-text-fill: #eee;
+                """);
+
+        field.setPrefWidth(410);
+        field.setMaxWidth(410);
+
+        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
+                character.setSaveString(field.getText().trim());
+                storageService.saveCharacter(character);
+            }
+        });
+
+        Tooltip vrcTooltip = new Tooltip(I18n.t("popup.saveVRCString"));
+        vrcTooltip.setShowDelay(Duration.millis(200));
+        vrcTooltip.setStyle("""
+                    -fx-font-size: 15px;
+                    -fx-font-weight: bold;
+                    -fx-border-width: 1;
+                    -fx-padding: 10 15 10 15;
+                """);
+        Tooltip.install(field, vrcTooltip);
+
+        VBox container = new VBox(5, vrcLabel, field);
+        container.setAlignment(Pos.TOP_RIGHT);
+        return container;
     }
 
     private static StackPane getStackPane(ImageView avatar) {
@@ -311,8 +361,10 @@ public class TopBar extends HBox {
         StartScreen startScreen = new StartScreen(stage, storageService);
         ScreenManager.setScreen(stage, startScreen.getView());
     }
+
     /**
      * Refreshes the active effects display by rebuilding the effects container.
+     *
      * @param character the character to pull data from
      */
     public void refresh(Character character) {
@@ -351,7 +403,7 @@ public class TopBar extends HBox {
             return container;
         }
 
-        Label title = new Label("Active Effects:");
+        Label title = new Label(I18n.t("label.activeEffects"));
         title.setStyle("-fx-text-fill: #888888; -fx-font-size: 11px; -fx-font-style: italic;");
 
         container.getChildren().addAll(title, buffsPane);
@@ -364,15 +416,15 @@ public class TopBar extends HBox {
     private Label createEffectLabel(String text, String iconPath, Character character) {
         Label label = new Label(text);
         label.setStyle("""
-            -fx-background-color: rgba(200, 155, 60, 0.15);
-            -fx-text-fill: #c89b3c;
-            -fx-padding: 2 6 2 6;
-            -fx-background-radius: 4;
-            -fx-border-color: rgba(200, 155, 60, 0.3);
-            -fx-border-radius: 4;
-            -fx-font-size: 11px;
-            -fx-font-weight: bold;
-        """);
+                    -fx-background-color: rgba(200, 155, 60, 0.15);
+                    -fx-text-fill: #c89b3c;
+                    -fx-padding: 2 6 2 6;
+                    -fx-background-radius: 4;
+                    -fx-border-color: rgba(200, 155, 60, 0.3);
+                    -fx-border-radius: 4;
+                    -fx-font-size: 11px;
+                    -fx-font-weight: bold;
+                """);
 
         if (iconPath != null && !iconPath.isBlank()) {
             ImageView icon = new ImageView(new Image(CharacterAssetResolver.resolve(character.getName(), iconPath)));
@@ -419,15 +471,15 @@ public class TopBar extends HBox {
     private static Label getLabel() {
         Label notification = new Label(I18n.t("text.clipboardImage"));
         notification.setStyle("""
-            -fx-background-color: rgba(0, 0, 0, 0.7);
-            -fx-text-fill: #c89b3c;
-            -fx-font-weight: bold;
-            -fx-padding: 8 12;
-            -fx-background-radius: 4;
-            -fx-border-color: #c89b3c;
-            -fx-border-radius: 4;
-            -fx-font-size: 14px;
-        """);
+                    -fx-background-color: rgba(0, 0, 0, 0.7);
+                    -fx-text-fill: #c89b3c;
+                    -fx-font-weight: bold;
+                    -fx-padding: 8 12;
+                    -fx-background-radius: 4;
+                    -fx-border-color: #c89b3c;
+                    -fx-border-radius: 4;
+                    -fx-font-size: 14px;
+                """);
 
         // Предотвращаем прокликивание сквозь уведомление во время его показа
         notification.setMouseTransparent(true);

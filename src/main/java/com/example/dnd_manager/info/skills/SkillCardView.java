@@ -31,6 +31,7 @@ public class SkillCardView extends VBox {
     private static final int CARD_WIDTH = 180;
     private static final int CARD_HEIGHT = 310;
     private static final int ICON_SIZE = 70;
+    private static final int ICON_SIZE_ = 130;
 
     private static final String ACCENT_COLOR = "#c89b3c";
     private static final String IDLE_BORDER = "#4a4a4a";
@@ -68,7 +69,7 @@ public class SkillCardView extends VBox {
 
         // --- 1. ICON ---
         ImageView icon = new ImageView();
-        icon.setImage(CharacterAssetResolver.getImage(character, skill.iconPath(), ICON_SIZE, ICON_SIZE));
+        icon.setImage(CharacterAssetResolver.getImage(character, skill.iconPath(), ICON_SIZE_, ICON_SIZE_));
         icon.setFitWidth(ICON_SIZE);
         icon.setFitHeight(ICON_SIZE);
 
