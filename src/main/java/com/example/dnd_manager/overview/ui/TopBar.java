@@ -4,6 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.overview.dialogs.CharacterNotesDialog;
 import com.example.dnd_manager.overview.dialogs.EditStatsDialog;
 import com.example.dnd_manager.overview.dialogs.FullDescriptionDialog;
 import com.example.dnd_manager.overview.dialogs.LevelUpDialog;
@@ -188,9 +189,16 @@ public class TopBar extends HBox {
         Button increaseLevelBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/level_up_icon.png");
         increaseLevelBtn.setOnAction(e -> showLevelUpDialog(increaseLevelBtn, character, storageService, levelValue));
 
+        Button notesBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/icon_notes.png");
+        notesBtn.setOnAction(e -> {
+            Stage owner = (Stage) notesBtn.getScene().getWindow();
+            new CharacterNotesDialog(owner, character).show();
+        });
+
         HBox rightPanel = new HBox(15,
                 exportBtn,
                 showDescBtn,
+                notesBtn,
                 editBtn,
                 increaseLevelBtn,
                 backBtn
@@ -241,6 +249,11 @@ public class TopBar extends HBox {
         ButtonPopupInstaller.install(
                 increaseLevelBtn,
                 PopupFactory.tooltip(I18n.t("button.levelIncrease"))
+        );
+
+        ButtonPopupInstaller.install(
+                notesBtn,
+                PopupFactory.tooltip(I18n.t("button.showNotesPopup"))
         );
     }
 
