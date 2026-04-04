@@ -101,6 +101,7 @@ public class SkillCardView extends VBox {
         nameLabel.setTextAlignment(TextAlignment.CENTER);
         nameLabel.setAlignment(Pos.CENTER);
         nameLabel.setMaxWidth(CARD_WIDTH - 20);
+        nameLabel.setMinHeight(VBox.USE_PREF_SIZE);
 
         // --- 3. EFFECTS ---
         FlowPane effectsPane = new FlowPane(5, 5);
