@@ -1,10 +1,7 @@
 package com.example.dnd_manager.tooltip;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.buff_debuff.Buff;
-import com.example.dnd_manager.info.buff_debuff.BuffColumnStyle;
-import com.example.dnd_manager.info.buff_debuff.BuffListView;
-import com.example.dnd_manager.info.buff_debuff.BuffType;
+import com.example.dnd_manager.info.buff_debuff.*;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.lang.I18n;
 import javafx.scene.layout.HBox;
@@ -25,20 +22,40 @@ public class BuffsView extends HBox {
 
     public void refresh(Character character) {
         getChildren().clear();
-        List<Buff> buffs = new ArrayList<>(character.getBuffs());
-        for (InventoryItem item : character.getInventory()) {
-            buffs.addAll(item.getAttachedBuffs());
+        setSpacing(10);
+
+        List<BuffWithSource> allBuffsWithSources = new ArrayList<>();
+
+        for (Buff buff : character.getBuffs()) {
+            allBuffsWithSources.add(new BuffWithSource(buff, null));
         }
+
+        for (InventoryItem item : character.getInventory()) {
+            if (item.getAttachedBuffs() != null) {
+                for (Buff buff : item.getAttachedBuffs()) {
+                    allBuffsWithSources.add(new BuffWithSource(buff, item));
+                }
+            }
+        }
+
+        var buffsOnly = allBuffsWithSources.stream()
+                .filter(b -> Objects.equals(b.buff().type(), BuffType.BUFF.getName()))
+                .toList();
+
+        var debuffsOnly = allBuffsWithSources.stream()
+                .filter(b -> Objects.equals(b.buff().type(), BuffType.DEBUFF.getName()))
+                .toList();
 
         BuffListView buffsListView = new BuffListView(
                 I18n.t("buffsView.titleBuff"),
-                buffs.stream().filter(b -> Objects.equals(b.type(), BuffType.BUFF.getName())).toList(),
-                BuffColumnStyle.BUFF, character.getName()
+                buffsOnly,
+                BuffColumnStyle.BUFF,
+                character.getName()
         );
 
         BuffListView debuffsListView = new BuffListView(
                 I18n.t("buffsView.titleDebuff"),
-                buffs.stream().filter(b -> Objects.equals(b.type(), BuffType.DEBUFF.getName())).toList(),
+                debuffsOnly,
                 BuffColumnStyle.DEBUFF,
                 character.getName()
         );

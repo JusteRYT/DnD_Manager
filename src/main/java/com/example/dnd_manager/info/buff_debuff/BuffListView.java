@@ -1,20 +1,24 @@
 package com.example.dnd_manager.info.buff_debuff;
 
+import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.lang.I18n;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 
 import java.util.List;
 
 
 /**
  * One side of buffs or debuffs list.
- * All icons are fixed-size squares for row alignment.
+ * Displays buff icons with source indicators (Innate or Item).
  */
 public class BuffListView extends VBox {
 
@@ -23,7 +27,7 @@ public class BuffListView extends VBox {
 
     public BuffListView(
             String titleText,
-            List<Buff> buffs,
+            List<BuffWithSource> buffs,
             BuffColumnStyle style,
             String characterName
     ) {
@@ -45,7 +49,7 @@ public class BuffListView extends VBox {
             empty.setStyle("-fx-text-fill: #777;");
             icons.getChildren().add(empty);
         } else {
-            buffs.forEach(buff -> {
+            buffs.forEach(buffWithSource -> {
                 StackPane container = new StackPane();
                 container.setPrefSize(ICON_CONTAINER_SIZE, ICON_CONTAINER_SIZE);
                 container.setMinSize(ICON_CONTAINER_SIZE, ICON_CONTAINER_SIZE);
@@ -54,17 +58,21 @@ public class BuffListView extends VBox {
                 container.setStyle("-fx-cursor: hand;");
 
                 String accentColor = style.accentColor();
-
                 String idleStyle = "-fx-background-color: transparent; -fx-effect: null;";
                 String hoverStyle = "-fx-effect: dropshadow(three-pass-box, %s, 8, 0.3, 0, 0);".formatted(accentColor);
 
-                ImageView icon = BuffIconViewFactory.create(buff, style, ICON_SIZE, characterName);
+                // Используем объект баффа для иконки
+                ImageView icon = BuffIconViewFactory.create(buffWithSource.buff(), style, ICON_SIZE, characterName);
                 icon.setFitWidth(ICON_SIZE);
                 icon.setFitHeight(ICON_SIZE);
-                icon.setPreserveRatio(false);
-                icon.setSmooth(true);
 
-                container.getChildren().add(icon);
+                // --- Добавляем индикатор источника ---
+                Node sourceBadge = createSourceBadge(buffWithSource.sourceItem());
+                StackPane.setAlignment(sourceBadge, Pos.TOP_RIGHT);
+                // Немного смещаем внутрь, чтобы не обрезалось
+                StackPane.setMargin(sourceBadge, new Insets(2, 2, 0, 0));
+
+                container.getChildren().addAll(icon, sourceBadge);
 
                 container.setOnMouseEntered(e -> container.setStyle(hoverStyle));
                 container.setOnMouseExited(e -> container.setStyle(idleStyle));
@@ -74,5 +82,48 @@ public class BuffListView extends VBox {
         }
 
         getChildren().addAll(title, icons);
+    }
+
+    /**
+     * Создает компактный индикатор источника (предмет или врожденное).
+     */
+    private Node createSourceBadge(InventoryItem sourceItem) {
+        boolean isFromItem = sourceItem != null;
+
+        String iconText = isFromItem ? "📦" : "👤";
+        String bgColor = isFromItem ? "#55ccff" : "#4a4a4a";
+        String textColor = isFromItem ? "#1a1a1a" : "#c89b3c";
+
+        Label badge = getLabel(iconText, bgColor, textColor);
+
+        Tooltip tooltip = new Tooltip(
+                isFromItem ? sourceItem.getName() : I18n.t("skill.source.innate")
+        );
+        tooltip.setShowDelay(Duration.millis(200));
+        Tooltip.install(badge, tooltip);
+
+        return badge;
+    }
+
+    private static Label getLabel(String iconText, String bgColor, String textColor) {
+        Label badge = new Label(iconText);
+
+        double size = 18;
+        badge.setMinSize(size, size);
+        badge.setMaxSize(size, size);
+        badge.setPrefSize(size, size);
+        badge.setAlignment(Pos.CENTER);
+
+        badge.setStyle(String.format("""
+                    -fx-background-color: %1$s;
+                    -fx-text-fill: %2$s;
+                    -fx-font-size: 9px;
+                    -fx-font-weight: bold;
+                    -fx-background-radius: 4;
+                    -fx-border-color: #1a1a1a;
+                    -fx-border-width: 1;
+                    -fx-border-radius: 4;
+                """, bgColor, textColor));
+        return badge;
     }
 }
