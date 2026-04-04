@@ -1,5 +1,7 @@
 package com.example.dnd_manager.info.editors;
 
+import com.example.dnd_manager.assets.AssetCategory;
+import com.example.dnd_manager.assets.service.GlobalAssetService;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppTextField;
@@ -123,11 +125,24 @@ public abstract class AbstractEntityEditor<T> extends VBox {
         return valid;
     }
 
-    protected String chooseIcon() {
+    /**
+     * Opens a FileChooser, allows the user to select an image, and imports it
+     * into the global Assets directory under the specified category.
+     *
+     * @param category The category determining the target subfolder in Assets.
+     * @return String path relative to the project root (e.g., "Assets/Items/sword.png"), or null if cancelled.
+     */
+    protected String chooseAndImportIcon(AssetCategory category) {
         FileChooser chooser = new FileChooser();
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
+        // Поддержка webp добавлена, так как она часто используется для иконок
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
         File file = chooser.showOpenDialog(getScene().getWindow());
-        return file != null ? file.getAbsolutePath() : null;
+
+        if (file != null) {
+            // Делегируем копирование сервису
+            return GlobalAssetService.importAsset(file, category);
+        }
+        return null;
     }
 
     protected String resolveIconPath(AtomicReference<String> iconPath) {

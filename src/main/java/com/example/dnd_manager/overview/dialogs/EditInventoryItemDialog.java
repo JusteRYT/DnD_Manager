@@ -1,5 +1,6 @@
 package com.example.dnd_manager.overview.dialogs;
 
+import com.example.dnd_manager.assets.service.GlobalAssetService;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.editors.AbstractEntityEditor;
 import com.example.dnd_manager.info.editors.BuffEditor;
@@ -7,7 +8,6 @@ import com.example.dnd_manager.info.editors.SkillsEditor;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.utils.SubEditorManager;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.repository.IconStorageService;
 import com.example.dnd_manager.theme.AppCheckBox;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -17,7 +17,6 @@ import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
@@ -28,7 +27,6 @@ import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -98,9 +96,7 @@ public class EditInventoryItemDialog extends BaseDialog {
 
         equippedCheckBox = new AppCheckBox("Equip this item");
         equippedCheckBox.setSelected(item.isEquipped());
-        equippedCheckBox.setOnAction(() -> {
-            effectFieldContainer.setVisible(equippedCheckBox.isSelected());
-        });
+        equippedCheckBox.setOnAction(() -> effectFieldContainer.setVisible(equippedCheckBox.isSelected()));
 
         scrollContent.getChildren().addAll(
                 nameField.getField(),
@@ -160,14 +156,22 @@ public class EditInventoryItemDialog extends BaseDialog {
     private String chooseIcon() {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Select Item Icon");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg"));
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
+
         File file = chooser.showOpenDialog(stage);
         if (file == null) return iconPath;
-        try {
-            return new IconStorageService().storeIcon(character.getName(), file);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-            return iconPath;
+
+        // Используем наш новый сервис импорта
+        String importedPath = GlobalAssetService.importAsset(
+                file,
+                com.example.dnd_manager.assets.AssetCategory.ITEMS
+        );
+
+        if (importedPath != null) {
+            log.info("New icon imported for item: {}", importedPath);
+            return importedPath;
         }
+
+        return iconPath;
     }
 }

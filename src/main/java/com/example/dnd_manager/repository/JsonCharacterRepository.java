@@ -222,7 +222,7 @@ public class JsonCharacterRepository implements CharacterRepository {
         }
     }
 
-    private void processCharacterAssets(Character c, Path iconDir) throws IOException {
+    private void    processCharacterAssets(Character c, Path iconDir) throws IOException {
         // Аватар
         copyIcon(c.getAvatarImage(), iconDir, c::setAvatarImage);
 

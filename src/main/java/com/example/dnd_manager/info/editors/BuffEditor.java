@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.editors;
 
+import com.example.dnd_manager.assets.AssetCategory;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.buff_debuff.BuffEditorRow;
@@ -68,7 +69,7 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
         });
 
         chooseIconButton.setOnAction(e -> {
-            String path = chooseIcon();
+            String path = chooseAndImportIcon(AssetCategory.BUFFS);
             if (path != null) {
                 iconPath.set(path);
                 iconPathLabel.setText(new File(path).getName());

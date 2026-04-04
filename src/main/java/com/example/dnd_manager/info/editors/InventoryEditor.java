@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.editors;
 
+import com.example.dnd_manager.assets.AssetCategory;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
@@ -101,7 +102,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         );
 
         iconButton.setOnAction(e -> {
-            String path = chooseIcon();
+            String path = chooseAndImportIcon(AssetCategory.ITEMS);
             if (path != null) {
                 iconPath.set(path);
                 iconPathLabel.setText(new File(path).getName());

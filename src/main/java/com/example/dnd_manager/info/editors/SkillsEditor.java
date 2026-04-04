@@ -1,5 +1,6 @@
 package com.example.dnd_manager.info.editors;
 
+import com.example.dnd_manager.assets.AssetCategory;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.skills.ActivationType;
 import com.example.dnd_manager.info.skills.EffectsBuilderField;
@@ -91,7 +92,7 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
         );
 
         iconButton.setOnAction(e -> {
-            String path = chooseIcon();
+            String path = chooseAndImportIcon(AssetCategory.SKILLS);
             if (path != null) {
                 iconPath.set(path);
                 iconPathLabel.setText(new File(path).getName());

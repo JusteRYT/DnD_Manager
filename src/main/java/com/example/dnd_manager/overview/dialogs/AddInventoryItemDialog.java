@@ -1,5 +1,7 @@
 package com.example.dnd_manager.overview.dialogs;
 
+import com.example.dnd_manager.assets.AssetCategory;
+import com.example.dnd_manager.assets.service.GlobalAssetService;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.editors.AbstractEntityEditor;
@@ -9,7 +11,6 @@ import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.skills.Skill;
 import com.example.dnd_manager.info.utils.SubEditorManager;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.repository.IconStorageService;
 import com.example.dnd_manager.theme.AppCheckBox;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
@@ -28,7 +29,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -91,9 +91,7 @@ public class AddInventoryItemDialog extends BaseDialog {
         VBox effectFieldContainer = new VBox(5, new Label("Effect Display Name:"), effectDisplayField.getField());
         effectFieldContainer.setVisible(equippedCheckBox.isSelected());
 
-        equippedCheckBox.setOnAction(() -> {
-            effectFieldContainer.setVisible(equippedCheckBox.isSelected());
-        });
+        equippedCheckBox.setOnAction(() -> effectFieldContainer.setVisible(equippedCheckBox.isSelected()));
 
         // --- Секция баффов и скиллов ---
         VBox attachmentsBox = new VBox(10);
@@ -173,32 +171,46 @@ public class AddInventoryItemDialog extends BaseDialog {
             existingItem.setAttachedSkills(new ArrayList<>(attachedSkills));
             onItemAddedOrEdited.accept(existingItem);
         } else {
-            InventoryItem item = new InventoryItem(
-                    name,
-                    desc,
-                    iconPath != null && !iconPath.equals("icon/no_image.png") ? iconPath : "icon/no_image.png"
-            );
-            item.setCount(count);
-            item.setEquipped(equippedCheckBox.isSelected());
-            item.setCustomEffectName(effectDisplayField.getText());
-            item.setAttachedBuffs(new ArrayList<>(attachedBuffs));
-            item.setAttachedSkills(new ArrayList<>(attachedSkills));
+            InventoryItem item = getInventoryItem(name, desc, count);
             character.getInventory().add(item);
             onItemAddedOrEdited.accept(item);
         }
     }
 
+    private InventoryItem getInventoryItem(String name, String desc, int count) {
+        InventoryItem item = new InventoryItem(
+                name,
+                desc,
+                iconPath != null && !iconPath.equals("icon/no_image.png") ? iconPath : "icon/no_image.png"
+        );
+        item.setCount(count);
+        item.setEquipped(equippedCheckBox.isSelected());
+        item.setCustomEffectName(effectDisplayField.getText());
+        item.setAttachedBuffs(new ArrayList<>(attachedBuffs));
+        item.setAttachedSkills(new ArrayList<>(attachedSkills));
+        return item;
+    }
+
+    /**
+     * Opens a FileChooser to select an item icon and imports it into the global Assets/Items directory.
+     * * @return The relative path to the imported asset, or the current iconPath if cancelled.
+     */
     private String chooseIcon() {
         FileChooser chooser = new FileChooser();
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg"));
-        File file = chooser.showOpenDialog(stage);
-        if (file == null) return null;
+        chooser.setTitle("Select Item Icon");
+        // Добавляем поддержку всех форматов, включая webp
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
 
-        try {
-            return new IconStorageService().storeIcon(character.getName(), file);
-        } catch (IOException e) {
-            return null;
-        }
+        File file = chooser.showOpenDialog(stage);
+        if (file == null) return iconPath;
+
+        // Импортируем в общую категорию ITEMS
+        String importedPath = GlobalAssetService.importAsset(
+                file,
+                AssetCategory.ITEMS
+        );
+
+        return (importedPath != null) ? importedPath : iconPath;
     }
 
     /**
