@@ -59,13 +59,14 @@ public class TopBar extends HBox {
         setStyle("-fx-background-color: transparent;");
 
         // --- Avatar ---
-        ImageView avatar = new ImageView(new Image(CharacterAssetResolver.resolve(character.getName(), character.getAvatarImage())));
-        avatar.setFitWidth(160);
-        avatar.setFitHeight(220);
-        avatar.setPreserveRatio(true);
+        Image avatarImg = CharacterAssetResolver.getAvatarImage(character, character.getAvatarImage(), 400, 600);
 
         // Обертка для аватара с рамкой
-        StackPane avatarContainer = getStackPane(avatar);
+        StackPane avatarContainer = getStackPane(avatarImg);
+
+        avatarContainer.setPrefSize(160, 220);
+        avatarContainer.setMinSize(160, 220);
+        avatarContainer.setMaxWidth(220);
 
         // --- Name ---
         Label nameLabel = new Label(character.getName());
@@ -123,6 +124,7 @@ public class TopBar extends HBox {
         HBox statsBox = new HBox(12, hpBox, armorBox);
         statsBox.setAlignment(Pos.CENTER_LEFT);
         statsBox.setPadding(new Insets(8, 0, 0, 0));
+        HBox.setHgrow(avatarContainer, Priority.SOMETIMES);
 
         this.activeEffectsBox = buildActiveEffectsBox(character);
 
@@ -307,43 +309,65 @@ public class TopBar extends HBox {
         return container;
     }
 
-    private static StackPane getStackPane(ImageView avatar) {
-        StackPane avatarContainer = new StackPane(avatar);
+    /**
+     * Creates a decorative container for the avatar.
+     * Uses a Rectangle with ImagePattern to achieve 'object-fit: cover' behavior
+     * and avoids CSS background conflicts.
+     *
+     * @param img The avatar image to display.
+     * @return A styled StackPane containing the cropped image.
+     */
+    private static StackPane getStackPane(Image img) {
+        StackPane avatarContainer = new StackPane();
         avatarContainer.setPadding(new Insets(3));
         avatarContainer.setCursor(Cursor.HAND);
 
+        // 1. Создаем прямоугольник, который будет служить холстом для картинки
+        javafx.scene.shape.Rectangle view = new javafx.scene.shape.Rectangle();
+
+        // 2. Используем ImagePattern для заполнения (аналог cover)
+        if (img != null) {
+            view.setFill(new javafx.scene.paint.ImagePattern(img));
+        }
+
+        // 3. Привязываем размер прямоугольника к размеру контейнера (с учетом padding)
+        view.widthProperty().bind(avatarContainer.widthProperty().subtract(10));
+        view.heightProperty().bind(avatarContainer.heightProperty().subtract(10));
+
+        // 4. Скругляем углы самой картинки, чтобы они не вылезали за рамку
+        view.setArcWidth(12);
+        view.setArcHeight(12);
+
+        avatarContainer.getChildren().add(view);
+
+        // Стили контейнера (рамка, тени, радиус фона)
         String baseStyle = """
-                -fx-background-color: #2b2b2b;
-                -fx-background-radius: 8;
-                -fx-border-color: #c89b3c;
-                -fx-border-radius: 8;
-                -fx-border-width: 2;
-                -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.3), 15, 0, 0, 0);
-                """;
+        -fx-background-color: #2b2b2b;
+        -fx-background-radius: 8;
+        -fx-border-color: #c89b3c;
+        -fx-border-radius: 8;
+        -fx-border-width: 2;
+        -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.3), 15, 0, 0, 0);
+        """;
 
         String hoverStyle = """
-                -fx-background-color: #2b2b2b;
-                -fx-background-radius: 8;
-                -fx-border-color: #f5b741;
-                -fx-border-radius: 8;
-                -fx-border-width: 2;
-                -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.8), 25, 0, 0, 0);
-                """;
+        -fx-background-color: #2b2b2b;
+        -fx-background-radius: 8;
+        -fx-border-color: #f5b741;
+        -fx-border-radius: 8;
+        -fx-border-width: 2;
+        -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.8), 25, 0, 0, 0);
+        """;
 
         avatarContainer.setStyle(baseStyle);
-
         avatarContainer.setOnMouseEntered(e -> avatarContainer.setStyle(hoverStyle));
         avatarContainer.setOnMouseExited(e -> avatarContainer.setStyle(baseStyle));
 
-        // --- Click to Copy Logic ---
         avatarContainer.setOnMouseClicked(e -> {
-            // 1. Копирование в буфер обмена
             Clipboard clipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
-            content.putImage(avatar.getImage());
+            content.putImage(img);
             clipboard.setContent(content);
-
-            // 2. Визуальное уведомление
             showCopiedNotification(avatarContainer);
         });
 
