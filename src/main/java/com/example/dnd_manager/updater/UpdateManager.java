@@ -39,20 +39,35 @@ public class UpdateManager {
         Path tempZip = Paths.get(System.getProperty("java.io.tmpdir"), "dnd_update.zip");
         downloadFile(zipAsset.get().downloadUrl, tempZip, progressCallback);
 
-        String currentDir = getAppDirectory().toString();
+        String currentDir = getRootDirectory().toString();
         createWindowsUpdater(currentDir, tempZip.toString());
 
         System.exit(0);
     }
 
     /**
-     * Gets the directory where the application executable is located.
+     * Resolves the root application directory.
+     * Since the running JAR is located inside the "app" folder,
+     * this method gets the parent of the folder containing the JAR
+     * to reach the main application directory.
+     *
+     * @return The path to the root application directory.
      */
-
-    private Path getAppDirectory() {
+    private Path getRootDirectory() {
         try {
-            return Paths.get(getClass().getProtectionDomain().getCodeSource().getLocation().toURI()).getParent();
+            Path jarPath = Paths.get(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+            Path jarDirectory = jarPath.getParent(); // Gets the "app" directory
+
+            if (jarDirectory != null && jarDirectory.getParent() != null) {
+                // If the JAR is specifically in the "app" folder, go one level up
+                if ("app".equalsIgnoreCase(jarDirectory.getFileName().toString())) {
+                    return jarDirectory.getParent(); // Returns the root directory (DnD_Manager_Windows)
+                }
+            }
+            return jarDirectory != null ? jarDirectory : Paths.get(System.getProperty("user.dir"));
+
         } catch (Exception e) {
+            log.error("Failed to resolve JAR directory dynamically. Falling back to user.dir", e);
             return Paths.get(System.getProperty("user.dir"));
         }
     }
