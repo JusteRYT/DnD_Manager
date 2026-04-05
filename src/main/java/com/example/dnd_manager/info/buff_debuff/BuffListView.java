@@ -66,6 +66,10 @@ public class BuffListView extends VBox {
                 icon.setFitWidth(ICON_SIZE);
                 icon.setFitHeight(ICON_SIZE);
 
+                icon.setPreserveRatio(true);
+                icon.setSmooth(true);
+                icon.setCache(true);
+
                 // --- Добавляем индикатор источника ---
                 Node sourceBadge = createSourceBadge(buffWithSource.sourceItem());
                 StackPane.setAlignment(sourceBadge, Pos.TOP_RIGHT);

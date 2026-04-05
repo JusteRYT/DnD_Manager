@@ -13,6 +13,7 @@ import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.CacheHint;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -129,7 +130,7 @@ public class InventoryPanel extends VBox {
             icon = new ImageView();
             icon.setFitWidth(ITEM_SIZE);
             icon.setFitHeight(ITEM_SIZE);
-            icon.setPreserveRatio(false);
+            icon.setPreserveRatio(true);
             icon.setSmooth(true);
             icon.setStyle("-fx-cursor: hand;");
 
@@ -195,7 +196,8 @@ public class InventoryPanel extends VBox {
 
         public void refresh() {
             icon.setImage(CharacterAssetResolver.getImage(character, item.getIconPath(), ICON_SIZE, ICON_SIZE));
-
+            icon.setCache(true);
+            icon.setCacheHint(CacheHint.QUALITY);
             if (popup != null) {
                 popup.getContent().clear();
                 popup.getContent().add(new InventoryItemPopup(item));

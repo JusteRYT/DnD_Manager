@@ -73,6 +73,10 @@ public class SkillCardView extends VBox {
         icon.setFitWidth(ICON_SIZE);
         icon.setFitHeight(ICON_SIZE);
 
+        icon.setPreserveRatio(true);
+        icon.setSmooth(true);
+        icon.setCache(true);
+
         StackPane iconFrame = new StackPane(icon);
         iconFrame.setMaxSize(ICON_SIZE + 4, ICON_SIZE + 4);
         iconFrame.setStyle("""

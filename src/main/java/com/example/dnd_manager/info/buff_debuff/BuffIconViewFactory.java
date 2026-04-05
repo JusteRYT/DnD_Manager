@@ -33,14 +33,14 @@ public final class BuffIconViewFactory {
                         Objects.requireNonNull(BuffIconViewFactory.class.getResource(DEFAULT_ICON_PATH))
                                 .toExternalForm(),
                         130, 130,
-                        true, false,  // preserveRatio, smooth
+                        true, true,  // preserveRatio, smooth
                         true         // backgroundLoading
                 );
             } else {
                 image = new Image(
                         CharacterAssetResolver.resolve(characterName, buff.iconPath()),
                         130, 130,
-                        true, false,
+                        true, true,
                         true
                 );
             }
@@ -49,7 +49,7 @@ public final class BuffIconViewFactory {
                     Objects.requireNonNull(BuffIconViewFactory.class.getResource(DEFAULT_ICON_PATH))
                             .toExternalForm(),
                     130, 130,
-                    true, false,
+                    true, true,
                     true
             );
         }

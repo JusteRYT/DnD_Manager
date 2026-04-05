@@ -62,12 +62,12 @@ public final class CharacterAssetResolver {
 
             if (targetPath != null && Files.exists(targetPath)) {
                 try (InputStream is = Files.newInputStream(targetPath)) {
-                    return new Image(is, width, height, true, false);
+                    return new Image(is, width, height, true, true);
                 }
             }
 
             if (iconPath.contains(":/")) {
-                return new Image(iconPath, width, height, true, false, true);
+                return new Image(iconPath, width, height, true, true, true);
             }
 
         } catch (Exception e) {
@@ -79,7 +79,7 @@ public final class CharacterAssetResolver {
 
     private static Image getDefaultImage(double width, double height) {
         return new Image(Objects.requireNonNull(
-                CharacterAssetResolver.class.getResource(DEFAULT_ICON)).toExternalForm(), width, height, true, false, true);
+                CharacterAssetResolver.class.getResource(DEFAULT_ICON)).toExternalForm(), width, height, true, true, true);
     }
 
     public static Image getAvatarImage(Character character, String path, double width, double height) {
@@ -98,7 +98,7 @@ public final class CharacterAssetResolver {
 
     private static Image getResourceImage(double width, double height) {
         String url = Objects.requireNonNull(CharacterAssetResolver.class.getResource(CharacterAssetResolver.DEFAULT_AVATAR_RESOURCE)).toExternalForm();
-        return new Image(url, width, height, true, false, true);
+        return new Image(url, width, height, true, true, true);
     }
 
     private static boolean isDefaultIcon(Image img) {
