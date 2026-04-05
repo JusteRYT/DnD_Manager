@@ -472,6 +472,8 @@ public class TopBar extends HBox {
     private static void showCopiedNotification(StackPane container) {
         Label notification = getLabel();
 
+        notification.maxWidthProperty().bind(container.widthProperty().subtract(20));
+
         container.getChildren().add(notification);
 
         // Анимация появления и исчезновения
@@ -479,7 +481,7 @@ public class TopBar extends HBox {
         fadeIn.setFromValue(0);
         fadeIn.setToValue(1);
 
-        PauseTransition pause = new PauseTransition(Duration.seconds(1));
+        PauseTransition pause = new PauseTransition(Duration.seconds(1.5));
 
         FadeTransition fadeOut = new FadeTransition(Duration.millis(300), notification);
         fadeOut.setFromValue(1);
@@ -494,16 +496,24 @@ public class TopBar extends HBox {
 
     private static Label getLabel() {
         Label notification = new Label(I18n.t("text.clipboardImage"));
+
+        notification.setWrapText(true);
+
+        notification.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
+
+
+        notification.setAlignment(Pos.CENTER);
+
         notification.setStyle("""
-                    -fx-background-color: rgba(0, 0, 0, 0.7);
-                    -fx-text-fill: #c89b3c;
-                    -fx-font-weight: bold;
-                    -fx-padding: 8 12;
-                    -fx-background-radius: 4;
-                    -fx-border-color: #c89b3c;
-                    -fx-border-radius: 4;
-                    -fx-font-size: 14px;
-                """);
+                -fx-background-color: rgba(0, 0, 0, 0.8);
+                -fx-text-fill: #c89b3c;
+                -fx-font-weight: bold;
+                -fx-padding: 10 15;
+                -fx-background-radius: 6;
+                -fx-border-color: #c89b3c;
+                -fx-border-radius: 6;
+                -fx-font-size: 13px;
+            """);
 
         // Предотвращаем прокликивание сквозь уведомление во время его показа
         notification.setMouseTransparent(true);
