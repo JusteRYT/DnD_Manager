@@ -1,5 +1,6 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
@@ -13,8 +14,11 @@ import javafx.stage.Stage;
  */
 public class CharacterEditScreen extends AbstractCharacterFormScreen {
 
+    private final SaveCharacterUseCase saveCharacterUseCase;
+
     public CharacterEditScreen(Stage stage, Character character, StorageService storageService) {
         super(stage, storageService, character, FormMode.EDIT);
+        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
     }
 
     @Override
@@ -35,12 +39,12 @@ public class CharacterEditScreen extends AbstractCharacterFormScreen {
         if (baseInfoForm.validate()) return;
 
         syncDataToCharacter();
-        storageService.saveCharacter(character);
-        ScreenManager.setScreen(stage, new StartScreen(stage, storageService).getView());
+        saveCharacterUseCase.execute(character);
+        screenNavigator.open(new StartScreen(stage, storageService).getView());
     }
 
     @Override
     protected void handleExit() {
-        ScreenManager.setScreen(stage, new StartScreen(stage, storageService).getView());
+        screenNavigator.open(new StartScreen(stage, storageService).getView());
     }
 }

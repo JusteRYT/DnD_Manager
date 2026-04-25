@@ -1,5 +1,6 @@
 package com.example.dnd_manager.overview.ui;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
@@ -20,7 +21,7 @@ public class ManaBar extends VBox {
 
     private final Character target;
     private final Character owner;
-    private final StorageService storageService;
+    private final SaveCharacterUseCase saveCharacterUseCase;
 
     private final ProgressBar manaProgress = new ProgressBar();
     private final Label manaLabel = new Label();
@@ -31,7 +32,7 @@ public class ManaBar extends VBox {
     public ManaBar(Character target, Character owner, StorageService storageService) {
         this.target = target;
         this.owner = owner;
-        this.storageService = storageService;
+        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
         setSpacing(8);
 
         Label title = new Label(I18n.t("manaField.name.overview"));
@@ -125,7 +126,7 @@ public class ManaBar extends VBox {
         target.setCurrentMana(newMana);
         refresh();
 
-        storageService.saveCharacter(owner);
+        saveCharacterUseCase.execute(owner);
 
         if (onUpdate != null) {
             onUpdate.run();

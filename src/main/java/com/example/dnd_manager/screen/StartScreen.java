@@ -1,11 +1,13 @@
     package com.example.dnd_manager.screen;
 
+    import com.example.dnd_manager.application.AppContext;
+    import com.example.dnd_manager.application.port.ScreenNavigator;
+    import com.example.dnd_manager.application.usecase.character.ListCharacterNamesUseCase;
     import com.example.dnd_manager.info.version.AppInfo;
     import com.example.dnd_manager.lang.I18n;
     import com.example.dnd_manager.overview.dialogs.AppConfirmDialog;
     import com.example.dnd_manager.overview.dialogs.AppErrorDialog;
     import com.example.dnd_manager.service.CharacterImageIntegrityService;
-    import com.example.dnd_manager.service.CharacterTransferServiceImpl;
     import com.example.dnd_manager.store.StorageService;
     import com.example.dnd_manager.theme.AppTheme;
     import com.example.dnd_manager.theme.ButtonSizeConfigurer;
@@ -28,8 +30,6 @@
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
 
-    import java.util.List;
-    import java.util.Locale;
     import java.util.Objects;
 
 
@@ -43,6 +43,7 @@
 
         private final Stage stage;
         private final StorageService storageService;
+        private final StartScreenController controller;
         private final int BUTTON_WIDTH = 400;
         private final int BUTTON_HEIGHT = 100;
         private final int FONT_SIZE = 20;
@@ -50,7 +51,30 @@
         public StartScreen(Stage stage, StorageService storageService) {
             this.stage = stage;
             this.storageService = storageService;
+            ScreenNavigator screenNavigator = view -> ScreenManager.setScreen(stage, view);
+            this.controller = new StartScreenController(
+                    stage,
+                    storageService,
+                    screenNavigator,
+                    new ListCharacterNamesUseCase(storageService),
+                    this::showError
+            );
             log.debug("Initializing StartScreen and running integrity checks...");
+            CharacterImageIntegrityService imageService = new CharacterImageIntegrityService(storageService);
+            imageService.validateAndRepairAllCharacters();
+        }
+
+        public StartScreen(AppContext context) {
+            this.stage = context.stage();
+            this.storageService = context.storageService();
+            this.controller = new StartScreenController(
+                    stage,
+                    storageService,
+                    context.screenNavigator(),
+                    context.characterUseCases().listCharacterNamesUseCase(),
+                    this::showError
+            );
+            log.debug("Initializing StartScreen via AppContext and running integrity checks...");
             CharacterImageIntegrityService imageService = new CharacterImageIntegrityService(storageService);
             imageService.validateAndRepairAllCharacters();
         }
@@ -107,19 +131,16 @@
             ButtonSizeConfigurer.applyFixedSize(languageBtn, 150, 40);
             ButtonSizeConfigurer.applyFixedSize(updateBtn, 150, 40);
 
-            languageBtn.setOnAction(e -> changeLanguage());
+            languageBtn.setOnAction(e -> controller.changeLanguageAndReload());
             updateBtn.setOnAction(e -> handleUpdateCheck(updateBtn));
             languageBtn.setFocusTraversable(false);
             updateBtn.setFocusTraversable(false);
 
-            createButton.setOnAction(e -> openCharacterCreate());
-            editButton.setOnAction(e -> openCharacterEdit());
-            loadButton.setOnAction(e -> openCharacterLoad());
-            transferButton.setOnAction(e -> openCharacterTransfer());
-            assetManagerBtn.setOnAction(e -> {
-                AssetManagerScreen assetScreen = new AssetManagerScreen(stage, storageService);
-                ScreenManager.setScreen(stage, assetScreen);
-            });
+            createButton.setOnAction(e -> controller.openCharacterCreate());
+            editButton.setOnAction(e -> controller.openCharacterEdit());
+            loadButton.setOnAction(e -> controller.openCharacterLoad());
+            transferButton.setOnAction(e -> controller.openCharacterTransfer());
+            assetManagerBtn.setOnAction(e -> controller.openAssetManager());
 
             HBox bottomButtons = new HBox(15);
             bottomButtons.setAlignment(Pos.CENTER);
@@ -166,71 +187,6 @@
             imageView.setFitHeight(120 * SCALE);
             imageView.setPreserveRatio(true);
             return imageView;
-        }
-
-        private void openCharacterCreate() {
-            log.info("Navigation: Opening Character Creation screen");
-            CharacterCreateScreen createScreen = new CharacterCreateScreen(stage, storageService);
-            ScreenManager.setScreen(stage, createScreen.getView());
-        }
-
-        private void openCharacterEdit() {
-            List<String> names = storageService.listCharacterNames();
-            if (names.isEmpty()) {
-                showError(I18n.t("error.no_characters_title"), I18n.t("error.no_characters_msg"));
-                return;
-            }
-
-            CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(
-                    stage,
-                    storageService,
-                    character -> {
-                        CharacterEditScreen editScreen = new CharacterEditScreen(stage, character, storageService);
-                        ScreenManager.setScreen(stage, editScreen.getView());
-                    }, true
-            );
-
-            ScreenManager.setScreen(stage, selectionScreen);
-        }
-
-        private void openCharacterLoad() {
-            log.info("Navigation: Opening Character Selection (Load/View mode)");
-            checkCharacter();
-        }
-
-        private void checkCharacter() {
-            List<String> names = storageService.listCharacterNames();
-            if (names.isEmpty()) {
-                log.warn("Navigation failed: No characters available for loading");
-                showError(I18n.t("error.no_characters_title"), I18n.t("error.no_characters_msg"));
-                return;
-            }
-
-            CharacterSelectionScreen selectionScreen = new CharacterSelectionScreen(stage, storageService,
-                    character -> {
-                        log.info("Character selected for view: {}", character.getName());
-                        CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(stage, character, storageService);
-                        ScreenManager.setScreen(stage, overviewScreen);
-                    }, false);
-
-            ScreenManager.setScreen(stage, selectionScreen);
-        }
-
-        private void openCharacterTransfer() {
-            log.info("Navigation: Opening Import/Export screen");
-            CharacterImportExportScreen screen = new CharacterImportExportScreen(
-                    stage, storageService, new CharacterTransferServiceImpl()
-            );
-            ScreenManager.setScreen(stage, screen);
-        }
-
-        private void changeLanguage() {
-            Locale newLocale = I18n.isEnglish() ? Locale.forLanguageTag("ru") : Locale.ENGLISH;
-            log.info("UI: Changing language to {}", newLocale);
-            I18n.setLocale(newLocale);
-
-            StartScreen newScreen = new StartScreen(stage, storageService);
-            ScreenManager.setScreen(stage, newScreen.getView());
         }
 
         /**

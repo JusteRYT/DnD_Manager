@@ -60,7 +60,7 @@ public final class CharacterStoragePathResolver {
             if (isDirEmpty(legacyPath)) Files.delete(legacyPath);
 
         } catch (IOException e) {
-            System.err.println("CRITICAL: Migration failed! Check permissions. " + e.getMessage());
+            log.error("CRITICAL: Migration failed! Check permissions.", e);
         }
     }
 

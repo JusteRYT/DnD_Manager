@@ -7,8 +7,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScreenManager {
+    private static final Logger log = LoggerFactory.getLogger(ScreenManager.class);
 
     /**
      * Меняет только контентную область, сохраняя TitleBar
@@ -17,12 +20,10 @@ public class ScreenManager {
         Parent rootNode = stage.getScene().getRoot();
 
         if (!(rootNode instanceof VBox root)) {
-            System.err.println("=== КРИТИЧЕСКАЯ ОШИБКА НАВИГАЦИИ ===");
-            System.err.println("Ожидался корень: javafx.scene.layout.VBox (с TitleBar)");
-            System.err.println("Текущий корень в сцене: " + rootNode.getClass().getName());
-            System.err.println("ID текущего корня: " + rootNode.getId());
-            System.err.println("Скорее всего, где-то вызван stage.getScene().setRoot() вместо ScreenManager.setScreen()");
-            System.err.println("====================================");
+            log.error("Critical navigation error: expected VBox root with TitleBar");
+            log.error("Current root class: {}", rootNode.getClass().getName());
+            log.error("Current root id: {}", rootNode.getId());
+            log.error("Likely cause: stage.getScene().setRoot() used instead of ScreenManager.setScreen()");
             return;
         }
 

@@ -1,20 +1,14 @@
 package com.example.dnd_manager.overview.ui;
 
+import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.overview.dialogs.CharacterNotesDialog;
-import com.example.dnd_manager.overview.dialogs.EditStatsDialog;
-import com.example.dnd_manager.overview.dialogs.FullDescriptionDialog;
-import com.example.dnd_manager.overview.dialogs.LevelUpDialog;
 import com.example.dnd_manager.overview.utils.ButtonPopupInstaller;
 import com.example.dnd_manager.overview.utils.PopupFactory;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
-import com.example.dnd_manager.screen.ScreenManager;
-import com.example.dnd_manager.screen.StartScreen;
-import com.example.dnd_manager.service.CharacterExporter;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
@@ -32,14 +26,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,11 +41,17 @@ public class TopBar extends HBox {
 
     private final VBox infoBox;
     private VBox activeEffectsBox;
+    private final TopBarController controller;
 
     public TopBar(Character character, CharacterOverviewScreen parentScreen, StorageService storageService) {
         setSpacing(10);
         setPadding(new Insets(10));
         setStyle("-fx-background-color: transparent;");
+        ScreenNavigator screenNavigator = view -> {
+            Stage stage = (Stage) parentScreen.getScene().getWindow();
+            com.example.dnd_manager.screen.ScreenManager.setScreen(stage, view);
+        };
+        this.controller = new TopBarController(character, parentScreen, storageService, screenNavigator);
 
         // --- Avatar ---
         Image avatarImg = CharacterAssetResolver.getAvatarImage(character, character.getAvatarImage(), 400, 600);
@@ -145,61 +140,30 @@ public class TopBar extends HBox {
 
         // --- Right block: buttons ---
         Button exportBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/import-export.png");
-        exportBtn.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-
-            fileChooser.setTitle("Сохранить описание персонажа");
-            fileChooser.setInitialFileName(character.getName() + "_description.txt");
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-
-            Stage stage = (Stage) exportBtn.getScene().getWindow();
-            File file = fileChooser.showSaveDialog(stage);
-
-            if (file != null) {
-                try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
-                    String fullText = CharacterExporter.generateFullDescription(character);
-                    writer.print(fullText);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    // Здесь можно вывести Alert с ошибкой
-                }
-            }
-        });
+        exportBtn.setOnAction(e -> controller.exportDescription((Stage) exportBtn.getScene().getWindow()));
 
         Button showDescBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/icon_description.png");
-        showDescBtn.setOnAction(e -> {
-            Stage owner = (Stage) showDescBtn.getScene().getWindow();
-            new FullDescriptionDialog(owner, character).show();
-        });
+        showDescBtn.setOnAction(e -> controller.showDescription((Stage) showDescBtn.getScene().getWindow()));
 
         Button editBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/edit_icon.png");
-        editBtn.setOnAction(e -> {
-            Stage owner = (Stage) editBtn.getScene().getWindow();
-            EditStatsDialog dialog = new EditStatsDialog(
-                    owner,
-                    character,
-                    storageService,
-                    () -> {
-                        hpLabel.setText(String.valueOf(character.getCurrentHp()));
-                        armorLabel.setText(String.valueOf(character.getArmor()));
-                        parentScreen.getManaBar().refresh();
-                        levelValue.setText(String.valueOf(character.getLevel()));
-                    }
-            );
-            dialog.show();
-        });
+        editBtn.setOnAction(e -> controller.openEditStats(
+                (Stage) editBtn.getScene().getWindow(),
+                hpLabel,
+                armorLabel,
+                levelValue
+        ));
 
         Button backBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/icon_back.png");
 
         // --- Increase level button with confirmation ---
         Button increaseLevelBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/level_up_icon.png");
-        increaseLevelBtn.setOnAction(e -> showLevelUpDialog(increaseLevelBtn, character, storageService, levelValue));
+        increaseLevelBtn.setOnAction(e -> controller.openLevelUp(
+                (Stage) increaseLevelBtn.getScene().getWindow(),
+                levelValue
+        ));
 
         Button notesBtn = AppButtonFactory.hudIconButton(50, "/com/example/dnd_manager/icon/icon_notes.png");
-        notesBtn.setOnAction(e -> {
-            Stage owner = (Stage) notesBtn.getScene().getWindow();
-            new CharacterNotesDialog(owner, character).show();
-        });
+        notesBtn.setOnAction(e -> controller.showNotes((Stage) notesBtn.getScene().getWindow()));
 
         HBox buttonsRow = new HBox(15,
                 exportBtn,
@@ -222,7 +186,7 @@ public class TopBar extends HBox {
                 """);
 
         // --- VRChat Save String Field (using AppTextField) ---
-        VBox vrcContainer = getVrcSaveContainer(character, storageService);
+        VBox vrcContainer = getVrcSaveContainer(character, controller);
 
         VBox rightLayout = new VBox(12, buttonsRow, vrcContainer);
         rightLayout.setAlignment(Pos.TOP_RIGHT);
@@ -233,7 +197,7 @@ public class TopBar extends HBox {
 
         backBtn.setOnAction(e -> {
             Stage stage = (Stage) parentScreen.getScene().getWindow();
-            closeScreen(stage, storageService);
+            controller.backToStart(stage);
         });
 
         ButtonPopupInstaller.install(
@@ -267,7 +231,7 @@ public class TopBar extends HBox {
         );
     }
 
-    private static VBox getVrcSaveContainer(Character character, StorageService storageService) {
+    private static VBox getVrcSaveContainer(Character character, TopBarController controller) {
         Label vrcLabel = new Label(I18n.t("label.textFieldVRCHATSave"));
         vrcLabel.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 11px; -fx-font-weight: bold;");
 
@@ -289,8 +253,7 @@ public class TopBar extends HBox {
 
         field.focusedProperty().addListener((obs, oldVal, newVal) -> {
             if (!newVal) {
-                character.setSaveString(field.getText().trim());
-                storageService.saveCharacter(character);
+                controller.persistSaveString(field.getText());
             }
         });
 
@@ -372,18 +335,6 @@ public class TopBar extends HBox {
         });
 
         return avatarContainer;
-    }
-
-    private static void showLevelUpDialog(Button sourceButton, Character character, StorageService storageService, Label levelValue) {
-        Stage owner = (Stage) sourceButton.getScene().getWindow();
-
-        new LevelUpDialog(owner, character, storageService, () ->
-                levelValue.setText(String.valueOf(character.getLevel()))).show();
-    }
-
-    private void closeScreen(Stage stage, StorageService storageService) {
-        StartScreen startScreen = new StartScreen(stage, storageService);
-        ScreenManager.setScreen(stage, startScreen.getView());
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.example.dnd_manager;
 
-import com.example.dnd_manager.screen.ScreenManager;
+import com.example.dnd_manager.application.AppContext;
+import com.example.dnd_manager.repository.JsonCharacterRepository;
 import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.CustomTitleBar;
@@ -27,8 +28,8 @@ public class MainApp extends Application {
         primaryStage.initStyle(StageStyle.UNDECORATED);
         log.debug("Stage style set to UNDECORATED");
 
-        StorageService storageService = new StorageService();
-        storageService.init();
+        StorageService storageService = new StorageService(new JsonCharacterRepository());
+        AppContext appContext = AppContext.bootstrap(primaryStage, storageService);
         log.info("StorageService initialized successfully.");
 
         try {
@@ -62,8 +63,8 @@ public class MainApp extends Application {
 
         // 3. Используем менеджер для загрузки первого экрана
         log.info("Loading initial screen: StartScreen");
-        StartScreen startScreen = new StartScreen(primaryStage, storageService);
-        ScreenManager.setScreen(primaryStage, startScreen.getView());
+        StartScreen startScreen = new StartScreen(appContext);
+        appContext.screenNavigator().open(startScreen.getView());
 
         WindowResizer.listen(primaryStage, RESIZE_MARGIN);
         primaryStage.show();

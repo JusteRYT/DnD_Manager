@@ -1,5 +1,6 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.assets.AssetCategory;
 import com.example.dnd_manager.assets.logic.AssetDnDManager;
 import com.example.dnd_manager.lang.I18n;
@@ -24,6 +25,7 @@ import java.util.function.Consumer;
 public class AssetManagerScreen extends BorderPane {
     private final Consumer<Path> onAssetSelected;
     private final boolean isPickerMode;
+    private final ScreenNavigator screenNavigator;
 
     public AssetManagerScreen(Stage stage, StorageService storageService) {
         this(stage, storageService, null);
@@ -32,6 +34,7 @@ public class AssetManagerScreen extends BorderPane {
     public AssetManagerScreen(Stage stage, StorageService storageService, Consumer<Path> onAssetSelected) {
         this.onAssetSelected = onAssetSelected;
         this.isPickerMode = (onAssetSelected != null);
+        this.screenNavigator = view -> ScreenManager.setScreen(stage, view);
         log.info("Opening Asset Manager in {} mode", isPickerMode ? "PICKER" : "MANAGER");
 
         // Главное: заставляем BorderPane растягиваться на всё окно
@@ -139,7 +142,7 @@ public class AssetManagerScreen extends BorderPane {
         if (isPickerMode) {
             ((Stage) getScene().getWindow()).close();
         } else {
-            ScreenManager.setScreen(stage, new StartScreen(stage, storageService).getView());
+            screenNavigator.open(new StartScreen(stage, storageService).getView());
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.avatar.AvatarPicker;
 import com.example.dnd_manager.info.editors.BuffEditor;
@@ -30,6 +31,7 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
 
     protected final Stage stage;
     protected final StorageService storageService;
+    protected final ScreenNavigator screenNavigator;
     protected final Character character;
     protected final FormMode mode;
 
@@ -47,6 +49,7 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
     public AbstractCharacterFormScreen(Stage stage, StorageService storageService, Character character, FormMode mode) {
         this.stage = stage;
         this.storageService = storageService;
+        this.screenNavigator = view -> ScreenManager.setScreen(stage, view);
         this.character = character;
         this.mode = mode;
         this.originalName = (character != null) ? character.getName() : null;

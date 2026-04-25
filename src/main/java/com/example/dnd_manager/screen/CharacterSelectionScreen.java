@@ -1,5 +1,6 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.domain.CharacterCard;
 import com.example.dnd_manager.lang.I18n;
@@ -21,6 +22,9 @@ import java.util.function.Consumer;
 public class CharacterSelectionScreen extends VBox {
 
     public CharacterSelectionScreen(Stage stage, StorageService storageService, Consumer<Character> onCharacterSelected, boolean isEdit) {
+        ScreenNavigator screenNavigator = view -> ScreenManager.setScreen(stage, view);
+        CharacterSelectionController controller = new CharacterSelectionController(stage, storageService, screenNavigator);
+
         setSpacing(25);
         setPadding(new Insets(30));
         setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + ";");
@@ -30,9 +34,8 @@ public class CharacterSelectionScreen extends VBox {
         title.setStyle("-fx-font-size: 32px; -fx-text-fill: white; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 10, 0, 0, 2);");
         getChildren().add(title);
 
-        List<String> names = storageService.listCharacterNames();
-
-        if (names.isEmpty()) {
+        List<Character> characters = controller.loadCharacters();
+        if (characters.isEmpty()) {
             renderEmptyState();
         } else {
             FlowPane cardsGrid = new FlowPane();
@@ -42,16 +45,13 @@ public class CharacterSelectionScreen extends VBox {
             cardsGrid.setPadding(new Insets(20));
             cardsGrid.prefWidthProperty().bind(this.widthProperty());
 
-            for (String name : names) {
-                storageService.loadCharacter(name).ifPresent(character -> {
-                    character.markSaved();
-                    CharacterCard card = new CharacterCard(character, onCharacterSelected, isEdit, () -> {
-                        cardsGrid.getChildren().removeIf(node -> node.getUserData() == character);
-                        storageService.deleteCharacter(character);
-                    });
-                    card.setUserData(character);
-                    cardsGrid.getChildren().add(card);
+            for (Character character : characters) {
+                CharacterCard card = new CharacterCard(character, onCharacterSelected, isEdit, () -> {
+                    cardsGrid.getChildren().removeIf(node -> node.getUserData() == character);
+                    controller.deleteCharacter(character);
                 });
+                card.setUserData(character);
+                cardsGrid.getChildren().add(card);
             }
 
             VBox.setVgrow(cardsGrid, Priority.ALWAYS);
@@ -60,7 +60,7 @@ public class CharacterSelectionScreen extends VBox {
 
         Button backBtn = AppButtonFactory.actionExit(I18n.t("button.exit"), 80);
         backBtn.setPrefWidth(200);
-        backBtn.setOnAction(e -> closeScreen(stage, storageService));
+        backBtn.setOnAction(e -> controller.goBack());
         getChildren().add(backBtn);
     }
 
@@ -68,10 +68,5 @@ public class CharacterSelectionScreen extends VBox {
         Label emptyLabel = new Label(I18n.t("label.selectionScreen"));
         emptyLabel.setStyle("-fx-text-fill: #888888; -fx-font-size: 18px; -fx-font-style: italic;");
         getChildren().add(emptyLabel);
-    }
-
-    private void closeScreen(Stage stage, StorageService storageService) {
-        StartScreen startScreen = new StartScreen(stage, storageService);
-        ScreenManager.setScreen(stage, startScreen.getView());
     }
 }

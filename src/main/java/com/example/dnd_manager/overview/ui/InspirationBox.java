@@ -1,5 +1,6 @@
 package com.example.dnd_manager.overview.ui;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
@@ -18,8 +19,10 @@ import java.util.Objects;
 
 public class InspirationBox extends VBox {
     private final Label valLabel = new Label();
+    private final SaveCharacterUseCase saveCharacterUseCase;
 
     public InspirationBox(Character character, StorageService storageService) {
+        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
         setSpacing(8);
         setPadding(new Insets(12));
 
@@ -57,14 +60,14 @@ public class InspirationBox extends VBox {
         var add = AppButtonFactory.createValueAdjustButton(true, 24, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
         add.setOnAction(e -> {
             character.setInspiration(character.getInspiration() + 1);
-            storageService.saveCharacter(character);
+            saveCharacterUseCase.execute(character);
             valLabel.setText(String.valueOf(character.getInspiration()));
         });
 
         var remove = AppButtonFactory.createValueAdjustButton(false, 24, AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
         remove.setOnAction(e -> {
             character.setInspiration(character.getInspiration() - 1);
-            storageService.saveCharacter(character);
+            saveCharacterUseCase.execute(character);
             valLabel.setText(String.valueOf(character.getInspiration()));
         });
 

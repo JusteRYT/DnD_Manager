@@ -1,5 +1,6 @@
 package com.example.dnd_manager.overview.dialogs;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
@@ -17,14 +18,14 @@ import javafx.stage.Stage;
 public class EditStatsDialog extends BaseDialog {
 
     private final Character character;
-    private final StorageService storageService;
+    private final SaveCharacterUseCase saveCharacterUseCase;
     private final Runnable refreshCallback;
 
     public EditStatsDialog(Stage owner, Character character, StorageService storageService, Runnable refreshCallback) {
         super(owner, I18n.t("dialogEdit.title"), 400, 480);
 
         this.character = character;
-        this.storageService = storageService;
+        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
         this.refreshCallback = refreshCallback;
     }
 
@@ -61,7 +62,7 @@ public class EditStatsDialog extends BaseDialog {
         saveBtn.setMaxWidth(Double.MAX_VALUE);
         saveBtn.setOnAction(ev -> {
             applyChanges(hpField, armorField, manaField, levelField);
-            storageService.saveCharacter(character);
+            saveCharacterUseCase.execute(character);
             if (refreshCallback != null) refreshCallback.run();
             close();
         });

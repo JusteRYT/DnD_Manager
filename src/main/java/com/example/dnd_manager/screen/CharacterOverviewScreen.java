@@ -1,5 +1,6 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.overview.panel.BuffsInventoryPanel;
 import com.example.dnd_manager.overview.panel.ResourcePanel;
@@ -23,11 +24,13 @@ public class CharacterOverviewScreen extends BorderPane {
     private final SkillsView skillsView;
     private final Character character;
     private final TopBar topBar;
+    private final SaveCharacterUseCase saveCharacterUseCase;
 
     public CharacterOverviewScreen(Stage stage, Character character, StorageService storageService) {
         this.storageService = storageService;
         this.stage = stage;
         this.character = character;
+        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
         setStyle("-fx-background-color: #1e1e1e;");
 
         // --- Top Bar (Всегда сверху) ---
@@ -78,7 +81,7 @@ public class CharacterOverviewScreen extends BorderPane {
 
     public void refreshUI() {
         // 1. Сохраняем данные
-        storageService.saveCharacter(character);
+        saveCharacterUseCase.execute(character);
 
         // 2. Обновляем визуальные компоненты
         skillsView.refresh(character);

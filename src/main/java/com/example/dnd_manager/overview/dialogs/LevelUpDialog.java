@@ -1,5 +1,6 @@
 package com.example.dnd_manager.overview.dialogs;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.store.StorageService;
@@ -13,13 +14,13 @@ import javafx.stage.Stage;
 public class LevelUpDialog extends BaseDialog {
 
     private final Character character;
-    private final StorageService storageService;
+    private final SaveCharacterUseCase saveCharacterUseCase;
     private final Runnable onLevelUp;
 
     public LevelUpDialog(Stage owner, Character character, StorageService storageService, Runnable onLevelUp) {
         super(owner, I18n.t("dialogLevel.title"), 400, 180);
         this.character = character;
-        this.storageService = storageService;
+        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
         this.onLevelUp = onLevelUp;
     }
 
@@ -54,7 +55,7 @@ public class LevelUpDialog extends BaseDialog {
     private void performLevelUp() {
         int currentLevel = character.getLevel();
         character.setLevel(currentLevel + 1);
-        storageService.saveCharacter(character);
+        saveCharacterUseCase.execute(character);
 
         if (onLevelUp != null) {
             onLevelUp.run();

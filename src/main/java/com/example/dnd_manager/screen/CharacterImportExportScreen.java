@@ -1,5 +1,6 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.domain.CharacterCard;
 import com.example.dnd_manager.lang.I18n;
@@ -16,21 +17,18 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public class CharacterImportExportScreen extends VBox {
-
     private final Stage stage;
-    private final StorageService storageService;
-    private final CharacterTransferService transferService;
+    private final CharacterImportExportController controller;
 
     public CharacterImportExportScreen(Stage stage,
                                        StorageService storageService,
                                        CharacterTransferService transferService) {
         this.stage = stage;
-        this.storageService = storageService;
-        this.transferService = transferService;
+        ScreenNavigator screenNavigator = view -> ScreenManager.setScreen(stage, view);
+        this.controller = new CharacterImportExportController(stage, storageService, transferService, screenNavigator);
 
         setupLayout();
         renderContent();
@@ -91,15 +89,13 @@ public class CharacterImportExportScreen extends VBox {
         cardsGrid.setAlignment(Pos.TOP_LEFT);
         cardsGrid.setPadding(new Insets(20, 50, 40, 50));
 
-        List<String> names = storageService.listCharacterNames();
-        if (names.isEmpty()) {
+        List<Character> characters = controller.loadCharacters();
+        if (characters.isEmpty()) {
             renderEmptyState(cardsGrid);
         } else {
-            for (String name : names) {
-                storageService.loadCharacter(name).ifPresent(character -> {
-                    CharacterCard card = new CharacterCard(character, this::handleExportFromCard, false, null);
-                    cardsGrid.getChildren().add(card);
-                });
+            for (Character character : characters) {
+                CharacterCard card = new CharacterCard(character, this::handleExportFromCard, false, null);
+                cardsGrid.getChildren().add(card);
             }
         }
 
@@ -123,11 +119,7 @@ public class CharacterImportExportScreen extends VBox {
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Zip files", "*.zip"));
         File file = chooser.showSaveDialog(stage);
         if (file != null) {
-            try {
-                transferService.exportCharacter(characterName, file);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            controller.exportCharacter(characterName, file);
         }
     }
 
@@ -136,17 +128,13 @@ public class CharacterImportExportScreen extends VBox {
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Zip files", "*.zip"));
         File file = chooser.showOpenDialog(stage);
         if (file != null) {
-            try {
-                transferService.importCharacter(file);
+            if (controller.importCharacter(file)) {
                 renderContent();
-            } catch (IOException ex) {
-                ex.printStackTrace();
             }
         }
     }
 
     private void closeScreen() {
-        StartScreen startScreen = new StartScreen(stage, storageService);
-        ScreenManager.setScreen(stage, startScreen.getView());
+        controller.goBack();
     }
 }
