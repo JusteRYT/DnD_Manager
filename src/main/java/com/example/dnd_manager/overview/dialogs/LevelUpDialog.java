@@ -3,7 +3,6 @@ package com.example.dnd_manager.overview.dialogs;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -17,10 +16,10 @@ public class LevelUpDialog extends BaseDialog {
     private final SaveCharacterUseCase saveCharacterUseCase;
     private final Runnable onLevelUp;
 
-    public LevelUpDialog(Stage owner, Character character, StorageService storageService, Runnable onLevelUp) {
+    public LevelUpDialog(Stage owner, Character character, SaveCharacterUseCase saveCharacterUseCase, Runnable onLevelUp) {
         super(owner, I18n.t("dialogLevel.title"), 400, 180);
         this.character = character;
-        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
+        this.saveCharacterUseCase = saveCharacterUseCase;
         this.onLevelUp = onLevelUp;
     }
 

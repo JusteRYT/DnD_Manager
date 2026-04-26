@@ -1,5 +1,6 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.overview.panel.BuffsInventoryPanel;
@@ -7,34 +8,47 @@ import com.example.dnd_manager.overview.panel.ResourcePanel;
 import com.example.dnd_manager.overview.ui.ManaBar;
 import com.example.dnd_manager.overview.ui.TopBar;
 import com.example.dnd_manager.overview.utils.StatsPanel;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.tooltip.SkillsView;
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import lombok.Getter;
 
+import java.util.Objects;
+
 @Getter
 public class CharacterOverviewScreen extends BorderPane {
 
-    private final StorageService storageService;
     private final ManaBar manaBar;
     private final Stage stage;
     private final BuffsInventoryPanel buffsInventoryPanel;
     private final SkillsView skillsView;
     private final Character character;
     private final TopBar topBar;
+    private final ScreenNavigator screenNavigator;
     private final SaveCharacterUseCase saveCharacterUseCase;
 
-    public CharacterOverviewScreen(Stage stage, Character character, StorageService storageService) {
-        this.storageService = storageService;
+    public CharacterOverviewScreen(
+            Stage stage,
+            Character character,
+            ScreenNavigator screenNavigator,
+            SaveCharacterUseCase saveCharacterUseCase,
+            Runnable backToStartAction
+    ) {
         this.stage = stage;
         this.character = character;
-        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
+        this.screenNavigator = Objects.requireNonNull(screenNavigator, "screenNavigator must not be null");
+        this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
         setStyle("-fx-background-color: #1e1e1e;");
 
         // --- Top Bar (Всегда сверху) ---
-        this.topBar = new TopBar(character, this, storageService);
+        this.topBar = new TopBar(
+                character,
+                this,
+                screenNavigator,
+                saveCharacterUseCase,
+                backToStartAction
+        );
         this.topBar.setPadding(new Insets(0, 35, 0, 25));
         setTop(topBar);
 
@@ -44,9 +58,14 @@ public class CharacterOverviewScreen extends BorderPane {
         mainGrid.setVgap(15);
         mainGrid.setPadding(new Insets(10));
 
-        this.buffsInventoryPanel = new BuffsInventoryPanel(character, storageService, stage, this::refreshUI);
+        this.buffsInventoryPanel = new BuffsInventoryPanel(
+                character,
+                stage,
+                this::refreshUI,
+                saveCharacterUseCase
+        );
         StatsPanel statsPanel = new StatsPanel(character);
-        ResourcePanel resourcePanel = new ResourcePanel(character, storageService);
+        ResourcePanel resourcePanel = new ResourcePanel(character, saveCharacterUseCase);
         manaBar = resourcePanel.getManaBar();
 
         mainGrid.add(statsPanel, 0, 0);

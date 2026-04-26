@@ -1,9 +1,9 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.store.StorageService;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -11,11 +11,13 @@ import javafx.stage.Stage;
 
 public class CharacterCreateScreen extends AbstractCharacterFormScreen {
 
-    private final SaveCharacterUseCase saveCharacterUseCase;
-
-    public CharacterCreateScreen(Stage stage, StorageService storageService) {
-        super(stage, storageService, new Character(), FormMode.CREATE);
-        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
+    public CharacterCreateScreen(
+            Stage stage,
+            ScreenNavigator screenNavigator,
+            SaveCharacterUseCase saveCharacterUseCase,
+            Runnable backToStartAction
+    ) {
+        super(stage, new Character(), FormMode.CREATE, screenNavigator, saveCharacterUseCase, backToStartAction);
     }
 
     @Override
@@ -38,12 +40,18 @@ public class CharacterCreateScreen extends AbstractCharacterFormScreen {
         syncDataToCharacter();
         saveCharacterUseCase.execute(character);
 
-        CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(stage, character, storageService);
+        CharacterOverviewScreen overviewScreen = new CharacterOverviewScreen(
+                stage,
+                character,
+                screenNavigator,
+                saveCharacterUseCase,
+                backToStartAction
+        );
         screenNavigator.open(overviewScreen);
     }
 
     @Override
     protected void handleExit() {
-        screenNavigator.open(new StartScreen(stage, storageService).getView());
+        backToStartAction.run();
     }
 }

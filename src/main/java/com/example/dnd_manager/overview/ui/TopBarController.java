@@ -1,6 +1,5 @@
 package com.example.dnd_manager.overview.ui;
 
-import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
@@ -9,10 +8,7 @@ import com.example.dnd_manager.overview.dialogs.EditStatsDialog;
 import com.example.dnd_manager.overview.dialogs.FullDescriptionDialog;
 import com.example.dnd_manager.overview.dialogs.LevelUpDialog;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
-import com.example.dnd_manager.screen.StartScreen;
 import com.example.dnd_manager.service.CharacterExporter;
-import com.example.dnd_manager.store.StorageService;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -23,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Handles user actions triggered from TopBar.
@@ -34,20 +31,18 @@ public class TopBarController {
     private final Character character;
     private final CharacterOverviewScreen parentScreen;
     private final SaveCharacterUseCase saveCharacterUseCase;
-    private final StorageService storageService;
-    private final ScreenNavigator screenNavigator;
+    private final Runnable backToStartAction;
 
     public TopBarController(
             Character character,
             CharacterOverviewScreen parentScreen,
-            StorageService storageService,
-            ScreenNavigator screenNavigator
+            SaveCharacterUseCase saveCharacterUseCase,
+            Runnable backToStartAction
     ) {
         this.character = character;
         this.parentScreen = parentScreen;
-        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
-        this.storageService = storageService;
-        this.screenNavigator = screenNavigator;
+        this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
+        this.backToStartAction = Objects.requireNonNull(backToStartAction, "backToStartAction must not be null");
     }
 
     public void exportDescription(Stage owner) {
@@ -80,7 +75,7 @@ public class TopBarController {
         EditStatsDialog dialog = new EditStatsDialog(
                 owner,
                 character,
-                storageService,
+                saveCharacterUseCase,
                 () -> {
                     hpLabel.setText(String.valueOf(character.getCurrentHp()));
                     armorLabel.setText(String.valueOf(character.getArmor()));
@@ -92,7 +87,7 @@ public class TopBarController {
     }
 
     public void openLevelUp(Stage owner, Label levelValue) {
-        new LevelUpDialog(owner, character, storageService, () ->
+        new LevelUpDialog(owner, character, saveCharacterUseCase, () ->
                 levelValue.setText(String.valueOf(character.getLevel()))).show();
     }
 
@@ -101,7 +96,7 @@ public class TopBarController {
         saveCharacterUseCase.execute(character);
     }
 
-    public void backToStart(Stage stage) {
-        screenNavigator.open(new StartScreen(stage, storageService).getView());
+    public void backToStart() {
+        backToStartAction.run();
     }
 }

@@ -1,9 +1,9 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.store.StorageService;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -14,11 +14,14 @@ import javafx.stage.Stage;
  */
 public class CharacterEditScreen extends AbstractCharacterFormScreen {
 
-    private final SaveCharacterUseCase saveCharacterUseCase;
-
-    public CharacterEditScreen(Stage stage, Character character, StorageService storageService) {
-        super(stage, storageService, character, FormMode.EDIT);
-        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
+    public CharacterEditScreen(
+            Stage stage,
+            Character character,
+            ScreenNavigator screenNavigator,
+            SaveCharacterUseCase saveCharacterUseCase,
+            Runnable backToStartAction
+    ) {
+        super(stage, character, FormMode.EDIT, screenNavigator, saveCharacterUseCase, backToStartAction);
     }
 
     @Override
@@ -40,11 +43,11 @@ public class CharacterEditScreen extends AbstractCharacterFormScreen {
 
         syncDataToCharacter();
         saveCharacterUseCase.execute(character);
-        screenNavigator.open(new StartScreen(stage, storageService).getView());
+        backToStartAction.run();
     }
 
     @Override
     protected void handleExit() {
-        screenNavigator.open(new StartScreen(stage, storageService).getView());
+        backToStartAction.run();
     }
 }

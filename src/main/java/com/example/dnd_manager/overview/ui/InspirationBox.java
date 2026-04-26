@@ -3,7 +3,6 @@ package com.example.dnd_manager.overview.ui;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Insets;
@@ -21,8 +20,8 @@ public class InspirationBox extends VBox {
     private final Label valLabel = new Label();
     private final SaveCharacterUseCase saveCharacterUseCase;
 
-    public InspirationBox(Character character, StorageService storageService) {
-        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
+    public InspirationBox(Character character, SaveCharacterUseCase saveCharacterUseCase) {
+        this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
         setSpacing(8);
         setPadding(new Insets(12));
 

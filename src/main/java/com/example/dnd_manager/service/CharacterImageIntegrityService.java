@@ -1,11 +1,14 @@
 package com.example.dnd_manager.service;
 
+import com.example.dnd_manager.application.CharacterUseCases;
+import com.example.dnd_manager.application.usecase.character.ListCharacterNamesUseCase;
+import com.example.dnd_manager.application.usecase.character.LoadCharacterUseCase;
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.skills.Skill;
 import com.example.dnd_manager.repository.CharacterStoragePathResolver;
-import com.example.dnd_manager.store.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,28 +17,44 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CharacterImageIntegrityService {
 
     private static final Logger log = LoggerFactory.getLogger(CharacterImageIntegrityService.class);
-    private final StorageService storageService;
+    private final ListCharacterNamesUseCase listCharacterNamesUseCase;
+    private final LoadCharacterUseCase loadCharacterUseCase;
+    private final SaveCharacterUseCase saveCharacterUseCase;
 
     private static final String RESOURCE_PATH_NO_IMAGE = "/com/example/dnd_manager/icon/no_image.png";
     private static final String RESOURCE_PATH_USER = "/com/example/dnd_manager/icon/user.png";
     private static final String DEFAULT_ICON_PATH = "icon/no_image.png";
+    private static final AtomicBoolean VALIDATED_ONCE = new AtomicBoolean(false);
 
-    public CharacterImageIntegrityService(StorageService storageService) {
-        this.storageService = storageService;
+    public CharacterImageIntegrityService(CharacterUseCases characterUseCases) {
+        Objects.requireNonNull(characterUseCases, "characterUseCases must not be null");
+        this.listCharacterNamesUseCase = characterUseCases.listCharacterNamesUseCase();
+        this.loadCharacterUseCase = characterUseCases.loadCharacterUseCase();
+        this.saveCharacterUseCase = characterUseCases.saveCharacterUseCase();
     }
 
     public void validateAndRepairAllCharacters() {
         log.info("Starting image integrity check for all characters...");
-        List<String> characterNames = storageService.listCharacterNames();
+        List<String> characterNames = listCharacterNamesUseCase.execute();
 
         for (String name : characterNames) {
             repairCharacterImages(name);
         }
+    }
+
+    public synchronized void validateAndRepairAllCharactersOnce() {
+        if (VALIDATED_ONCE.get()) {
+            return;
+        }
+        validateAndRepairAllCharacters();
+        VALIDATED_ONCE.set(true);
     }
 
     private void repairCharacterImages(String charName) {
@@ -52,7 +71,7 @@ public class CharacterImageIntegrityService {
             ensureFileExists(iconDir.resolve("no_image.png"), RESOURCE_PATH_NO_IMAGE);
             ensureFileExists(iconDir.resolve("user.png"), RESOURCE_PATH_USER);
 
-            Optional<Character> characterOpt = storageService.loadCharacter(charName);
+            Optional<Character> characterOpt = loadCharacterUseCase.execute(charName);
             if (characterOpt.isEmpty()) return;
 
             Character character = characterOpt.get();
@@ -91,7 +110,7 @@ public class CharacterImageIntegrityService {
             }
 
             if (needsSave) {
-                storageService.saveCharacter(character);
+                saveCharacterUseCase.execute(character);
                 log.info("Repaired and migrated image references for: {}", charName);
             }
 

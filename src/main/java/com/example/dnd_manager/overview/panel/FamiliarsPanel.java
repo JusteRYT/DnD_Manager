@@ -1,10 +1,10 @@
 package com.example.dnd_manager.overview.panel;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.FamiliarInfoDialog;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.store.StorageService;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -23,12 +23,12 @@ public class FamiliarsPanel extends VBox {
     private final VBox listContainer;
 
     private final Stage parentStage;
-    private final StorageService storageService;
+    private final SaveCharacterUseCase saveCharacterUseCase;
 
-    public FamiliarsPanel(Character character, Stage parentStage, StorageService storageService) {
+    public FamiliarsPanel(Character character, Stage parentStage, SaveCharacterUseCase saveCharacterUseCase) {
         this.parentStage = parentStage;
         this.character = character;
-        this.storageService = storageService;
+        this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
         // Мистический фиолетовый цвет для фамильяров
         String accentColor = "#9c27b0";
 
@@ -93,7 +93,7 @@ public class FamiliarsPanel extends VBox {
         statsBox.getChildren().addAll(hpLabel, acLabel);
 
         card.setOnMouseClicked(e -> {
-            FamiliarInfoDialog dialog = new FamiliarInfoDialog(parentStage, familiar, character, storageService);
+            FamiliarInfoDialog dialog = new FamiliarInfoDialog(parentStage, familiar, character, saveCharacterUseCase);
             dialog.setOnAnyUpdate(this::refresh);
             dialog.show();
         });
@@ -142,7 +142,7 @@ public class FamiliarsPanel extends VBox {
         card.setOnMouseEntered(e -> card.setStyle(hoverStyle));
         card.setOnMouseExited(e -> card.setStyle(idleStyle));
 
-        card.setOnMouseClicked(e -> new FamiliarInfoDialog(parentStage, familiar, character, storageService).show());
+        card.setOnMouseClicked(e -> new FamiliarInfoDialog(parentStage, familiar, character, saveCharacterUseCase).show());
         return card;
     }
 

@@ -1,11 +1,11 @@
 package com.example.dnd_manager.overview.dialogs;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.ui.HpBar;
 import com.example.dnd_manager.overview.ui.ManaBar;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,15 +23,20 @@ public class FamiliarInfoDialog extends BaseDialog {
 
     private final Character familiar;
     private final Character owner;
-    private final StorageService storageService;
+    private final SaveCharacterUseCase saveCharacterUseCase;
     @Setter
     private Runnable onAnyUpdate;
 
-    public FamiliarInfoDialog(Stage ownerStage, Character familiar, Character owner, StorageService storageService) {
+    public FamiliarInfoDialog(
+            Stage ownerStage,
+            Character familiar,
+            Character owner,
+            SaveCharacterUseCase saveCharacterUseCase
+    ) {
         super(ownerStage, familiar.getName(), 550, 700);
         this.familiar = familiar;
         this.owner = owner;
-        this.storageService = storageService;
+        this.saveCharacterUseCase = saveCharacterUseCase;
     }
 
     @Override
@@ -51,8 +56,8 @@ public class FamiliarInfoDialog extends BaseDialog {
         Label lvlValLabel = new Label(String.valueOf(familiar.getLevel()));
         lvlValLabel.setStyle("-fx-text-fill: #ff922b; -fx-font-size: 15px; -fx-font-weight: bold;");
 
-        HpBar hpBar = new HpBar(familiar, owner, storageService);
-        ManaBar manaBar = new ManaBar(familiar, owner, storageService);
+        HpBar hpBar = new HpBar(familiar, owner, saveCharacterUseCase);
+        ManaBar manaBar = new ManaBar(familiar, owner, saveCharacterUseCase);
 
         hpBar.setOnUpdate(() -> {
             hpValLabel.setText(familiar.getCurrentHp() + "/" + familiar.getMaxHp());

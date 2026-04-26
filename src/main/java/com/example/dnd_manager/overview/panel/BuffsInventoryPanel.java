@@ -1,8 +1,8 @@
 package com.example.dnd_manager.overview.panel;
 
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.tooltip.BuffsView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -19,7 +19,12 @@ public class BuffsInventoryPanel extends VBox {
      *
      * @param character character instance
      */
-    public BuffsInventoryPanel(Character character, StorageService storageService, Stage stage, Runnable onRefresh) {
+    public BuffsInventoryPanel(
+            Character character,
+            Stage stage,
+            Runnable onRefresh,
+            SaveCharacterUseCase saveCharacterUseCase
+    ) {
         setSpacing(15);
         this.character = character;
         this.buffsView = new BuffsView(character);
@@ -48,7 +53,7 @@ public class BuffsInventoryPanel extends VBox {
             onRefresh.run();
         });
 
-        getChildren().addAll(buffsWrapper, inventoryPanel, new FamiliarsPanel(character, stage, storageService));
+        getChildren().addAll(buffsWrapper, inventoryPanel, new FamiliarsPanel(character, stage, saveCharacterUseCase));
     }
 
     public void refreshBuffs() {

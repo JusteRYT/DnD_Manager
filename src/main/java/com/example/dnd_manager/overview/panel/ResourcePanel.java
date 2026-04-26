@@ -1,10 +1,10 @@
 package com.example.dnd_manager.overview.panel;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.overview.ui.CurrencyBox;
 import com.example.dnd_manager.overview.ui.InspirationBox;
 import com.example.dnd_manager.overview.ui.ManaBar;
-import com.example.dnd_manager.store.StorageService;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
@@ -17,7 +17,7 @@ public class ResourcePanel extends HBox {
     @Getter
     private final ManaBar manaBar;
 
-    public ResourcePanel(Character character, StorageService storageService) {
+    public ResourcePanel(Character character, SaveCharacterUseCase saveCharacterUseCase) {
         setSpacing(15);
         setPadding(new Insets(5));
         setAlignment(Pos.TOP_LEFT);
@@ -37,7 +37,7 @@ public class ResourcePanel extends HBox {
                 """);
 
         // 1. Левая часть: Валюта (делаем шире)
-        CurrencyBox currencyBox = new CurrencyBox(character, storageService);
+        CurrencyBox currencyBox = new CurrencyBox(character, saveCharacterUseCase);
         HBox.setHgrow(currencyBox, Priority.ALWAYS); // Занимает всё свободное место
         currencyBox.setMaxWidth(Double.MAX_VALUE);
         currencyBox.setMinHeight(180); // Чтобы по высоте подходило под правый стек
@@ -46,8 +46,8 @@ public class ResourcePanel extends HBox {
         VBox rightStack = new VBox(10);
         rightStack.setAlignment(Pos.TOP_CENTER);
 
-        InspirationBox inspirationBox = new InspirationBox(character, storageService);
-        this.manaBar = new ManaBar(character, character, storageService);
+        InspirationBox inspirationBox = new InspirationBox(character, saveCharacterUseCase);
+        this.manaBar = new ManaBar(character, character, saveCharacterUseCase);
 
         // Чтобы правая колонка не была слишком широкой
         rightStack.setMinWidth(300);

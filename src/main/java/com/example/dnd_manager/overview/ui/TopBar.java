@@ -1,35 +1,27 @@
 package com.example.dnd_manager.overview.ui;
 
 import com.example.dnd_manager.application.port.ScreenNavigator;
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.buff_debuff.Buff;
-import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.utils.ButtonPopupInstaller;
 import com.example.dnd_manager.overview.utils.PopupFactory;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import javafx.animation.FadeTransition;
-import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -40,24 +32,30 @@ import java.util.Objects;
 public class TopBar extends HBox {
 
     private final VBox infoBox;
-    private VBox activeEffectsBox;
+    private final ActiveEffectsPane activeEffectsPane;
     private final TopBarController controller;
 
-    public TopBar(Character character, CharacterOverviewScreen parentScreen, StorageService storageService) {
+    public TopBar(
+            Character character,
+            CharacterOverviewScreen parentScreen,
+            ScreenNavigator screenNavigator,
+            SaveCharacterUseCase saveCharacterUseCase,
+            Runnable backToStartAction
+    ) {
         setSpacing(10);
         setPadding(new Insets(10));
         setStyle("-fx-background-color: transparent;");
-        ScreenNavigator screenNavigator = view -> {
-            Stage stage = (Stage) parentScreen.getScene().getWindow();
-            com.example.dnd_manager.screen.ScreenManager.setScreen(stage, view);
-        };
-        this.controller = new TopBarController(character, parentScreen, storageService, screenNavigator);
+        this.controller = new TopBarController(
+                character,
+                parentScreen,
+                saveCharacterUseCase,
+                backToStartAction
+        );
 
         // --- Avatar ---
         Image avatarImg = CharacterAssetResolver.getAvatarImage(character, character.getAvatarImage(), 400, 600);
 
-        // Обертка для аватара с рамкой
-        StackPane avatarContainer = getStackPane(avatarImg);
+        StackPane avatarContainer = AvatarClipboardPane.create(avatarImg);
 
         avatarContainer.setPrefSize(160, 220);
         avatarContainer.setMinSize(160, 220);
@@ -121,9 +119,9 @@ public class TopBar extends HBox {
         statsBox.setPadding(new Insets(8, 0, 0, 0));
         HBox.setHgrow(avatarContainer, Priority.SOMETIMES);
 
-        this.activeEffectsBox = buildActiveEffectsBox(character);
+        this.activeEffectsPane = new ActiveEffectsPane(character);
 
-        this.infoBox = new VBox(8, nameLevelBox, metaLabel, statsBox, activeEffectsBox);
+        this.infoBox = new VBox(8, nameLevelBox, metaLabel, statsBox, activeEffectsPane);
         this.infoBox.setAlignment(Pos.TOP_LEFT);
         this.infoBox.setPadding(new Insets(10, 0, 0, 0));
 
@@ -196,8 +194,7 @@ public class TopBar extends HBox {
         getChildren().addAll(leftBox, rightLayout);
 
         backBtn.setOnAction(e -> {
-            Stage stage = (Stage) parentScreen.getScene().getWindow();
-            controller.backToStart(stage);
+            controller.backToStart();
         });
 
         ButtonPopupInstaller.install(
@@ -273,202 +270,11 @@ public class TopBar extends HBox {
     }
 
     /**
-     * Creates a decorative container for the avatar.
-     * Uses a Rectangle with ImagePattern to achieve 'object-fit: cover' behavior
-     * and avoids CSS background conflicts.
-     *
-     * @param img The avatar image to display.
-     * @return A styled StackPane containing the cropped image.
-     */
-    private static StackPane getStackPane(Image img) {
-        StackPane avatarContainer = new StackPane();
-        avatarContainer.setPadding(new Insets(3));
-        avatarContainer.setCursor(Cursor.HAND);
-
-        // 1. Создаем прямоугольник, который будет служить холстом для картинки
-        javafx.scene.shape.Rectangle view = new javafx.scene.shape.Rectangle();
-
-        // 2. Используем ImagePattern для заполнения (аналог cover)
-        if (img != null) {
-            view.setFill(new javafx.scene.paint.ImagePattern(img));
-        }
-
-        // 3. Привязываем размер прямоугольника к размеру контейнера (с учетом padding)
-        view.widthProperty().bind(avatarContainer.widthProperty().subtract(10));
-        view.heightProperty().bind(avatarContainer.heightProperty().subtract(10));
-
-        // 4. Скругляем углы самой картинки, чтобы они не вылезали за рамку
-        view.setArcWidth(12);
-        view.setArcHeight(12);
-
-        avatarContainer.getChildren().add(view);
-
-        // Стили контейнера (рамка, тени, радиус фона)
-        String baseStyle = """
-        -fx-background-color: #2b2b2b;
-        -fx-background-radius: 8;
-        -fx-border-color: #c89b3c;
-        -fx-border-radius: 8;
-        -fx-border-width: 2;
-        -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.3), 15, 0, 0, 0);
-        """;
-
-        String hoverStyle = """
-        -fx-background-color: #2b2b2b;
-        -fx-background-radius: 8;
-        -fx-border-color: #f5b741;
-        -fx-border-radius: 8;
-        -fx-border-width: 2;
-        -fx-effect: dropshadow(three-pass-box, rgba(200, 155, 60, 0.8), 25, 0, 0, 0);
-        """;
-
-        avatarContainer.setStyle(baseStyle);
-        avatarContainer.setOnMouseEntered(e -> avatarContainer.setStyle(hoverStyle));
-        avatarContainer.setOnMouseExited(e -> avatarContainer.setStyle(baseStyle));
-
-        avatarContainer.setOnMouseClicked(e -> {
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putImage(img);
-            clipboard.setContent(content);
-            showCopiedNotification(avatarContainer);
-        });
-
-        return avatarContainer;
-    }
-
-    /**
      * Refreshes the active effects display by rebuilding the effects container.
      *
      * @param character the character to pull data from
      */
     public void refresh(Character character) {
-        // Удаляем старый блок эффектов
-        infoBox.getChildren().remove(activeEffectsBox);
-        // Создаем новый
-        activeEffectsBox = buildActiveEffectsBox(character);
-        // Добавляем в конец infoBox
-        infoBox.getChildren().add(activeEffectsBox);
+        activeEffectsPane.rebuild(character);
     }
-
-    private VBox buildActiveEffectsBox(Character character) {
-        VBox container = new VBox(4);
-        container.setPadding(new Insets(4, 0, 0, 0));
-
-        List<InventoryItem> equippedItems = character.getInventory().stream()
-                .filter(InventoryItem::isEquipped)
-                .toList();
-
-        FlowPane buffsPane = new FlowPane(6, 6);
-
-        for (InventoryItem item : equippedItems) {
-            // Если есть кастомное имя эффекта - выводим его как основной тег
-            if (item.getCustomEffectName() != null && !item.getCustomEffectName().isBlank()) {
-                buffsPane.getChildren().add(createEffectLabel(item.getCustomEffectName(), null, character));
-            } else {
-                // Если кастомного имени нет, выводим все прикрепленные баффы
-                for (Buff buff : item.getAttachedBuffs()) {
-                    buffsPane.getChildren().add(createEffectLabel(getBuffText(buff), buff.iconPath(), character));
-                }
-            }
-        }
-
-        // Если тегов нет, возвращаем пустой контейнер (чтобы не было надписи "Active Effects:")
-        if (buffsPane.getChildren().isEmpty()) {
-            return container;
-        }
-
-        Label title = new Label(I18n.t("label.activeEffects"));
-        title.setStyle("-fx-text-fill: #888888; -fx-font-size: 11px; -fx-font-style: italic;");
-
-        container.getChildren().addAll(title, buffsPane);
-        return container;
-    }
-
-    /**
-     * Creates a styled label for an effect.
-     */
-    private Label createEffectLabel(String text, String iconPath, Character character) {
-        Label label = new Label(text);
-        label.setStyle("""
-                    -fx-background-color: rgba(200, 155, 60, 0.15);
-                    -fx-text-fill: #c89b3c;
-                    -fx-padding: 2 6 2 6;
-                    -fx-background-radius: 4;
-                    -fx-border-color: rgba(200, 155, 60, 0.3);
-                    -fx-border-radius: 4;
-                    -fx-font-size: 11px;
-                    -fx-font-weight: bold;
-                """);
-
-        if (iconPath != null && !iconPath.isBlank()) {
-            ImageView icon = new ImageView(new Image(CharacterAssetResolver.resolve(character.getName(), iconPath)));
-            icon.setFitWidth(12);
-            icon.setFitHeight(12);
-            label.setGraphic(icon);
-        }
-        return label;
-    }
-
-    private String getBuffText(Buff buff) {
-        return (buff.type() != null && !buff.type().isBlank())
-                ? String.format("%s (%s)", buff.name(), buff.type())
-                : buff.name();
-    }
-
-    /**
-     * Displays a temporary notification label over the avatar.
-     * * @param container The StackPane where the notification will be added.
-     */
-    private static void showCopiedNotification(StackPane container) {
-        Label notification = getLabel();
-
-        notification.maxWidthProperty().bind(container.widthProperty().subtract(20));
-
-        container.getChildren().add(notification);
-
-        // Анимация появления и исчезновения
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(200), notification);
-        fadeIn.setFromValue(0);
-        fadeIn.setToValue(1);
-
-        PauseTransition pause = new PauseTransition(Duration.seconds(1.5));
-
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(300), notification);
-        fadeOut.setFromValue(1);
-        fadeOut.setToValue(0);
-        fadeOut.setOnFinished(actionEvent -> container.getChildren().remove(notification));
-
-        // Запуск последовательности
-        fadeIn.setOnFinished(e -> pause.play());
-        pause.setOnFinished(e -> fadeOut.play());
-        fadeIn.play();
-    }
-
-    private static Label getLabel() {
-        Label notification = new Label(I18n.t("text.clipboardImage"));
-
-        notification.setWrapText(true);
-
-        notification.setTextAlignment(javafx.scene.text.TextAlignment.CENTER);
-
-
-        notification.setAlignment(Pos.CENTER);
-
-        notification.setStyle("""
-                -fx-background-color: rgba(0, 0, 0, 0.8);
-                -fx-text-fill: #c89b3c;
-                -fx-font-weight: bold;
-                -fx-padding: 10 15;
-                -fx-background-radius: 6;
-                -fx-border-color: #c89b3c;
-                -fx-border-radius: 6;
-                -fx-font-size: 13px;
-            """);
-
-        // Предотвращаем прокликивание сквозь уведомление во время его показа
-        notification.setMouseTransparent(true);
-        return notification;
-    }
-
 }

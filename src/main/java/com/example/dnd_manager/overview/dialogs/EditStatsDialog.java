@@ -3,7 +3,6 @@ package com.example.dnd_manager.overview.dialogs;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.IntegerField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.scene.control.Button;
@@ -21,11 +20,11 @@ public class EditStatsDialog extends BaseDialog {
     private final SaveCharacterUseCase saveCharacterUseCase;
     private final Runnable refreshCallback;
 
-    public EditStatsDialog(Stage owner, Character character, StorageService storageService, Runnable refreshCallback) {
+    public EditStatsDialog(Stage owner, Character character, SaveCharacterUseCase saveCharacterUseCase, Runnable refreshCallback) {
         super(owner, I18n.t("dialogEdit.title"), 400, 480);
 
         this.character = character;
-        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
+        this.saveCharacterUseCase = saveCharacterUseCase;
         this.refreshCallback = refreshCallback;
     }
 

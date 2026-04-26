@@ -1,10 +1,8 @@
 package com.example.dnd_manager.screen;
 
-import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.assets.AssetCategory;
 import com.example.dnd_manager.assets.logic.AssetDnDManager;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppCustomTab;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
@@ -19,22 +17,31 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Slf4j
 public class AssetManagerScreen extends BorderPane {
     private final Consumer<Path> onAssetSelected;
     private final boolean isPickerMode;
-    private final ScreenNavigator screenNavigator;
+    private final Runnable backToStartAction;
 
-    public AssetManagerScreen(Stage stage, StorageService storageService) {
-        this(stage, storageService, null);
+    public AssetManagerScreen(Stage stage, Runnable backToStartAction) {
+        this(stage, null, backToStartAction);
     }
 
-    public AssetManagerScreen(Stage stage, StorageService storageService, Consumer<Path> onAssetSelected) {
+    public AssetManagerScreen(Stage stage, Consumer<Path> onAssetSelected) {
+        this(
+                stage,
+                Objects.requireNonNull(onAssetSelected, "onAssetSelected must not be null"),
+                () -> {}
+        );
+    }
+
+    private AssetManagerScreen(Stage stage, Consumer<Path> onAssetSelected, Runnable backToStartAction) {
         this.onAssetSelected = onAssetSelected;
         this.isPickerMode = (onAssetSelected != null);
-        this.screenNavigator = view -> ScreenManager.setScreen(stage, view);
+        this.backToStartAction = Objects.requireNonNull(backToStartAction, "backToStartAction must not be null");
         log.info("Opening Asset Manager in {} mode", isPickerMode ? "PICKER" : "MANAGER");
 
         // Главное: заставляем BorderPane растягиваться на всё окно
@@ -83,7 +90,7 @@ public class AssetManagerScreen extends BorderPane {
 
         // --- Нижняя панель (Кнопки) ---
         var backBtn = AppButtonFactory.actionExit(isPickerMode ? I18n.t("button.cancel") : I18n.t("button.exit"), 120);
-        backBtn.setOnAction(e -> handleExit(stage, storageService));
+        backBtn.setOnAction(e -> handleExit());
 
         HBox bottomBar = new HBox(backBtn);
         bottomBar.setAlignment(Pos.BOTTOM_RIGHT);
@@ -138,11 +145,11 @@ public class AssetManagerScreen extends BorderPane {
                \s""".formatted(AppTheme.TEXT_ACCENT).replace("\n", ""));
     }
 
-    private void handleExit(Stage stage, StorageService storageService) {
+    private void handleExit() {
         if (isPickerMode) {
             ((Stage) getScene().getWindow()).close();
         } else {
-            screenNavigator.open(new StartScreen(stage, storageService).getView());
+            backToStartAction.run();
         }
     }
 }

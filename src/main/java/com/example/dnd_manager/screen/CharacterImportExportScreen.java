@@ -1,11 +1,8 @@
 package com.example.dnd_manager.screen;
 
-import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.domain.CharacterCard;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.service.CharacterTransferService;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Insets;
@@ -18,17 +15,15 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 public class CharacterImportExportScreen extends VBox {
     private final Stage stage;
     private final CharacterImportExportController controller;
 
-    public CharacterImportExportScreen(Stage stage,
-                                       StorageService storageService,
-                                       CharacterTransferService transferService) {
+    public CharacterImportExportScreen(Stage stage, CharacterImportExportController controller) {
         this.stage = stage;
-        ScreenNavigator screenNavigator = view -> ScreenManager.setScreen(stage, view);
-        this.controller = new CharacterImportExportController(stage, storageService, transferService, screenNavigator);
+        this.controller = Objects.requireNonNull(controller, "controller must not be null");
 
         setupLayout();
         renderContent();

@@ -36,3 +36,14 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/.m2_temp/
+/Assets/
+/dist/
+/dist_build/
+/runtime/
+/app/
+/debug_launcher.bat
+/debug_output.txt
+/dependency-reduced-pom.xml
+/DnD_Manager.exe
+/Characters/Шестерёныч Железный Зад/notes.txt

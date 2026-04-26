@@ -3,7 +3,6 @@ package com.example.dnd_manager.overview.ui;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Pos;
@@ -12,6 +11,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import lombok.Setter;
+
+import java.util.Objects;
 
 public class HpBar extends VBox {
 
@@ -27,10 +28,10 @@ public class HpBar extends VBox {
     @Setter
     private Runnable onUpdate;
 
-    public HpBar(Character target, Character owner, StorageService storageService) {
+    public HpBar(Character target, Character owner, SaveCharacterUseCase saveCharacterUseCase) {
         this.target = target;
         this.owner = owner;
-        this.saveCharacterUseCase = new SaveCharacterUseCase(storageService);
+        this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
 
         setSpacing(8);
 

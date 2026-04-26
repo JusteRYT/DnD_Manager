@@ -129,7 +129,7 @@ final class IconButtonFactory {
     static void attachAssetPicker(Button button, Consumer<String> onPathSelected) {
         button.setOnAction(e -> {
             Stage owner = (Stage) button.getScene().getWindow();
-            AssetManagerScreen picker = new AssetManagerScreen(owner, null, selectedPath ->
+            AssetManagerScreen picker = new AssetManagerScreen(owner, selectedPath ->
                     onPathSelected.accept(selectedPath.toString()));
             WindowFactory.openModal(owner, picker, 1100, 750);
         });

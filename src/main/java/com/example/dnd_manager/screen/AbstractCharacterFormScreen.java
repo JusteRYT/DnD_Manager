@@ -1,6 +1,7 @@
 package com.example.dnd_manager.screen;
 
 import com.example.dnd_manager.application.port.ScreenNavigator;
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.avatar.AvatarPicker;
 import com.example.dnd_manager.info.editors.BuffEditor;
@@ -13,7 +14,6 @@ import com.example.dnd_manager.info.text.CharacterDescriptionSection;
 import com.example.dnd_manager.info.text.dto.BaseInfoData;
 import com.example.dnd_manager.info.text.dto.CharacterDescriptionData;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.SectionBox;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Insets;
@@ -27,11 +27,14 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.util.Objects;
+
 public abstract class AbstractCharacterFormScreen extends AbstractScreen {
 
     protected final Stage stage;
-    protected final StorageService storageService;
     protected final ScreenNavigator screenNavigator;
+    protected final SaveCharacterUseCase saveCharacterUseCase;
+    protected final Runnable backToStartAction;
     protected final Character character;
     protected final FormMode mode;
 
@@ -46,13 +49,21 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
     protected FamiliarsSection familiarsSection;
     protected String originalName;
 
-    public AbstractCharacterFormScreen(Stage stage, StorageService storageService, Character character, FormMode mode) {
+    public AbstractCharacterFormScreen(
+            Stage stage,
+            Character character,
+            FormMode mode,
+            ScreenNavigator screenNavigator,
+            SaveCharacterUseCase saveCharacterUseCase,
+            Runnable backToStartAction
+    ) {
         this.stage = stage;
-        this.storageService = storageService;
-        this.screenNavigator = view -> ScreenManager.setScreen(stage, view);
-        this.character = character;
-        this.mode = mode;
-        this.originalName = (character != null) ? character.getName() : null;
+        this.screenNavigator = Objects.requireNonNull(screenNavigator, "screenNavigator must not be null");
+        this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
+        this.backToStartAction = Objects.requireNonNull(backToStartAction, "backToStartAction must not be null");
+        this.character = Objects.requireNonNull(character, "character must not be null");
+        this.mode = Objects.requireNonNull(mode, "mode must not be null");
+        this.originalName = character.getName();
     }
 
     @Override

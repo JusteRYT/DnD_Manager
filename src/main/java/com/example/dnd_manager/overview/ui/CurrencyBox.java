@@ -1,11 +1,13 @@
 package com.example.dnd_manager.overview.ui;
 
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.store.StorageService;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+
+import java.util.Objects;
 
 public class CurrencyBox extends VBox {
     private final Label goldText = new Label();
@@ -15,8 +17,10 @@ public class CurrencyBox extends VBox {
     private final String pathGoldIcon = "/com/example/dnd_manager/icon/icon_gold.png";
     private final String pathSilverIcon = "/com/example/dnd_manager/icon/icon_silver.png";
     private final String pathCooperIcon = "/com/example/dnd_manager/icon/icon_cooper.png";
+    private final SaveCharacterUseCase saveCharacterUseCase;
 
-    public CurrencyBox(Character character, StorageService storageService) {
+    public CurrencyBox(Character character, SaveCharacterUseCase saveCharacterUseCase) {
+        this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
         setSpacing(10);
         setPadding(new Insets(12));
 
@@ -24,9 +28,9 @@ public class CurrencyBox extends VBox {
         title.setStyle("-fx-text-fill: #ffd700; -fx-font-size: 16px; -fx-font-weight: bold;");
 
         VBox coinsList = new VBox(8,
-                new CoinRow(pathGoldIcon, goldText, () -> update(character, storageService, 10), () -> update(character, storageService, -10)),
-                new CoinRow(pathSilverIcon, silverText, () -> update(character, storageService, 5), () -> update(character, storageService, -5)),
-                new CoinRow(pathCooperIcon, copperText, () -> update(character, storageService, 1), () -> update(character, storageService, -1))
+                new CoinRow(pathGoldIcon, goldText, () -> update(character, 10), () -> update(character, -10)),
+                new CoinRow(pathSilverIcon, silverText, () -> update(character, 5), () -> update(character, -5)),
+                new CoinRow(pathCooperIcon, copperText, () -> update(character, 1), () -> update(character, -1))
         );
 
         String commonStyle = """
@@ -48,9 +52,9 @@ public class CurrencyBox extends VBox {
         refresh(character);
     }
 
-    private void update(Character c, StorageService s, int delta) {
+    private void update(Character c, int delta) {
         c.setTotalCooper(Math.max(0, c.getTotalCooper() + delta));
-        s.saveCharacter(c);
+        saveCharacterUseCase.execute(c);
         refresh(c);
     }
 
