@@ -36,6 +36,7 @@ public class EditInventoryItemDialog extends BaseDialog {
     private final Character character;
     private final InventoryItem item;
     private final Consumer<InventoryItem> onItemEdited;
+    private final GlobalAssetService globalAssetService;
     private String iconPath;
 
     private Label buffsCountLabel;
@@ -44,10 +45,21 @@ public class EditInventoryItemDialog extends BaseDialog {
     private AppTextField effectDisplayField;
 
     public EditInventoryItemDialog(Stage owner, Character character, InventoryItem item, Consumer<InventoryItem> onItemEdited) {
+        this(owner, character, item, onItemEdited, new GlobalAssetService());
+    }
+
+    public EditInventoryItemDialog(
+            Stage owner,
+            Character character,
+            InventoryItem item,
+            Consumer<InventoryItem> onItemEdited,
+            GlobalAssetService globalAssetService
+    ) {
         super(owner, I18n.t("title.editDialog") + item.getName(), 450, 550);
         this.character = character;
         this.item = item;
         this.onItemEdited = onItemEdited;
+        this.globalAssetService = globalAssetService;
         this.iconPath = item.getIconPath();
     }
 
@@ -162,7 +174,7 @@ public class EditInventoryItemDialog extends BaseDialog {
         if (file == null) return iconPath;
 
         // Используем наш новый сервис импорта
-        String importedPath = GlobalAssetService.importAsset(
+        String importedPath = globalAssetService.importAsset(
                 file,
                 com.example.dnd_manager.assets.AssetCategory.ITEMS
         );

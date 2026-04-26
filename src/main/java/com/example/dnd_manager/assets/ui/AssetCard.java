@@ -3,6 +3,7 @@ package com.example.dnd_manager.assets.ui;
 import com.example.dnd_manager.assets.logic.AssetActionHandler;
 import com.example.dnd_manager.assets.logic.AssetDnDManager;
 import com.example.dnd_manager.assets.logic.AssetSelectionModel;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppContextMenu;
 import com.example.dnd_manager.theme.AppTheme;
 import javafx.collections.SetChangeListener;
@@ -82,8 +83,8 @@ public class AssetCard extends VBox {
     private void showMenu(javafx.scene.input.MouseEvent e, AssetActionHandler handler) {
         AppContextMenu menu = new AppContextMenu();
 
-        menu.addActionItem("Rename", () -> handler.rename(filePath));
-        menu.addDeleteItem("Delete", () -> handler.delete(selectionModel.getSelectedPaths()));
+        menu.addActionItem(I18n.t("asset.menu.rename"), () -> handler.rename(filePath));
+        menu.addDeleteItem(I18n.t("asset.menu.delete"), () -> handler.delete(selectionModel.getSelectedPaths()));
 
         menu.show(this, e.getScreenX(), e.getScreenY());
     }

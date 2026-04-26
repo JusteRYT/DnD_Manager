@@ -2,7 +2,9 @@ package com.example.dnd_manager.assets;
 
 import com.example.dnd_manager.assets.logic.AssetActionHandler;
 import com.example.dnd_manager.assets.logic.AssetDnDManager;
+import com.example.dnd_manager.assets.logic.AssetGalleryController;
 import com.example.dnd_manager.assets.logic.AssetSelectionModel;
+import com.example.dnd_manager.assets.service.AssetGalleryService;
 import com.example.dnd_manager.assets.ui.AssetCard;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
@@ -17,38 +19,32 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public class AssetGalleryTab extends VBox {
     private static final Logger log = LoggerFactory.getLogger(AssetGalleryTab.class);
 
-    private final Path rootCategoryPath;
     private final FlowPane galleryPane;
-    private final Stage stage;
     private Thread loadingThread;
 
     private final AssetSelectionModel selectionModel = new AssetSelectionModel();
     private final AssetActionHandler actionHandler;
     private final AssetDnDManager dndManager;
-    private final AssetCategory category;
-    private final Path baseAssetsPath;
+    private final AssetGalleryController galleryController;
     private Consumer<Path> selectionCallback;
 
     public AssetGalleryTab(AssetCategory category, Path basePath, Stage stage, AssetDnDManager dndManager) {
-        this.category = category;
-        this.baseAssetsPath = basePath;
-        this.stage = stage;
-        this.rootCategoryPath = category.isAll() ? baseAssetsPath : baseAssetsPath.resolve(category.getFolderName());
+        this.galleryController = new AssetGalleryController(
+                category,
+                basePath,
+                stage,
+                new AssetGalleryService()
+        );
         this.dndManager = dndManager;
         this.actionHandler = new AssetActionHandler(this::loadImages, stage);
 
@@ -59,15 +55,10 @@ public class AssetGalleryTab extends VBox {
         setMaxHeight(Double.MAX_VALUE);
         setStyle("-fx-background-color: transparent;");
 
-        // Создаем папку категории, если её нет
-        try {
-            Files.createDirectories(rootCategoryPath);
-        } catch (Exception e) {
-            log.error("Dir error", e);
-        }
+        galleryController.ensureCategoryDirectory();
 
         Button uploadBtn = AppButtonFactory.actionAdd("Add assets", 150);
-        uploadBtn.setOnAction(e -> handleUpload());
+        uploadBtn.setOnAction(e -> galleryController.handleUpload(this::loadImages));
 
         if (category.isAll()) {
             uploadBtn.setVisible(false);
@@ -125,27 +116,10 @@ public class AssetGalleryTab extends VBox {
             galleryPane.getChildren().clear();
         });
 
-        loadingThread = new Thread(() -> {
-            try (Stream<Path> stream = category.isAll()
-                    ? Files.walk(baseAssetsPath, 2)
-                    : Files.list(rootCategoryPath)) {
-
-                var iterator = stream.filter(Files::isRegularFile)
-                        .filter(this::isImageFile)
-                        .sorted()
-                        .iterator();
-
-                while (iterator.hasNext() && !Thread.currentThread().isInterrupted()) {
-                    addCard(iterator.next());
-                }
-
-            } catch (Exception e) {
-                log.error("Failed to load images from path: {}", rootCategoryPath, e);
-            }
-        });
-
-        loadingThread.setDaemon(true);
-        loadingThread.start();
+        loadingThread = galleryController.startLoadingImages(
+                this::addCard,
+                e -> log.error("Failed to load images", e)
+        );
     }
 
     /**
@@ -189,30 +163,4 @@ public class AssetGalleryTab extends VBox {
         });
     }
 
-    /**
-     * Checks if file is supported image format.
-     */
-    private boolean isImageFile(Path path) {
-        String name = path.getFileName().toString().toLowerCase();
-        return name.endsWith(".png")
-                || name.endsWith(".jpg")
-                || name.endsWith(".jpeg")
-                || name.endsWith(".webp");
-    }
-
-    private void handleUpload() {
-        FileChooser chooser = new FileChooser();
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
-        var files = chooser.showOpenMultipleDialog(stage);
-        if (files != null) {
-            for (File file : files) {
-                try {
-                    Files.copy(file.toPath(), rootCategoryPath.resolve(file.getName()), StandardCopyOption.REPLACE_EXISTING);
-                } catch (Exception ex) {
-                    log.error("Copy error", ex);
-                }
-            }
-            loadImages();
-        }
-    }
 }

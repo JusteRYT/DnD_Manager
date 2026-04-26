@@ -21,7 +21,15 @@ public class GlobalAssetService {
     /**
      * Root directory for all shared assets.
      */
-    private static final Path ROOT_ASSETS = Paths.get("Assets");
+    private final Path rootAssets;
+
+    public GlobalAssetService() {
+        this(Paths.get("Assets"));
+    }
+
+    GlobalAssetService(Path rootAssets) {
+        this.rootAssets = rootAssets;
+    }
 
     /**
      * Imports an external file into the specified asset category folder.
@@ -31,7 +39,7 @@ public class GlobalAssetService {
      * @return The path relative to the project root (e.g., "Assets/Buffs/icon.png"),
      * or null if the import process failed.
      */
-    public static String importAsset(File sourceFile, AssetCategory category) {
+    public String importAsset(File sourceFile, AssetCategory category) {
         if (sourceFile == null || category == null) {
             log.warn("Attempted to import asset with null file or category");
             return null;
@@ -39,7 +47,7 @@ public class GlobalAssetService {
 
         try {
             // 1. Resolve the target directory (e.g., Assets/Skills)
-            Path targetDir = ROOT_ASSETS.resolve(category.getFolderName());
+            Path targetDir = rootAssets.resolve(category.getFolderName());
 
             // 2. Ensure directories exist
             if (!Files.exists(targetDir)) {

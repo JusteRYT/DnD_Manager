@@ -37,6 +37,7 @@ public class AddInventoryItemDialog extends BaseDialog {
 
     private final Character character;
     private final Consumer<InventoryItem> onItemAddedOrEdited;
+    private final GlobalAssetService globalAssetService;
     private final InventoryItem existingItem;
     private String iconPath;
     private final List<Buff> attachedBuffs = new ArrayList<>();
@@ -47,6 +48,16 @@ public class AddInventoryItemDialog extends BaseDialog {
     private AppTextField effectDisplayField;
 
     public AddInventoryItemDialog(Stage owner, Character character, InventoryItem itemToEdit, Consumer<InventoryItem> onComplete) {
+        this(owner, character, itemToEdit, onComplete, new GlobalAssetService());
+    }
+
+    public AddInventoryItemDialog(
+            Stage owner,
+            Character character,
+            InventoryItem itemToEdit,
+            Consumer<InventoryItem> onComplete,
+            GlobalAssetService globalAssetService
+    ) {
         super(owner,
                 itemToEdit == null ? "Add Inventory Item" : "Edit Inventory Item",
                 450, 550);
@@ -54,6 +65,7 @@ public class AddInventoryItemDialog extends BaseDialog {
         this.character = character;
         this.existingItem = itemToEdit;
         this.onItemAddedOrEdited = onComplete;
+        this.globalAssetService = globalAssetService;
 
         if (existingItem != null) {
             this.iconPath = existingItem.getIconPath();
@@ -205,7 +217,7 @@ public class AddInventoryItemDialog extends BaseDialog {
         if (file == null) return iconPath;
 
         // Импортируем в общую категорию ITEMS
-        String importedPath = GlobalAssetService.importAsset(
+        String importedPath = globalAssetService.importAsset(
                 file,
                 AssetCategory.ITEMS
         );

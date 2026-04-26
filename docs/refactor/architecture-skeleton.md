@@ -209,6 +209,31 @@
     default-конструктора для обратной совместимости runtime.
 66. Добавлены unit-тесты `UpdateManagerTest` для сценариев:
     отсутствие ZIP-ассета и успешный orchestration download/launch/terminate.
+67. `AssetManagerScreen` декомпозирован:
+    mode-flow вынесен в `AssetManagerController`,
+    построение tab-pane/галереи и стили — в `AssetManagerTabPaneBuilder`.
+    Экран оставлен тонким layout-контейнером.
+68. Добавлены unit-тесты `AssetManagerControllerTest` для mode-логики
+    (`manager/picker` labels и manager-exit action).
+69. `AssetGalleryTab` разгружен по SRP:
+    файловые операции и загрузка списка изображений вынесены в
+    `AssetGalleryService` + `AssetGalleryController`, tab оставлен как view.
+70. Добавлены unit-тесты `AssetGalleryServiceTest` на фильтрацию изображений
+    и чтение файлов в режиме `ALL`.
+71. `AssetActionHandler` разгружен:
+    файловые rename/delete операции вынесены в `AssetFileService`,
+    handler оставлен UI-координатором диалогов и refresh-flow.
+72. Добавлены unit-тесты `AssetFileServiceTest` на rename/path/delete
+    поведение.
+73. Убраны hardcoded строки в assets UI-flow:
+    `AssetActionHandler` и `AssetCard` переведены на i18n-ключи для rename/
+    delete меню и confirm-сообщений (`messages_en/ru.properties`).
+74. Удален static-антипаттерн в `GlobalAssetService`:
+    сервис переведен на instance API c DI-friendly конструктором (root path),
+    а вызовы в `AbstractEntityEditor` и inventory-диалогах переведены на
+    внедряемый экземпляр сервиса.
+75. Добавлен unit-тест `GlobalAssetServiceTest` на импорт файла в category
+    директорию.
 
 ## Следующий шаг
 

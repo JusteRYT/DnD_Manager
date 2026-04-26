@@ -24,10 +24,16 @@ public abstract class AbstractEntityEditor<T> extends VBox {
     protected final ObservableList<T> items = FXCollections.observableArrayList();
     protected final Pane itemsContainer;
     protected final Character character;
+    protected final GlobalAssetService globalAssetService;
     protected final Label nameRequiredLabel = new Label(I18n.t("labelField.nameRequired"));
 
     public AbstractEntityEditor(Character character, String titleKey) {
+        this(character, titleKey, new GlobalAssetService());
+    }
+
+    public AbstractEntityEditor(Character character, String titleKey, GlobalAssetService globalAssetService) {
         this.character = character;
+        this.globalAssetService = globalAssetService;
         setSpacing(15);
         setPadding(new Insets(10));
         this.itemsContainer = createItemsContainer();
@@ -140,7 +146,7 @@ public abstract class AbstractEntityEditor<T> extends VBox {
 
         if (file != null) {
             // Делегируем копирование сервису
-            return GlobalAssetService.importAsset(file, category);
+            return globalAssetService.importAsset(file, category);
         }
         return null;
     }
