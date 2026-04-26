@@ -1,5 +1,6 @@
 package com.example.dnd_manager.overview.dialogs;
 
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -14,14 +15,14 @@ public class RenameDialog extends BaseDialog {
     private TextField inputField;
 
     public RenameDialog(Stage owner, String oldName, Consumer<String> onConfirm) {
-        super(owner, "Rename Asset", 400, 200);
+        super(owner, I18n.t("dialog.renameAsset.title"), 400, 200);
         this.oldName = oldName;
         this.onConfirm = onConfirm;
     }
 
     @Override
     protected void setupContent() {
-        Label label = new Label("Enter new name:");
+        Label label = new Label(I18n.t("dialog.renameAsset.inputLabel"));
         label.setStyle("-fx-text-fill: #ccc;");
 
         inputField = new TextField(oldName);
@@ -32,13 +33,13 @@ public class RenameDialog extends BaseDialog {
             -fx-padding: 8;
        \s""");
 
-        var saveBtn = AppButtonFactory.actionSave("Save");
+        var saveBtn = AppButtonFactory.actionSave(I18n.t("button.save"));
         saveBtn.setOnAction(e -> {
             onConfirm.accept(inputField.getText());
             close();
         });
 
-        var cancelBtn = AppButtonFactory.actionExit("Cancel", 80);
+        var cancelBtn = AppButtonFactory.actionExit(I18n.t("button.cancel"), 80);
         cancelBtn.setOnAction(e -> close());
 
         HBox buttons = new HBox(10, saveBtn, cancelBtn);

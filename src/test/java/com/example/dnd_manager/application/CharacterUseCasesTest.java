@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CharacterUseCasesTest {
@@ -66,6 +67,15 @@ class CharacterUseCasesTest {
         assertTrue(gateway.names.isEmpty());
     }
 
+    @Test
+    void exposesDerivedCharacterUpdateUseCases() {
+        FakeCharacterGateway gateway = new FakeCharacterGateway();
+        CharacterUseCases useCases = new CharacterUseCases(gateway);
+
+        assertNotNull(useCases.updateCharacterStatsUseCase());
+        assertNotNull(useCases.levelUpCharacterUseCase());
+    }
+
     private static final class FakeCharacterGateway implements CharacterGateway {
         private final List<Character> saved = new ArrayList<>();
         private final List<String> names = new ArrayList<>();
@@ -101,4 +111,3 @@ class CharacterUseCasesTest {
         }
     }
 }
-

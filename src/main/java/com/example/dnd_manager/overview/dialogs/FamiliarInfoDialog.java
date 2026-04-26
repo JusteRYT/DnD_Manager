@@ -2,20 +2,14 @@ package com.example.dnd_manager.overview.dialogs;
 
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.ui.HpBar;
 import com.example.dnd_manager.overview.ui.ManaBar;
-import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import lombok.Setter;
 
@@ -24,6 +18,8 @@ public class FamiliarInfoDialog extends BaseDialog {
     private final Character familiar;
     private final Character owner;
     private final SaveCharacterUseCase saveCharacterUseCase;
+    private final FamiliarHeaderBuilder familiarHeaderBuilder;
+    private final FamiliarSectionBuilder familiarSectionBuilder;
     @Setter
     private Runnable onAnyUpdate;
 
@@ -33,10 +29,30 @@ public class FamiliarInfoDialog extends BaseDialog {
             Character owner,
             SaveCharacterUseCase saveCharacterUseCase
     ) {
+        this(
+                ownerStage,
+                familiar,
+                owner,
+                saveCharacterUseCase,
+                new FamiliarHeaderBuilder(),
+                new FamiliarSectionBuilder()
+        );
+    }
+
+    FamiliarInfoDialog(
+            Stage ownerStage,
+            Character familiar,
+            Character owner,
+            SaveCharacterUseCase saveCharacterUseCase,
+            FamiliarHeaderBuilder familiarHeaderBuilder,
+            FamiliarSectionBuilder familiarSectionBuilder
+    ) {
         super(ownerStage, familiar.getName(), 550, 700);
         this.familiar = familiar;
         this.owner = owner;
         this.saveCharacterUseCase = saveCharacterUseCase;
+        this.familiarHeaderBuilder = familiarHeaderBuilder;
+        this.familiarSectionBuilder = familiarSectionBuilder;
     }
 
     @Override
@@ -74,45 +90,19 @@ public class FamiliarInfoDialog extends BaseDialog {
         mainScrollContent.getChildren().addAll(
                 hpBar,
                 manaBar,
-                FamiliarSectionBuilder.buildResources(hpValLabel, acValLabel, mpValLabel, lvlValLabel),
-                FamiliarSectionBuilder.buildStats(familiar),
-                FamiliarSectionBuilder.buildIconLists(familiar, owner)
+                familiarSectionBuilder.buildResources(hpValLabel, acValLabel, mpValLabel, lvlValLabel),
+                familiarSectionBuilder.buildStats(familiar),
+                familiarSectionBuilder.buildIconLists(familiar, owner)
         );
-        FamiliarSectionBuilder.addLore(mainScrollContent, familiar);
+        familiarSectionBuilder.addLore(mainScrollContent, familiar);
         Separator separator = new Separator();
         separator.setOpacity(0.2);
 
         contentArea.getChildren().addAll(
-                buildHeader(),
+                familiarHeaderBuilder.build(familiar, owner),
                 separator,
                 wrapInAppScrollPane(mainScrollContent)
         );
-    }
-
-    private HBox buildHeader() {
-        HBox header = new HBox(20);
-        header.setAlignment(Pos.CENTER_LEFT);
-
-        ImageView avatar = new ImageView();
-        avatar.setFitWidth(80);
-        avatar.setFitHeight(80);
-        try {
-            avatar.setImage(new Image(CharacterAssetResolver.resolve(owner.getName(), familiar.getAvatarImage())));
-        } catch (Exception e) {
-            avatar.setImage(new Image(getClass().getResource("/com/example/dnd_manager/icon/no_image.png").toExternalForm()));
-        }
-        avatar.setClip(new Circle(40, 40, 40));
-
-        VBox info = new VBox(2);
-        Label name = new Label(familiar.getName());
-        name.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #9c27b0;");
-        String metaText = String.format("%s • %s • %s %s", familiar.getRace(), familiar.getCharacterClass(), I18n.t("label.familiarsLvl"), familiar.getLevel());
-        Label meta = new Label(metaText);
-        meta.setStyle("-fx-text-fill: #888;");
-
-        info.getChildren().addAll(name, meta);
-        header.getChildren().addAll(avatar, info);
-        return header;
     }
 
     private ScrollPane wrapInAppScrollPane(VBox content) {

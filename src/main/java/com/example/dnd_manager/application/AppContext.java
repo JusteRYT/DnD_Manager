@@ -2,6 +2,8 @@ package com.example.dnd_manager.application;
 
 import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.infrastructure.navigation.FxScreenNavigator;
+import com.example.dnd_manager.repository.CharacterPathProvider;
+import com.example.dnd_manager.repository.DefaultCharacterPathProvider;
 import com.example.dnd_manager.service.CharacterImageIntegrityService;
 import com.example.dnd_manager.service.CharacterTransferService;
 import com.example.dnd_manager.service.CharacterTransferServiceImpl;
@@ -26,6 +28,7 @@ public class AppContext {
     private final Stage stage;
     private final StorageService storageService;
     private final ScreenNavigator screenNavigator;
+    private final CharacterPathProvider characterPathProvider;
     private final CharacterUseCases characterUseCases;
     private final CharacterTransferService characterTransferService;
     private final CharacterImageIntegrityService characterImageIntegrityService;
@@ -36,9 +39,10 @@ public class AppContext {
         this.stage = Objects.requireNonNull(stage, "stage must not be null");
         this.storageService = Objects.requireNonNull(storageService, "storageService must not be null");
         this.screenNavigator = new FxScreenNavigator(stage);
+        this.characterPathProvider = new DefaultCharacterPathProvider();
         this.characterUseCases = new CharacterUseCases(storageService);
-        this.characterTransferService = new CharacterTransferServiceImpl();
-        this.characterImageIntegrityService = new CharacterImageIntegrityService(characterUseCases);
+        this.characterTransferService = new CharacterTransferServiceImpl(characterPathProvider);
+        this.characterImageIntegrityService = new CharacterImageIntegrityService(characterUseCases, characterPathProvider);
         this.updateService = new DefaultUpdateService(new UpdateChecker(), new UpdateManager());
         this.updateFlowCoordinator = new DefaultUpdateFlowCoordinator(
                 updateService,

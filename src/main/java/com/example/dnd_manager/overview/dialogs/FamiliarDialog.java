@@ -15,7 +15,7 @@ public class FamiliarDialog extends BaseDialog {
     private FamiliarEditor editor;
 
     public FamiliarDialog(Stage owner, Character familiar, Runnable onSave) {
-        super(owner, "Familiar Editor", 600, 800);
+        super(owner, I18n.t("dialog.familiar.editor.title"), 600, 800);
         this.familiar = familiar;
         this.onSave = onSave;
     }

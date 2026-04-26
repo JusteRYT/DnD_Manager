@@ -13,15 +13,22 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
 
+import java.util.Objects;
+
 public class CharacterNotesDialog extends BaseDialog {
 
     private final Character character;
-    private final NotesService notesService = new NotesService();
+    private final NotesService notesService;
     private TextArea textArea;
 
     public CharacterNotesDialog(Stage owner, Character character) {
+        this(owner, character, new NotesService());
+    }
+
+    CharacterNotesDialog(Stage owner, Character character, NotesService notesService) {
         super(owner, I18n.t("title.notes") + ": " + character.getName(), 600, 500);
         this.character = character;
+        this.notesService = Objects.requireNonNull(notesService);
 
         this.stage.setMinWidth(400);
         this.stage.setMinHeight(300);

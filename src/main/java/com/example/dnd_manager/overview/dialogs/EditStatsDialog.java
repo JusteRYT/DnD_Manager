@@ -1,5 +1,6 @@
 package com.example.dnd_manager.overview.dialogs;
 
+import com.example.dnd_manager.application.usecase.character.UpdateCharacterStatsUseCase;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
@@ -17,14 +18,23 @@ import javafx.stage.Stage;
 public class EditStatsDialog extends BaseDialog {
 
     private final Character character;
-    private final SaveCharacterUseCase saveCharacterUseCase;
+    private final UpdateCharacterStatsUseCase updateCharacterStatsUseCase;
     private final Runnable refreshCallback;
 
     public EditStatsDialog(Stage owner, Character character, SaveCharacterUseCase saveCharacterUseCase, Runnable refreshCallback) {
+        this(owner, character, refreshCallback, new UpdateCharacterStatsUseCase(saveCharacterUseCase));
+    }
+
+    EditStatsDialog(
+            Stage owner,
+            Character character,
+            Runnable refreshCallback,
+            UpdateCharacterStatsUseCase updateCharacterStatsUseCase
+    ) {
         super(owner, I18n.t("dialogEdit.title"), 400, 480);
 
         this.character = character;
-        this.saveCharacterUseCase = saveCharacterUseCase;
+        this.updateCharacterStatsUseCase = updateCharacterStatsUseCase;
         this.refreshCallback = refreshCallback;
     }
 
@@ -60,8 +70,13 @@ public class EditStatsDialog extends BaseDialog {
         Button saveBtn = AppButtonFactory.actionSave(I18n.t("button.save"));
         saveBtn.setMaxWidth(Double.MAX_VALUE);
         saveBtn.setOnAction(ev -> {
-            applyChanges(hpField, armorField, manaField, levelField);
-            saveCharacterUseCase.execute(character);
+            updateCharacterStatsUseCase.execute(
+                    character,
+                    toNullableInt(hpField),
+                    toNullableInt(armorField),
+                    toNullableInt(manaField),
+                    toNullableInt(levelField)
+            );
             if (refreshCallback != null) refreshCallback.run();
             close();
         });
@@ -69,10 +84,7 @@ public class EditStatsDialog extends BaseDialog {
         contentArea.getChildren().addAll(hpBox, armorBox, manaBox, levelBox, saveBtn);
     }
 
-    private void applyChanges(IntegerField hp, IntegerField arm, IntegerField man, IntegerField lvl) {
-        if (!hp.getText().isBlank()) character.setMaxHp(hp.getInt());
-        if (!arm.getText().isBlank()) character.setArmor(arm.getInt());
-        if (!man.getText().isBlank()) character.setMaxMana(man.getInt());
-        if (!lvl.getText().isBlank()) character.setLevel(lvl.getInt());
+    private Integer toNullableInt(IntegerField field) {
+        return field.getText().isBlank() ? null : field.getInt();
     }
 }

@@ -6,18 +6,29 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Service for handling character-specific text notes.
- * Integrated with the global CharacterStoragePathResolver.
+ * Uses injected character directory resolver for path access.
  */
 @Slf4j
 public class NotesService {
 
     private static final String NOTES_FILE = "notes.txt";
+    private final Function<String, Path> characterDirResolver;
+
+    public NotesService() {
+        this(CharacterStoragePathResolver::getCharacterDir);
+    }
+
+    NotesService(Function<String, Path> characterDirResolver) {
+        this.characterDirResolver = Objects.requireNonNull(characterDirResolver);
+    }
 
     public String loadNotes(String characterName) {
-        Path path = CharacterStoragePathResolver.getCharacterDir(characterName).resolve(NOTES_FILE);
+        Path path = characterDirResolver.apply(characterName).resolve(NOTES_FILE);
 
         if (!Files.exists(path)) return "";
 
@@ -30,7 +41,7 @@ public class NotesService {
     }
 
     public void saveNotes(String characterName, String content) {
-        Path charDir = CharacterStoragePathResolver.getCharacterDir(characterName);
+        Path charDir = characterDirResolver.apply(characterName);
         Path filePath = charDir.resolve(NOTES_FILE);
 
         try {

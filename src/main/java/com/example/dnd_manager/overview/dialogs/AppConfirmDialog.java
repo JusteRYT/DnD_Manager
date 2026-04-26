@@ -37,16 +37,19 @@ public class AppConfirmDialog extends BaseDialog {
         HBox buttonBox = new HBox(15);
         buttonBox.setAlignment(Pos.CENTER);
 
-        Button okBtn = AppButtonFactory.primaryButton(isConfirmation ? I18n.t("error.buttonOk") : I18n.t("button.close"), 120, 35, 14);
+        Button okBtn = AppButtonFactory.primaryButton(
+                isConfirmation ? I18n.t("button.confirm") : I18n.t("button.close"),
+                120, 35, 14
+        );
         okBtn.setOnAction(e -> {
-            confirmed = true;
+            confirmed = isConfirmation;
             close();
         });
 
         buttonBox.getChildren().add(okBtn);
 
         if (isConfirmation) {
-            Button cancelBtn = AppButtonFactory.primaryButton("Отмена", 120, 35, 14);
+            Button cancelBtn = AppButtonFactory.primaryButton(I18n.t("button.cancel"), 120, 35, 14);
             cancelBtn.setStyle(cancelBtn.getStyle() + "-fx-base: #444444;"); // Немного приглушим кнопку отмены
             cancelBtn.setOnAction(e -> {
                 confirmed = false;

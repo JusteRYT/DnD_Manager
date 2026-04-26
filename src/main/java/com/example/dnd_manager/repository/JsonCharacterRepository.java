@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -22,26 +23,32 @@ public class JsonCharacterRepository implements CharacterRepository {
 
     private final CharacterJsonStore jsonStore;
     private final CharacterAssetProcessor assetProcessor;
+    private final CharacterPathProvider pathProvider;
 
     public JsonCharacterRepository() {
-        this(new ObjectMapper(), new CharacterAssetProcessor());
+        this(new ObjectMapper(), new CharacterAssetProcessor(), new DefaultCharacterPathProvider());
     }
 
-    JsonCharacterRepository(ObjectMapper objectMapper, CharacterAssetProcessor assetProcessor) {
-        CharacterStoragePathResolver.migrateIfNeeded();
+    JsonCharacterRepository(
+            ObjectMapper objectMapper,
+            CharacterAssetProcessor assetProcessor,
+            CharacterPathProvider pathProvider
+    ) {
+        this.pathProvider = Objects.requireNonNull(pathProvider, "pathProvider must not be null");
+        this.pathProvider.migrateIfNeeded();
         try {
-            CharacterStoragePathResolver.ensureRootExists();
+            this.pathProvider.ensureRootExists();
         } catch (IOException e) {
             log.error("Could not initialize storage", e);
             throw new RuntimeException("Could not initialize storage", e);
         }
 
-        this.jsonStore = new CharacterJsonStore(objectMapper);
+        this.jsonStore = new CharacterJsonStore(objectMapper, this.pathProvider);
         this.assetProcessor = assetProcessor;
     }
 
     private Path getRoot() {
-        return CharacterStoragePathResolver.getRoot();
+        return pathProvider.getRoot();
     }
 
     @Override
@@ -52,7 +59,7 @@ public class JsonCharacterRepository implements CharacterRepository {
         try {
             String oldName = character.getOriginalName();
             String newName = character.getName();
-            Path characterDir = CharacterStoragePathResolver.getCharacterDir(newName);
+            Path characterDir = pathProvider.getCharacterDir(newName);
 
             if (oldName != null && !oldName.equals(newName)) {
                 renameCharacterDirectory(oldName, newName, characterDir);
@@ -76,7 +83,7 @@ public class JsonCharacterRepository implements CharacterRepository {
         try {
             Optional<Character> character = jsonStore.read(name);
             if (character.isEmpty()) {
-                Path jsonFile = CharacterStoragePathResolver.getCharacterDir(name).resolve(name + ".json");
+                Path jsonFile = pathProvider.getCharacterDir(name).resolve(name + ".json");
                 log.warn("Character file not found: {}", jsonFile);
             }
             return character;
@@ -99,7 +106,7 @@ public class JsonCharacterRepository implements CharacterRepository {
     @Override
     public void delete(String name) {
         log.info("Deleting character: {}", name);
-        Path characterDir = CharacterStoragePathResolver.getCharacterDir(name);
+        Path characterDir = pathProvider.getCharacterDir(name);
         try {
             jsonStore.deleteCharacterDirectory(characterDir);
         } catch (IOException e) {
@@ -116,7 +123,7 @@ public class JsonCharacterRepository implements CharacterRepository {
     }
 
     private void renameCharacterDirectory(String oldName, String newName, Path characterDir) throws IOException {
-        Path oldDir = CharacterStoragePathResolver.getCharacterDir(oldName);
+        Path oldDir = pathProvider.getCharacterDir(oldName);
         if (Files.exists(oldDir)) {
             log.info("Renaming character directory from {} to {}", oldName, newName);
             Files.move(oldDir, characterDir, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -130,4 +137,3 @@ public class JsonCharacterRepository implements CharacterRepository {
         }
     }
 }
-

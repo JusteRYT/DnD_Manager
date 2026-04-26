@@ -21,9 +21,11 @@ class CharacterJsonStore {
 
     private static final Logger log = LoggerFactory.getLogger(CharacterJsonStore.class);
     private final ObjectMapper mapper;
+    private final CharacterPathProvider pathProvider;
 
-    CharacterJsonStore(ObjectMapper mapper) {
+    CharacterJsonStore(ObjectMapper mapper, CharacterPathProvider pathProvider) {
         this.mapper = mapper;
+        this.pathProvider = pathProvider;
     }
 
     void write(Path characterDir, String characterName, Character character) throws IOException {
@@ -32,7 +34,7 @@ class CharacterJsonStore {
     }
 
     Optional<Character> read(String characterName) throws IOException {
-        Path jsonFile = CharacterStoragePathResolver.getCharacterDir(characterName).resolve(characterName + ".json");
+        Path jsonFile = pathProvider.getCharacterDir(characterName).resolve(characterName + ".json");
         if (!Files.exists(jsonFile)) {
             return Optional.empty();
         }
@@ -65,4 +67,3 @@ class CharacterJsonStore {
                 });
     }
 }
-

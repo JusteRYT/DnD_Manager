@@ -4,23 +4,17 @@ import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.overview.utils.ButtonPopupInstaller;
-import com.example.dnd_manager.overview.utils.PopupFactory;
 import com.example.dnd_manager.repository.CharacterAssetResolver;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
-import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.factory.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.util.Objects;
 
@@ -34,6 +28,8 @@ public class TopBar extends HBox {
     private final VBox infoBox;
     private final ActiveEffectsPane activeEffectsPane;
     private final TopBarController controller;
+    private final TopBarVrcSavePaneBuilder vrcSavePaneBuilder;
+    private final TopBarTooltipInstaller tooltipInstaller;
 
     public TopBar(
             Character character,
@@ -41,6 +37,17 @@ public class TopBar extends HBox {
             ScreenNavigator screenNavigator,
             SaveCharacterUseCase saveCharacterUseCase,
             Runnable backToStartAction
+    ) {
+        this(character, parentScreen, saveCharacterUseCase, backToStartAction, new TopBarVrcSavePaneBuilder(), new TopBarTooltipInstaller());
+    }
+
+    TopBar(
+            Character character,
+            CharacterOverviewScreen parentScreen,
+            SaveCharacterUseCase saveCharacterUseCase,
+            Runnable backToStartAction,
+            TopBarVrcSavePaneBuilder vrcSavePaneBuilder,
+            TopBarTooltipInstaller tooltipInstaller
     ) {
         setSpacing(10);
         setPadding(new Insets(10));
@@ -51,6 +58,8 @@ public class TopBar extends HBox {
                 saveCharacterUseCase,
                 backToStartAction
         );
+        this.vrcSavePaneBuilder = vrcSavePaneBuilder;
+        this.tooltipInstaller = tooltipInstaller;
 
         // --- Avatar ---
         Image avatarImg = CharacterAssetResolver.getAvatarImage(character, character.getAvatarImage(), 400, 600);
@@ -184,7 +193,7 @@ public class TopBar extends HBox {
                 """);
 
         // --- VRChat Save String Field (using AppTextField) ---
-        VBox vrcContainer = getVrcSaveContainer(character, controller);
+        VBox vrcContainer = this.vrcSavePaneBuilder.build(character, controller);
 
         VBox rightLayout = new VBox(12, buttonsRow, vrcContainer);
         rightLayout.setAlignment(Pos.TOP_RIGHT);
@@ -197,76 +206,7 @@ public class TopBar extends HBox {
             controller.backToStart();
         });
 
-        ButtonPopupInstaller.install(
-                exportBtn,
-                PopupFactory.tooltip(I18n.t("button.showExport"))
-        );
-
-        ButtonPopupInstaller.install(
-                showDescBtn,
-                PopupFactory.tooltip(I18n.t("button.showDescription"))
-        );
-
-        ButtonPopupInstaller.install(
-                editBtn,
-                PopupFactory.tooltip(I18n.t("button.editStatsPopup"))
-        );
-
-        ButtonPopupInstaller.install(
-                backBtn,
-                PopupFactory.tooltip(I18n.t("button.showExitPopup"))
-        );
-
-        ButtonPopupInstaller.install(
-                increaseLevelBtn,
-                PopupFactory.tooltip(I18n.t("button.levelIncrease"))
-        );
-
-        ButtonPopupInstaller.install(
-                notesBtn,
-                PopupFactory.tooltip(I18n.t("button.showNotesPopup"))
-        );
-    }
-
-    private static VBox getVrcSaveContainer(Character character, TopBarController controller) {
-        Label vrcLabel = new Label(I18n.t("label.textFieldVRCHATSave"));
-        vrcLabel.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 11px; -fx-font-weight: bold;");
-
-        AppTextField vrcSaveAppField = new AppTextField(character.getSaveString(), false);
-        TextField field = vrcSaveAppField.getField();
-
-        field.setPromptText(I18n.t("prompt.saveVRCString"));
-
-        field.setStyle(field.getStyle() + """
-                -fx-font-family: 'Consolas', 'Monospace';
-                -fx-font-size: 12px;
-                -fx-opacity: 0.9;
-                -fx-padding: 8 12 8 12;
-                -fx-text-fill: #eee;
-                """);
-
-        field.setPrefWidth(410);
-        field.setMaxWidth(410);
-
-        field.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            if (!newVal) {
-                controller.persistSaveString(field.getText());
-            }
-        });
-
-        Tooltip vrcTooltip = new Tooltip(I18n.t("popup.saveVRCString"));
-        vrcTooltip.setShowDelay(Duration.millis(200));
-        vrcTooltip.setStyle("""
-                    -fx-font-size: 15px;
-                    -fx-font-weight: bold;
-                    -fx-border-width: 1;
-                    -fx-padding: 10 15 10 15;
-                """);
-        Tooltip.install(field, vrcTooltip);
-
-        VBox container = new VBox(5, vrcLabel, field);
-        container.setAlignment(Pos.TOP_RIGHT);
-        return container;
+        this.tooltipInstaller.install(exportBtn, showDescBtn, notesBtn, editBtn, increaseLevelBtn, backBtn);
     }
 
     /**

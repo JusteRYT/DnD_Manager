@@ -22,21 +22,21 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
-@Slf4j
 public class EditInventoryItemDialog extends BaseDialog {
+
+    private static final String DEFAULT_ICON_PATH = "icon/no_image.png";
 
     private final Character character;
     private final InventoryItem item;
     private final Consumer<InventoryItem> onItemEdited;
-    private final GlobalAssetService globalAssetService;
+    private final InventoryItemIconChooser iconChooser;
+    private final InventoryItemMutationService mutationService;
     private String iconPath;
 
     private Label buffsCountLabel;
@@ -45,7 +45,7 @@ public class EditInventoryItemDialog extends BaseDialog {
     private AppTextField effectDisplayField;
 
     public EditInventoryItemDialog(Stage owner, Character character, InventoryItem item, Consumer<InventoryItem> onItemEdited) {
-        this(owner, character, item, onItemEdited, new GlobalAssetService());
+        this(owner, character, item, onItemEdited, new GlobalAssetService(), new InventoryItemMutationService());
     }
 
     public EditInventoryItemDialog(
@@ -55,11 +55,23 @@ public class EditInventoryItemDialog extends BaseDialog {
             Consumer<InventoryItem> onItemEdited,
             GlobalAssetService globalAssetService
     ) {
+        this(owner, character, item, onItemEdited, globalAssetService, new InventoryItemMutationService());
+    }
+
+    EditInventoryItemDialog(
+            Stage owner,
+            Character character,
+            InventoryItem item,
+            Consumer<InventoryItem> onItemEdited,
+            GlobalAssetService globalAssetService,
+            InventoryItemMutationService mutationService
+    ) {
         super(owner, I18n.t("title.editDialog") + item.getName(), 450, 550);
         this.character = character;
         this.item = item;
         this.onItemEdited = onItemEdited;
-        this.globalAssetService = globalAssetService;
+        this.iconChooser = new InventoryItemIconChooser(Objects.requireNonNull(globalAssetService));
+        this.mutationService = Objects.requireNonNull(mutationService, "mutationService must not be null");
         this.iconPath = item.getIconPath();
     }
 
@@ -72,7 +84,7 @@ public class EditInventoryItemDialog extends BaseDialog {
 
         AppTextField nameField = new AppTextField(item.getName(), true);
         nameField.setText(item.getName());
-        AppTextSection descriptionField = new AppTextSection(item.getDescription(), 4, I18n.t("label.familiarsDescription"));
+        AppTextSection descriptionField = new AppTextSection(item.getDescription(), 4, I18n.t("dialog.inventory.description.label"));
         IntegerField count = new IntegerField(String.valueOf(item.getCount()), false);
 
         // --- Секция баффов и скиллов ---
@@ -87,10 +99,10 @@ public class EditInventoryItemDialog extends BaseDialog {
         updateLabels();
 
         Button editBuffsBtn = AppButtonFactory.addIcon(I18n.t("buffsView.titleBuff"));
-        editBuffsBtn.setOnAction(e -> openSubEditor(new BuffEditor(character), item.getAttachedBuffs(), "Edit Item Buffs"));
+        editBuffsBtn.setOnAction(e -> openSubEditor(new BuffEditor(character), item.getAttachedBuffs(), I18n.t("dialog.inventory.buffs.editEditorTitle")));
 
         Button editSkillsBtn = AppButtonFactory.addIcon(I18n.t("label.familiarsSKILLS"));
-        editSkillsBtn.setOnAction(e -> openSubEditor(new SkillsEditor(character), item.getAttachedSkills(), "Edit Item Skills"));
+        editSkillsBtn.setOnAction(e -> openSubEditor(new SkillsEditor(character), item.getAttachedSkills(), I18n.t("dialog.inventory.skills.editEditorTitle")));
 
         HBox buffRow = new HBox(15, buffsCountLabel, editBuffsBtn);
         buffRow.setAlignment(Pos.CENTER_LEFT);
@@ -101,12 +113,12 @@ public class EditInventoryItemDialog extends BaseDialog {
 
         effectDisplayField = new AppTextField(item.getCustomEffectName() != null ?
                 item.getCustomEffectName() : item.getName(), false);
-        effectDisplayField.getField().setPromptText("Display name in TopBar (e.g. +1 AC)");
+        effectDisplayField.getField().setPromptText(I18n.t("dialog.inventory.effectDisplay.prompt"));
 
-        VBox effectFieldContainer = new VBox(5, new Label("Effect Display Name:"), effectDisplayField.getField());
+        VBox effectFieldContainer = new VBox(5, new Label(I18n.t("dialog.inventory.effectDisplay.label")), effectDisplayField.getField());
         effectFieldContainer.setVisible(item.isEquipped());
 
-        equippedCheckBox = new AppCheckBox("Equip this item");
+        equippedCheckBox = new AppCheckBox(I18n.t("dialog.inventory.equipThisItem"));
         equippedCheckBox.setSelected(item.isEquipped());
         equippedCheckBox.setOnAction(() -> effectFieldContainer.setVisible(equippedCheckBox.isSelected()));
 
@@ -124,7 +136,7 @@ public class EditInventoryItemDialog extends BaseDialog {
 
         // --- Кнопки сохранения ---
         Button iconBtn = AppButtonFactory.actionSave(I18n.t("editDialog.changeIcon"));
-        iconBtn.setOnAction(e -> iconPath = chooseIcon());
+        iconBtn.setOnAction(e -> iconPath = iconChooser.chooseItemIcon(stage, iconPath));
 
         Button chooseButton = AppButtonFactory.assetPickerButton();
         AppButtonFactory.attachAssetPicker(chooseButton, path -> iconPath = path);
@@ -134,12 +146,18 @@ public class EditInventoryItemDialog extends BaseDialog {
         saveBtn.setOnAction(e -> {
             if (nameField.getText().isBlank()) return;
 
-            item.setName(nameField.getText());
-            item.setDescription(descriptionField.getText());
-            item.setCount(count.getValue());
-            item.setIconPath(iconPath);
-            item.setEquipped(equippedCheckBox.isSelected());
-            item.setCustomEffectName(effectDisplayField.getText());
+            mutationService.applyToExisting(
+                    item,
+                    nameField.getText(),
+                    descriptionField.getText(),
+                    count.getValue(),
+                    iconPath,
+                    DEFAULT_ICON_PATH,
+                    equippedCheckBox.isSelected(),
+                    effectDisplayField.getText(),
+                    item.getAttachedBuffs(),
+                    item.getAttachedSkills()
+            );
 
             onItemEdited.accept(item);
             close();
@@ -161,29 +179,7 @@ public class EditInventoryItemDialog extends BaseDialog {
     private void updateLabels() {
         buffsCountLabel.setText(I18n.t("buffsView.titleBuff") + ": " + item.getAttachedBuffs().size());
         buffsCountLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-style: italic;");
-        skillsCountLabel.setText(I18n.t("label.familiarsSKILLS") + ": " + item.getAttachedSkills().size());
+        skillsCountLabel.setText(I18n.t("dialog.inventory.skills.count") + " " + item.getAttachedSkills().size());
         skillsCountLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-style: italic;");
-    }
-
-    private String chooseIcon() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Select Item Icon");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
-
-        File file = chooser.showOpenDialog(stage);
-        if (file == null) return iconPath;
-
-        // Используем наш новый сервис импорта
-        String importedPath = globalAssetService.importAsset(
-                file,
-                com.example.dnd_manager.assets.AssetCategory.ITEMS
-        );
-
-        if (importedPath != null) {
-            log.info("New icon imported for item: {}", importedPath);
-            return importedPath;
-        }
-
-        return iconPath;
     }
 }

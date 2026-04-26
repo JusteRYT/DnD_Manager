@@ -1,5 +1,6 @@
 package com.example.dnd_manager.overview.dialogs;
 
+import com.example.dnd_manager.application.usecase.character.LevelUpCharacterUseCase;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
@@ -13,14 +14,23 @@ import javafx.stage.Stage;
 public class LevelUpDialog extends BaseDialog {
 
     private final Character character;
-    private final SaveCharacterUseCase saveCharacterUseCase;
+    private final LevelUpCharacterUseCase levelUpCharacterUseCase;
     private final Runnable onLevelUp;
 
     public LevelUpDialog(Stage owner, Character character, SaveCharacterUseCase saveCharacterUseCase, Runnable onLevelUp) {
+        this(owner, character, onLevelUp, new LevelUpCharacterUseCase(saveCharacterUseCase));
+    }
+
+    LevelUpDialog(
+            Stage owner,
+            Character character,
+            Runnable onLevelUp,
+            LevelUpCharacterUseCase levelUpCharacterUseCase
+    ) {
         super(owner, I18n.t("dialogLevel.title"), 400, 180);
         this.character = character;
-        this.saveCharacterUseCase = saveCharacterUseCase;
         this.onLevelUp = onLevelUp;
+        this.levelUpCharacterUseCase = levelUpCharacterUseCase;
     }
 
     @Override
@@ -52,9 +62,7 @@ public class LevelUpDialog extends BaseDialog {
     }
 
     private void performLevelUp() {
-        int currentLevel = character.getLevel();
-        character.setLevel(currentLevel + 1);
-        saveCharacterUseCase.execute(character);
+        levelUpCharacterUseCase.execute(character);
 
         if (onLevelUp != null) {
             onLevelUp.run();

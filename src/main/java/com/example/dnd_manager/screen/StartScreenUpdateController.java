@@ -4,7 +4,10 @@ import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.AppConfirmDialog;
 import com.example.dnd_manager.updater.AppUpdateProgressDialog;
 import com.example.dnd_manager.updater.GitHubRelease;
+import com.example.dnd_manager.updater.MegabytesProgressTextFormatter;
 import com.example.dnd_manager.updater.UpdateFlowCoordinator;
+import com.example.dnd_manager.updater.UpdateProgressCalculator;
+import com.example.dnd_manager.updater.UpdateProgressPresenter;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -22,37 +25,58 @@ public class StartScreenUpdateController {
     private final Stage stage;
     private final BiConsumer<String, String> errorPresenter;
     private final UpdateFlowCoordinator updateFlowCoordinator;
+    private final UpdateProgressPresenter updateProgressPresenter;
+    private final UpdateCheckButtonPresenter updateCheckButtonPresenter;
 
     public StartScreenUpdateController(
             Stage stage,
             BiConsumer<String, String> errorPresenter,
             UpdateFlowCoordinator updateFlowCoordinator
     ) {
+        this(
+                stage,
+                errorPresenter,
+                updateFlowCoordinator,
+                new UpdateProgressPresenter(
+                        new UpdateProgressCalculator(),
+                        new MegabytesProgressTextFormatter()
+                ),
+                new UpdateCheckButtonPresenter()
+        );
+    }
+
+    StartScreenUpdateController(
+            Stage stage,
+            BiConsumer<String, String> errorPresenter,
+            UpdateFlowCoordinator updateFlowCoordinator,
+            UpdateProgressPresenter updateProgressPresenter,
+            UpdateCheckButtonPresenter updateCheckButtonPresenter
+    ) {
         this.stage = stage;
         this.errorPresenter = errorPresenter;
         this.updateFlowCoordinator = updateFlowCoordinator;
+        this.updateProgressPresenter = updateProgressPresenter;
+        this.updateCheckButtonPresenter = updateCheckButtonPresenter;
     }
 
     public void handleUpdateCheck(Button updateButton) {
         log.info("Update: Manual update check requested");
-        updateButton.setDisable(true);
-        updateButton.setText(I18n.t("button.checking"));
+        UpdateCheckButtonView buttonView = new JavaFxUpdateCheckButtonView(updateButton);
+        updateCheckButtonPresenter.showChecking(buttonView);
 
         updateFlowCoordinator.checkForUpdate(
                 releaseOpt -> {
-                    updateButton.setDisable(false);
-                    updateButton.setText(I18n.t("button.checkUpdate"));
+                    updateCheckButtonPresenter.showReady(buttonView);
 
                     if (releaseOpt.isPresent()) {
-                        handleFoundUpdate(releaseOpt.get(), updateButton);
+                        handleFoundUpdate(releaseOpt.get(), buttonView);
                     } else {
                         showNoUpdatesDialog();
                     }
                 },
                 e -> {
                     log.error("Update check failed", e);
-                    updateButton.setDisable(false);
-                    updateButton.setText(I18n.t("button.checkUpdate"));
+                    updateCheckButtonPresenter.showReady(buttonView);
                     errorPresenter.accept(
                             I18n.t("update.error_connection_title"),
                             I18n.t("update.error_connection_content")
@@ -61,7 +85,7 @@ public class StartScreenUpdateController {
         );
     }
 
-    private void handleFoundUpdate(GitHubRelease release, Button updateButton) {
+    private void handleFoundUpdate(GitHubRelease release, UpdateCheckButtonView buttonView) {
         log.info("Update found: {}", release.tagName);
         AppConfirmDialog confirmDialog = new AppConfirmDialog(
                 stage,
@@ -82,20 +106,13 @@ public class StartScreenUpdateController {
         updateFlowCoordinator.applyUpdate(
                 release,
                 (downloaded, total) -> {
-                    double progress = (double) downloaded / total;
-                    String msg = String.format(
-                            "Downloading: %.2f MB / %.2f MB",
-                            downloaded / (1024.0 * 1024.0),
-                            total / (1024.0 * 1024.0)
-                    );
-                    progressDialog.update(progress, msg);
+                    updateProgressPresenter.present(progressDialog, downloaded, total);
                 },
                 e -> {
                     log.error("Update failed", e);
                     progressDialog.close();
                     errorPresenter.accept(I18n.t("update.error_title"), e.getMessage());
-                    updateButton.setDisable(false);
-                    updateButton.setText(I18n.t("button.checkUpdate"));
+                    updateCheckButtonPresenter.showReady(buttonView);
                 }
         );
     }

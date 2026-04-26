@@ -1,10 +1,10 @@
 package com.example.dnd_manager.service;
-
-
-import com.example.dnd_manager.repository.CharacterStoragePathResolver;
+import com.example.dnd_manager.repository.CharacterPathProvider;
+import com.example.dnd_manager.repository.DefaultCharacterPathProvider;
 
 import java.io.*;
 import java.nio.file.*;
+import java.util.Objects;
 import java.util.zip.*;
 
 /**
@@ -12,12 +12,22 @@ import java.util.zip.*;
  */
 public class CharacterTransferServiceImpl implements CharacterTransferService {
 
+    private final CharacterPathProvider pathProvider;
+
+    public CharacterTransferServiceImpl() {
+        this(new DefaultCharacterPathProvider());
+    }
+
+    public CharacterTransferServiceImpl(CharacterPathProvider pathProvider) {
+        this.pathProvider = Objects.requireNonNull(pathProvider, "pathProvider must not be null");
+    }
+
     @Override
     public void exportCharacter(String characterName, File targetZipFile) throws IOException {
 
-        CharacterStoragePathResolver.ensureRootExists();
+        pathProvider.ensureRootExists();
 
-        Path sourceDir = CharacterStoragePathResolver.getCharacterDir(characterName);
+        Path sourceDir = pathProvider.getCharacterDir(characterName);
 
         if (Files.notExists(sourceDir)) {
             throw new IOException("Character folder not found: " + sourceDir);
@@ -45,8 +55,8 @@ public class CharacterTransferServiceImpl implements CharacterTransferService {
     @Override
     public void importCharacter(File zipFile) throws IOException {
 
-        CharacterStoragePathResolver.ensureRootExists();
-        Path root = CharacterStoragePathResolver.getRoot();
+        pathProvider.ensureRootExists();
+        Path root = pathProvider.getRoot();
 
         String fileName = zipFile.getName();
         String characterName = fileName.endsWith(".zip")

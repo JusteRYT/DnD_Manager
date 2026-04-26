@@ -1,6 +1,5 @@
 package com.example.dnd_manager.overview.dialogs;
 
-import com.example.dnd_manager.assets.AssetCategory;
 import com.example.dnd_manager.assets.service.GlobalAssetService;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.Buff;
@@ -25,19 +24,21 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class AddInventoryItemDialog extends BaseDialog {
 
+    private static final String DEFAULT_ICON_PATH = "icon/no_image.png";
+
     private final Character character;
     private final Consumer<InventoryItem> onItemAddedOrEdited;
-    private final GlobalAssetService globalAssetService;
+    private final InventoryItemIconChooser iconChooser;
+    private final InventoryItemMutationService mutationService;
     private final InventoryItem existingItem;
     private String iconPath;
     private final List<Buff> attachedBuffs = new ArrayList<>();
@@ -48,7 +49,7 @@ public class AddInventoryItemDialog extends BaseDialog {
     private AppTextField effectDisplayField;
 
     public AddInventoryItemDialog(Stage owner, Character character, InventoryItem itemToEdit, Consumer<InventoryItem> onComplete) {
-        this(owner, character, itemToEdit, onComplete, new GlobalAssetService());
+        this(owner, character, itemToEdit, onComplete, new GlobalAssetService(), new InventoryItemMutationService());
     }
 
     public AddInventoryItemDialog(
@@ -58,17 +59,31 @@ public class AddInventoryItemDialog extends BaseDialog {
             Consumer<InventoryItem> onComplete,
             GlobalAssetService globalAssetService
     ) {
+        this(owner, character, itemToEdit, onComplete, globalAssetService, new InventoryItemMutationService());
+    }
+
+    AddInventoryItemDialog(
+            Stage owner,
+            Character character,
+            InventoryItem itemToEdit,
+            Consumer<InventoryItem> onComplete,
+            GlobalAssetService globalAssetService,
+            InventoryItemMutationService mutationService
+    ) {
         super(owner,
-                itemToEdit == null ? "Add Inventory Item" : "Edit Inventory Item",
+                itemToEdit == null ? I18n.t("dialog.inventory.add.title") : I18n.t("dialog.inventory.edit.title"),
                 450, 550);
 
         this.character = character;
         this.existingItem = itemToEdit;
         this.onItemAddedOrEdited = onComplete;
-        this.globalAssetService = globalAssetService;
+        this.iconChooser = new InventoryItemIconChooser(Objects.requireNonNull(globalAssetService));
+        this.mutationService = Objects.requireNonNull(mutationService, "mutationService must not be null");
 
         if (existingItem != null) {
             this.iconPath = existingItem.getIconPath();
+            this.attachedBuffs.addAll(existingItem.getAttachedBuffs());
+            this.attachedSkills.addAll(existingItem.getAttachedSkills());
         }
     }
 
@@ -81,26 +96,30 @@ public class AddInventoryItemDialog extends BaseDialog {
         scrollContent.setPadding(new Insets(0, 15, 10, 0));
 
         AppTextField nameField = new AppTextField(
-                existingItem != null ? existingItem.getName() : "Item name", true
+                existingItem != null ? existingItem.getName() : I18n.t("textField.inventoryName"), true
         );
         AppTextSection descriptionField = new AppTextSection(
-                existingItem != null ? existingItem.getDescription() : "", 3, "Description"
+                existingItem != null ? existingItem.getDescription() : "", 3, I18n.t("dialog.inventory.description.label")
         );
         IntegerField countField = new IntegerField(
                 existingItem != null ? String.valueOf(existingItem.getCount()) : "1", true
         );
 
         // --- Эффекты и чекбокс ---
-        equippedCheckBox = new AppCheckBox("Equipped (Apply Effects)");
+        equippedCheckBox = new AppCheckBox(I18n.t("dialog.inventory.equipped"));
         equippedCheckBox.setSelected(existingItem != null && existingItem.isEquipped());
 
         effectDisplayField = new AppTextField(
                 (existingItem != null && existingItem.getCustomEffectName() != null) ?
-                        existingItem.getCustomEffectName() : "Item Name", false
+                        existingItem.getCustomEffectName() : I18n.t("textField.inventoryName"), false
         );
-        effectDisplayField.getField().setPromptText("Display name in TopBar (e.g. +1 AC)");
+        effectDisplayField.getField().setPromptText(I18n.t("dialog.inventory.effectDisplay.prompt"));
 
-        VBox effectFieldContainer = new VBox(5, new Label("Effect Display Name:"), effectDisplayField.getField());
+        VBox effectFieldContainer = new VBox(
+                5,
+                new Label(I18n.t("dialog.inventory.effectDisplay.label")),
+                effectDisplayField.getField()
+        );
         effectFieldContainer.setVisible(equippedCheckBox.isSelected());
 
         equippedCheckBox.setOnAction(() -> effectFieldContainer.setVisible(equippedCheckBox.isSelected()));
@@ -109,18 +128,18 @@ public class AddInventoryItemDialog extends BaseDialog {
         VBox attachmentsBox = new VBox(10);
         attachmentsBox.setStyle("-fx-padding: 10; -fx-background-color: #252525; -fx-background-radius: 5; -fx-border-color: #3a3a3a; -fx-border-radius: 5;");
 
-        Label sectionLabel = new Label("Item Attachments");
+        Label sectionLabel = new Label(I18n.t("dialog.inventory.attachments.title"));
         sectionLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 14px; -fx-font-weight: bold;");
 
         buffsCountLabel = new Label();
         skillsCountLabel = new Label();
         updateLabels();
 
-        Button editBuffsBtn = AppButtonFactory.addIcon("Buffs");
-        editBuffsBtn.setOnAction(e -> openSubEditor(new BuffEditor(character), attachedBuffs, "Item Buffs"));
+        Button editBuffsBtn = AppButtonFactory.addIcon(I18n.t("dialog.inventory.buffs.short"));
+        editBuffsBtn.setOnAction(e -> openSubEditor(new BuffEditor(character), attachedBuffs, I18n.t("dialog.inventory.buffs.editorTitle")));
 
-        Button editSkillsBtn = AppButtonFactory.addIcon("Skills");
-        editSkillsBtn.setOnAction(e -> openSubEditor(new SkillsEditor(character), attachedSkills, "Item Skills"));
+        Button editSkillsBtn = AppButtonFactory.addIcon(I18n.t("dialog.inventory.skills.short"));
+        editSkillsBtn.setOnAction(e -> openSubEditor(new SkillsEditor(character), attachedSkills, I18n.t("dialog.inventory.skills.editorTitle")));
 
         HBox buffRow = new HBox(15, buffsCountLabel, editBuffsBtn);
         buffRow.setAlignment(Pos.CENTER_LEFT);
@@ -145,7 +164,7 @@ public class AddInventoryItemDialog extends BaseDialog {
 
         // 3. Фиксированная панель кнопок
         Button iconBtn = AppButtonFactory.addIcon(I18n.t("buttonText.icon"));
-        iconBtn.setOnAction(e -> iconPath = chooseIcon());
+        iconBtn.setOnAction(e -> iconPath = iconChooser.chooseItemIcon(stage, iconPath));
 
         Button saveBtn = AppButtonFactory.actionSave(existingItem == null ? I18n.t("button.addItem") : I18n.t("button.save"));
         saveBtn.setOnAction(e -> {
@@ -173,64 +192,42 @@ public class AddInventoryItemDialog extends BaseDialog {
         }
 
         if (existingItem != null) {
-            existingItem.setName(name);
-            existingItem.setDescription(desc);
-            existingItem.setCount(count);
-            existingItem.setIconPath(iconPath != null ? iconPath : "icon/no_image.png");
-            existingItem.setEquipped(equippedCheckBox.isSelected());
-            existingItem.setCustomEffectName(effectDisplayField.getText());
-            existingItem.setAttachedBuffs(new ArrayList<>(attachedBuffs));
-            existingItem.setAttachedSkills(new ArrayList<>(attachedSkills));
+            mutationService.applyToExisting(
+                    existingItem,
+                    name,
+                    desc,
+                    count,
+                    iconPath,
+                    DEFAULT_ICON_PATH,
+                    equippedCheckBox.isSelected(),
+                    effectDisplayField.getText(),
+                    attachedBuffs,
+                    attachedSkills
+            );
             onItemAddedOrEdited.accept(existingItem);
         } else {
-            InventoryItem item = getInventoryItem(name, desc, count);
+            InventoryItem item = mutationService.createNew(
+                    name,
+                    desc,
+                    count,
+                    iconPath,
+                    DEFAULT_ICON_PATH,
+                    equippedCheckBox.isSelected(),
+                    effectDisplayField.getText(),
+                    attachedBuffs,
+                    attachedSkills
+            );
             character.getInventory().add(item);
             onItemAddedOrEdited.accept(item);
         }
-    }
-
-    private InventoryItem getInventoryItem(String name, String desc, int count) {
-        InventoryItem item = new InventoryItem(
-                name,
-                desc,
-                iconPath != null && !iconPath.equals("icon/no_image.png") ? iconPath : "icon/no_image.png"
-        );
-        item.setCount(count);
-        item.setEquipped(equippedCheckBox.isSelected());
-        item.setCustomEffectName(effectDisplayField.getText());
-        item.setAttachedBuffs(new ArrayList<>(attachedBuffs));
-        item.setAttachedSkills(new ArrayList<>(attachedSkills));
-        return item;
-    }
-
-    /**
-     * Opens a FileChooser to select an item icon and imports it into the global Assets/Items directory.
-     * * @return The relative path to the imported asset, or the current iconPath if cancelled.
-     */
-    private String chooseIcon() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Select Item Icon");
-        // Добавляем поддержку всех форматов, включая webp
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp"));
-
-        File file = chooser.showOpenDialog(stage);
-        if (file == null) return iconPath;
-
-        // Импортируем в общую категорию ITEMS
-        String importedPath = globalAssetService.importAsset(
-                file,
-                AssetCategory.ITEMS
-        );
-
-        return (importedPath != null) ? importedPath : iconPath;
     }
 
     /**
      * Updates UI counters for buffs and skills.
      */
     private void updateLabels() {
-        buffsCountLabel.setText("Buffs: " + attachedBuffs.size());
-        skillsCountLabel.setText("Skills: " + attachedSkills.size());
+        buffsCountLabel.setText(I18n.t("textLabel.buffsItemInventory") + " " + attachedBuffs.size());
+        skillsCountLabel.setText(I18n.t("dialog.inventory.skills.count") + " " + attachedSkills.size());
     }
 
     /**

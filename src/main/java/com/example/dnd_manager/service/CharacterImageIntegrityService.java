@@ -8,7 +8,8 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.Buff;
 import com.example.dnd_manager.info.inventory.InventoryItem;
 import com.example.dnd_manager.info.skills.Skill;
-import com.example.dnd_manager.repository.CharacterStoragePathResolver;
+import com.example.dnd_manager.repository.CharacterPathProvider;
+import com.example.dnd_manager.repository.DefaultCharacterPathProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class CharacterImageIntegrityService {
     private final ListCharacterNamesUseCase listCharacterNamesUseCase;
     private final LoadCharacterUseCase loadCharacterUseCase;
     private final SaveCharacterUseCase saveCharacterUseCase;
+    private final CharacterPathProvider pathProvider;
 
     private static final String RESOURCE_PATH_NO_IMAGE = "/com/example/dnd_manager/icon/no_image.png";
     private static final String RESOURCE_PATH_USER = "/com/example/dnd_manager/icon/user.png";
@@ -34,10 +36,18 @@ public class CharacterImageIntegrityService {
     private static final AtomicBoolean VALIDATED_ONCE = new AtomicBoolean(false);
 
     public CharacterImageIntegrityService(CharacterUseCases characterUseCases) {
+        this(characterUseCases, new DefaultCharacterPathProvider());
+    }
+
+    public CharacterImageIntegrityService(
+            CharacterUseCases characterUseCases,
+            CharacterPathProvider pathProvider
+    ) {
         Objects.requireNonNull(characterUseCases, "characterUseCases must not be null");
         this.listCharacterNamesUseCase = characterUseCases.listCharacterNamesUseCase();
         this.loadCharacterUseCase = characterUseCases.loadCharacterUseCase();
         this.saveCharacterUseCase = characterUseCases.saveCharacterUseCase();
+        this.pathProvider = Objects.requireNonNull(pathProvider, "pathProvider must not be null");
     }
 
     public void validateAndRepairAllCharacters() {
@@ -60,7 +70,7 @@ public class CharacterImageIntegrityService {
     private void repairCharacterImages(String charName) {
         try {
             // КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Берем путь из Resolver, а не из константы "Character"
-            Path charDir = CharacterStoragePathResolver.getCharacterDir(charName);
+            Path charDir = pathProvider.getCharacterDir(charName);
             Path iconDir = charDir.resolve("icon");
 
             if (!Files.exists(iconDir)) {

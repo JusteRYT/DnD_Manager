@@ -1,5 +1,6 @@
 package com.example.dnd_manager.updater;
 
+import com.example.dnd_manager.lang.I18n;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,7 +15,7 @@ import javafx.stage.StageStyle;
 /**
  * A custom dialog to display the update download progress.
  */
-public class AppUpdateProgressDialog {
+public class AppUpdateProgressDialog implements UpdateProgressView {
 
     private final Stage dialogStage;
     private final ProgressBar progressBar;
@@ -30,7 +31,7 @@ public class AppUpdateProgressDialog {
         progressBar.setPrefWidth(350);
         progressBar.setStyle("-fx-accent: #ffaa00;");
 
-        statusLabel = new Label("Downloading update...");
+        statusLabel = new Label(I18n.t("update.progress.initial"));
         statusLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
 
         VBox root = new VBox(15, statusLabel, progressBar);

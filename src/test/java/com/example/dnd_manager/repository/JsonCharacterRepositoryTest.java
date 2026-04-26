@@ -4,6 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.skills.ActivationType;
 import com.example.dnd_manager.info.skills.Skill;
 import com.example.dnd_manager.info.skills.SkillEffect;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
@@ -25,37 +26,15 @@ class JsonCharacterRepositoryTest {
     Path tempDir;
 
     private JsonCharacterRepository repository;
-
-    // Поля для сохранения оригинального состояния системы
-    private String originalUserDir;
-    private String originalUserHome;
-    private String originalOsName;
+    private CharacterPathProvider pathProvider;
+    private Path charactersRoot;
 
     @BeforeEach
     void setUp() {
-        // 1. Сохраняем оригинальные настройки
-        originalUserDir = System.getProperty("user.dir");
-        originalUserHome = System.getProperty("user.home");
-        originalOsName = System.getProperty("os.name");
-
-        // 2. Изолируем тест во временной папке
-        String tempPath = tempDir.toAbsolutePath().toString();
-        System.setProperty("user.dir", tempPath);
-        System.setProperty("user.home", tempPath);
-        System.setProperty("os.name", "Linux"); // Игнорируем Windows AppData
-
-        log.info("--- Sandbox initialized: {} ---", tempPath);
-
-        // Теперь инициализация репозитория пройдет внутри tempDir
-        repository = new JsonCharacterRepository();
-    }
-
-    @AfterEach
-    void tearDown() {
-        // 3. Возвращаем настройки системы в исходное состояние
-        System.setProperty("user.dir", originalUserDir);
-        System.setProperty("user.home", originalUserHome);
-        System.setProperty("os.name", originalOsName);
+        charactersRoot = tempDir.resolve("Characters");
+        pathProvider = new TestCharacterPathProvider(charactersRoot);
+        log.info("--- Sandbox initialized: {} ---", charactersRoot);
+        repository = new JsonCharacterRepository(new ObjectMapper(), new CharacterAssetProcessor(), pathProvider);
     }
 
     @Test
@@ -91,7 +70,7 @@ class JsonCharacterRepositoryTest {
         assertThat(character.getAvatarImage()).isEqualTo("icon/external_avatar.png");
 
         // Файл должен физически лежать в подпапке персонажа (внутри tempDir)
-        Path expectedPath = CharacterStoragePathResolver.getCharacterDir("Frodo")
+        Path expectedPath = pathProvider.getCharacterDir("Frodo")
                 .resolve("icon/external_avatar.png");
         assertThat(expectedPath).exists();
     }
@@ -123,12 +102,39 @@ class JsonCharacterRepositoryTest {
         character.setName("Boromir");
         repository.save(character);
 
-        Path charDir = CharacterStoragePathResolver.getCharacterDir("Boromir");
+        Path charDir = pathProvider.getCharacterDir("Boromir");
         assertThat(charDir).exists();
 
         repository.delete("Boromir");
 
         assertThat(charDir).doesNotExist();
         log.info("Verified deletion for: Boromir");
+    }
+
+    private static final class TestCharacterPathProvider implements CharacterPathProvider {
+        private final Path root;
+
+        private TestCharacterPathProvider(Path root) {
+            this.root = root;
+        }
+
+        @Override
+        public Path getRoot() {
+            return root;
+        }
+
+        @Override
+        public Path getCharacterDir(String characterName) {
+            return root.resolve(characterName);
+        }
+
+        @Override
+        public void ensureRootExists() throws IOException {
+            Files.createDirectories(root);
+        }
+
+        @Override
+        public void migrateIfNeeded() {
+        }
     }
 }

@@ -2,23 +2,13 @@ package com.example.dnd_manager.overview.ui;
 
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.CharacterNotesDialog;
 import com.example.dnd_manager.overview.dialogs.EditStatsDialog;
 import com.example.dnd_manager.overview.dialogs.FullDescriptionDialog;
 import com.example.dnd_manager.overview.dialogs.LevelUpDialog;
 import com.example.dnd_manager.screen.CharacterOverviewScreen;
-import com.example.dnd_manager.service.CharacterExporter;
 import javafx.scene.control.Label;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -26,12 +16,12 @@ import java.util.Objects;
  */
 public class TopBarController {
 
-    private static final Logger log = LoggerFactory.getLogger(TopBarController.class);
-
     private final Character character;
     private final CharacterOverviewScreen parentScreen;
     private final SaveCharacterUseCase saveCharacterUseCase;
     private final Runnable backToStartAction;
+    private final CharacterDescriptionFileExporter descriptionFileExporter;
+    private final CharacterSaveStringService saveStringService;
 
     public TopBarController(
             Character character,
@@ -39,28 +29,34 @@ public class TopBarController {
             SaveCharacterUseCase saveCharacterUseCase,
             Runnable backToStartAction
     ) {
+        this(
+                character,
+                parentScreen,
+                saveCharacterUseCase,
+                backToStartAction,
+                new CharacterDescriptionFileExporter(),
+                new CharacterSaveStringService(saveCharacterUseCase)
+        );
+    }
+
+    TopBarController(
+            Character character,
+            CharacterOverviewScreen parentScreen,
+            SaveCharacterUseCase saveCharacterUseCase,
+            Runnable backToStartAction,
+            CharacterDescriptionFileExporter descriptionFileExporter,
+            CharacterSaveStringService saveStringService
+    ) {
         this.character = character;
         this.parentScreen = parentScreen;
         this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
         this.backToStartAction = Objects.requireNonNull(backToStartAction, "backToStartAction must not be null");
+        this.descriptionFileExporter = Objects.requireNonNull(descriptionFileExporter, "descriptionFileExporter must not be null");
+        this.saveStringService = Objects.requireNonNull(saveStringService, "saveStringService must not be null");
     }
 
     public void exportDescription(Stage owner) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Сохранить описание персонажа");
-        fileChooser.setInitialFileName(character.getName() + "_description.txt");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-
-        File file = fileChooser.showSaveDialog(owner);
-        if (file == null) {
-            return;
-        }
-
-        try (PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8)) {
-            writer.print(CharacterExporter.generateFullDescription(character));
-        } catch (IOException ex) {
-            log.error("Failed to export character description to {}", file, ex);
-        }
+        descriptionFileExporter.export(character, owner);
     }
 
     public void showDescription(Stage owner) {
@@ -92,8 +88,7 @@ public class TopBarController {
     }
 
     public void persistSaveString(String text) {
-        character.setSaveString(text.trim());
-        saveCharacterUseCase.execute(character);
+        saveStringService.persist(character, text);
     }
 
     public void backToStart() {

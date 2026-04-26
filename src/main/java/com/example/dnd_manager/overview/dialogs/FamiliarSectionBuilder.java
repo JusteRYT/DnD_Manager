@@ -17,7 +17,7 @@ import java.util.function.Function;
 
 public class FamiliarSectionBuilder {
 
-    public static Node buildResources(Label hpVal, Label acVal, Label mpVal, Label lvlVal) {
+    public Node buildResources(Label hpVal, Label acVal, Label mpVal, Label lvlVal) {
         FlowPane pane = new FlowPane(15, 10);
         pane.setAlignment(Pos.CENTER);
         pane.setStyle("-fx-background-color: rgba(0,0,0,0.2); -fx-padding: 10; -fx-background-radius: 8;");
@@ -31,7 +31,7 @@ public class FamiliarSectionBuilder {
         return pane;
     }
 
-    public static Node buildStats(Character familiar) {
+    public Node buildStats(Character familiar) {
         GridPane grid = new GridPane();
         grid.setHgap(8);
         grid.setVgap(8);
@@ -43,12 +43,12 @@ public class FamiliarSectionBuilder {
         return grid;
     }
 
-    public static void addLore(VBox container, Character familiar) {
+    public void addLore(VBox container, Character familiar) {
         addTextSection(container, I18n.t("label.textSection.description"), familiar.getDescription());
         addTextSection(container, I18n.t("label.textSection.personality"), familiar.getPersonality());
     }
 
-    public static Node buildIconLists(Character familiar, Character character) {
+    public Node buildIconLists(Character familiar, Character character) {
         VBox container = new VBox(20);
 
         appendIconRow(container,
@@ -75,7 +75,7 @@ public class FamiliarSectionBuilder {
         return container;
     }
 
-    private static <T> void appendIconRow(VBox container, String title, List<T> items, Function<T, Node> mapper) {
+    private <T> void appendIconRow(VBox container, String title, List<T> items, Function<T, Node> mapper) {
         if (items == null || items.isEmpty()) return;
         VBox section = new VBox(8, createHeaderLabel(title));
         FlowPane flow = new FlowPane(10, 10);
@@ -84,13 +84,13 @@ public class FamiliarSectionBuilder {
         container.getChildren().add(section);
     }
 
-    private static Label createHeaderLabel(String text) {
+    private Label createHeaderLabel(String text) {
         Label l = new Label(text);
         l.setStyle("-fx-text-fill: #9c27b0; -fx-font-weight: bold; -fx-font-size: 12px;");
         return l;
     }
 
-    private static VBox createResBox(String labelKey, Label valueLabel) {
+    private VBox createResBox(String labelKey, Label valueLabel) {
         Label title = new Label(I18n.t(labelKey));
         title.setStyle("-fx-text-fill: #666; -fx-font-size: 9px;");
         VBox b = new VBox(-2, title, valueLabel);
@@ -99,7 +99,7 @@ public class FamiliarSectionBuilder {
         return b;
     }
 
-    private static VBox createStatBlock(StatEnum stat, int val) {
+    private VBox createStatBlock(StatEnum stat, int val) {
         VBox b = new VBox(0);
         b.setAlignment(Pos.CENTER);
         b.setPrefWidth(60);
@@ -112,7 +112,7 @@ public class FamiliarSectionBuilder {
         return b;
     }
 
-    private static void addTextSection(VBox container, String title, String text) {
+    private void addTextSection(VBox container, String title, String text) {
         if (text == null || text.isBlank()) return;
         VBox box = new VBox(2, createHeaderLabel(title.toUpperCase()), new Label(text));
         ((Label) box.getChildren().get(1)).setWrapText(true);
