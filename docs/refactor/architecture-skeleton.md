@@ -414,9 +414,347 @@
 136. Добавлены unit-тесты topbar-сервисов:
      `CharacterSaveStringServiceTest` и
      `CharacterDescriptionFileExporterTest`.
+137. В familiars-flow введен DI-контракт `FamiliarInfoDialogLauncher`
+     и JavaFX-адаптер `JavaFxFamiliarInfoDialogLauncher`, чтобы отделить
+     `FamiliarsPanel` от прямого `new FamiliarInfoDialog(...)`.
+138. Добавлен `FamiliarsPanelController` как orchestration-слой открытия
+     подробного диалога фамильяра с on-update callback.
+139. Введены `FamiliarCardViewModel` + `FamiliarCardViewModelMapper`:
+     форматирование race/class/hp/ac вынесено из `FamiliarsPanel` в
+     отдельный mapper-компонент.
+140. `FamiliarsPanel` декомпозирован:
+     карточки теперь строятся через view-model mapper, открытие detail-dialog
+     делегируется controller; удалено дублирование click-handlers в card flow.
+141. В topbar-flow добавлены компоненты:
+     `CharacterDescriptionSaveChooser`, `JavaFxCharacterDescriptionSaveChooser`,
+     `CharacterDescriptionFileExporter`, `CharacterSaveStringService`,
+     `TopBarVrcSavePaneBuilder`, `TopBarTooltipInstaller`.
+142. `TopBarController` очищен от прямого `FileChooser`/`PrintWriter` IO
+     и делегирует export/save-string в отдельные сервисы.
+143. `TopBar` дополнительно разгружен:
+     сборка VRChat-поля и массовая установка tooltip вынесены в отдельные
+     builder/installer-компоненты.
+144. Добавлен unit-тест `FamiliarCardViewModelMapperTest`.
+145. В inventory-flow введен DI-контракт `InventoryItemDialogLauncher`
+     и JavaFX-адаптер `JavaFxInventoryItemDialogLauncher` для отделения
+     `InventoryPanel` от прямого создания add/edit диалогов.
+146. Добавлен `InventoryPanelController`:
+     orchestration create/edit/remove сценариев и единая нотификация
+     `onCharacterUpdated` вынесены из `InventoryPanel`.
+147. Тяжелый внутренний класс inventory-карточки вынесен в отдельный
+     `InventoryItemCell` (popup, hover, context menu, refresh),
+     что существенно разгрузило `InventoryPanel`.
+148. `InventoryPanel` переведен в thin-view:
+     UI-контейнер + делегирование в `InventoryPanelController`.
+149. В familiars-flow добавлены unit-тесты orchestration/mapper:
+     `FamiliarsPanelControllerTest` и `FamiliarCardViewModelMapperTest`.
+150. Добавлен unit-тест `InventoryPanelControllerTest` на create/edit/remove
+     orchestration через launcher callbacks и update-notify.
 
 ## Следующий шаг
 
 - Вынести оставшуюся бизнес-логику из overview/dialogs в отдельные
   coordinator/service-компоненты (в первую очередь `FamiliarInfoDialog` и
   смежные builder-классы), затем покрыть их unit-тестами.
+151. В overview/ui введен обобщенный компонент `ResourceBar`:
+     общая JavaFX-логика прогресс-бара ресурсов (title/progress/style/buttons/
+     save + onUpdate orchestration) вынесена из дублирующихся `HpBar`/`ManaBar`.
+152. Введен DIP-контракт `CharacterResourceMetric` и реализации
+     `CharacterHpResourceMetric` / `CharacterManaResourceMetric`:
+     доступ к полям Character (`current/max`) отделен от UI-компонента.
+153. Введен `ResourceValueAdjuster`:
+     clamp-логика изменения ресурса вынесена в отдельный сервис
+     (границы [0..max], защита от отрицательного max/current).
+154. `HpBar` и `ManaBar` переведены в thin-wrapper классы над `ResourceBar`:
+     сохраняют прежний публичный API, но больше не дублируют поведение
+     и легко расширяются новыми типами ресурсов через конфигурацию.
+155. Добавлены unit-тесты `ResourceValueAdjusterTest` и
+     `CharacterResourceMetricTest` для проверки clamp-логики и metric-адаптеров.
+
+## Следующий шаг
+
+- Декомпозировать `AddInventoryItemDialog`/`EditInventoryItemDialog` до общего
+  form/presenter слоя (валидация, секция attachments, конфигурация кнопок),
+  чтобы убрать остаточное дублирование диалогов и укрепить DIP в dialogs-flow.
+156. `EditInventoryItemDialog` радикально упрощен до thin-wrapper над
+     `AddInventoryItemDialog`: дублирующая UI-логика add/edit удалена,
+     сохранены совместимые конструкторы (в т.ч. DI-friendly).
+157. Проверена совместимость inventory-flow после схлопывания диалогов:
+     `compile` и набор targeted тестов (`InventoryItemMutationServiceTest`,
+     `InventoryPanelControllerTest`) проходят без регрессий.
+
+## Следующий шаг
+
+- Продолжить dialogs refactor: вынести общие form-компоненты
+  (`name/description/count/equipped/effect/attachments`) из
+  `AddInventoryItemDialog` в отдельный form-builder/presenter слой, чтобы
+  диалог стал тонким оркестратором без прямого управления каждой секцией UI.
+158. В dialogs-flow добавлен `InventoryItemCountResolver`:
+     парсинг количества предметов и fallback-логика (`1` для blank/invalid)
+     вынесены из `AddInventoryItemDialog`.
+159. В dialogs-flow добавлен `InventoryItemEffectSection`:
+     UI-логика equipped-checkbox + custom effect field вынесена в отдельный
+     компонент (показывать/скрывать поле эффекта при экипировке).
+160. В dialogs-flow добавлен `InventoryItemAttachmentsSection`:
+     построение attachments-блока и orchestration sub-editor вызовов
+     (buffs/skills + счетчики) вынесены из `AddInventoryItemDialog`.
+161. `AddInventoryItemDialog` дополнительно декомпозирован до orchestrator-роли:
+     секции effect/attachments и count parsing теперь делегируются
+     отдельным компонентам/сервисам.
+162. Добавлен unit-тест `InventoryItemCountResolverTest`;
+     подтвержден compile + targeted test набор после dialogs refactor.
+
+## Следующий шаг
+
+- Продолжить high-priority cleanup dialogs-flow:
+  ввести единый presenter/use-case для add/edit inventory submit-сценариев
+  (включая валидацию name/count/effect и централизованный callback контракт),
+  чтобы `AddInventoryItemDialog` стал чистым thin-view.
+163. В inventory-dialog flow добавлен `InventoryItemFormInput` (input-model):
+     submit-данные формы вынесены из сигнатур диалога в явный DTO-контракт.
+164. Добавлен `InventoryItemDialogSubmitService`:
+     orchestration create/update (`mutation + inventory append + callback`)
+     вынесен из `AddInventoryItemDialog` в отдельный сервис.
+165. `AddInventoryItemDialog` дополнительно очищен от submit-branch логики:
+     диалог формирует `InventoryItemFormInput` и делегирует сохранение
+     в `InventoryItemDialogSubmitService`.
+166. Добавлен unit-тест `InventoryItemDialogSubmitServiceTest` на два
+     ключевых сценария: create (с добавлением в inventory) и update.
+
+## Следующий шаг
+
+- Продолжить комплексный UI refactor в overview/dialogs: вынести валидатор
+  формы инвентаря (обязательные поля/ограничения count/effect) и подключить
+  его через presenter, чтобы убрать остаточную imperative-логику из dialog.
+167. В dialogs-flow добавлен `InventoryItemFormValidator` для явной
+     валидации обязательного поля имени (базовый validation contract).
+168. Добавлен `InventoryItemDialogPresenter`:
+     submit-оркестрация (validate + resolve count + submit service call)
+     вынесена из `AddInventoryItemDialog`.
+169. `AddInventoryItemDialog` переведен на presenter-оркестрацию:
+     save-handler стал thin-view вызовом `presenter.submit(...)`.
+170. `EditInventoryItemDialog` синхронизирован с новым DI-контуром
+     (`resolver + validator`) при наследовании от `AddInventoryItemDialog`.
+171. Добавлен unit-тест `InventoryItemDialogPresenterTest`.
+
+## Следующий шаг
+
+- Перейти к следующему критичному блоку overview/dialogs:
+  декомпозировать `FamiliarInfoDialog` (обновление label state и секций) через
+  отдельный presenter/state-sync service, чтобы убрать inline callback-логику.
+172. В familiar-details flow введен `FamiliarResourceSnapshotFactory` +
+     `FamiliarResourceSnapshot` для централизованного формирования строк
+     HP/MP/AC/Level из состояния familiar.
+173. Добавлены `FamiliarResourceDisplay` и JavaFX-адаптер
+     `JavaFxFamiliarResourceDisplay` для отделения презентации label-ов
+     от оркестрации диалога.
+174. Добавлен `FamiliarResourcePresenter`:
+     синхронизация resource-label state и обработчики onUpdate
+     (`refresh` + optional `onAnyUpdate`) вынесены из `FamiliarInfoDialog`.
+175. `FamiliarInfoDialog` очищен от inline-setText callback-логики:
+     HP/Mana бары теперь делегируют обновление resource-state через presenter.
+176. Добавлены unit-тесты `FamiliarResourceSnapshotFactoryTest` и
+     `FamiliarResourcePresenterTest`.
+
+## Следующий шаг
+
+- Продолжить рефакторинг familiar-details на уровне builders:
+  выделить service/formatter-слой для `FamiliarSectionBuilder`/`FamiliarHeaderBuilder`
+  (мета-строка, avatar resolve fallback, resource/stat label styles), чтобы
+  убрать hardcoded представление и укрепить DIP.
+177. В familiar-header flow введен DIP-контракт `FamiliarAvatarImageResolver`
+     и default-адаптер `CharacterAssetFamiliarAvatarImageResolver`:
+     `FamiliarHeaderBuilder` больше не зависит напрямую от
+     `CharacterAssetResolver` static-вызова.
+178. Введен `FamiliarMetaTextFormatter`:
+     формирование meta-строки (race/class/level) вынесено из
+     `FamiliarHeaderBuilder` в отдельный formatter-компонент.
+179. `FamiliarHeaderBuilder` переведен на constructor injection
+     (`avatarImageResolver`, `metaTextFormatter`) с сохранением
+     default-wiring конструктора для runtime-совместимости.
+180. В familiar-section flow выделен `FamiliarStatLabelFormatter`:
+     форматирование короткого заголовка стата (первые 3 символа + upper)
+     вынесено из `FamiliarSectionBuilder`.
+181. `FamiliarSectionBuilder` переведен на DI для `FamiliarStatLabelFormatter`
+     (default constructor сохранен).
+182. Добавлены unit-тесты `FamiliarMetaTextFormatterTest` и
+     `FamiliarStatLabelFormatterTest`.
+
+## Следующий шаг
+
+- Перейти к следующему критичному UI-узлу в overview:
+  вынести из `ResourcePanel`/связанных виджетов style-heavy сборку в
+  отдельные builder/presenter компоненты, чтобы уменьшить размер классов
+  и упростить повторное использование layout/config.
+183. В resource-flow введены доменные сервисы `CurrencyService` и
+     `InspirationService` (clamp/update/display mapping), чтобы убрать
+     бизнес-логику изменения значений из JavaFX view-классов.
+184. `CurrencyBox` переведен на DI-friendly модель:
+     обновление валюты и формирование отображаемых значений делегируется
+     `CurrencyService` + `CurrencyDisplayValues`.
+185. `InspirationBox` переведен на `InspirationService`:
+     изменение вдохновения вынесено в сервис, а UI оставлен как thin-view
+     (в т.ч. безопасный clamp к `>= 0`).
+186. `ResourcePanel` дополнительно декомпозирован:
+     - style вынесен в `ResourcePanelStyleProvider`
+     - сборка правого стека (`InspirationBox + ManaBar`) вынесена в
+       `ResourcePanelRightStackBuilder` + `ResourcePanelRightStack`.
+187. Добавлены unit-тесты:
+     `CurrencyServiceTest`, `InspirationServiceTest`,
+     `ResourcePanelStyleProviderTest`.
+
+## Следующий шаг
+
+- Продолжить high-priority рефакторинг overview/dialogs:
+  декомпозировать `AddInventoryItemDialog` еще глубже через отдельный
+  form-state объект и action-factory (кнопки/icon flow), чтобы убрать
+  остаточную imperative-сборку из `setupContent`.
+188. В inventory-dialog flow введен `InventoryItemFormState`:
+     mutable состояние формы (existing item, icon-path, attached buffs/skills)
+     вынесено из `AddInventoryItemDialog`.
+189. Введены `InventoryItemFormBuilder` + `InventoryItemFormView`:
+     сборка прокручиваемой части формы (name/description/count/effect/
+     attachments) вынесена из `AddInventoryItemDialog.setupContent()`.
+190. Введен `InventoryItemDialogActionFactory`:
+     создание и wiring action-кнопок (icon/select-asset/save) вынесено из
+     диалога, включая submit через presenter и close callback.
+191. `AddInventoryItemDialog` переведен в thin orchestration-view:
+     setupContent теперь делегирует form/action сборку в отдельные
+     компоненты и не содержит inline imperative-ветвлений.
+192. `EditInventoryItemDialog` синхронизирован с новым DI-контуром
+     (`formBuilder`, `actionFactory`) при наследовании от add-dialog.
+193. Добавлен unit-тест `InventoryItemFormStateTest`.
+
+## Следующий шаг
+
+- Продолжить второй пункт плана: разрезать `FamiliarSectionBuilder` на
+  специализированные секционные builder-ы (`resources/stats/icon-lists`) и
+  оставить фасад для обратной совместимости.
+194. `FamiliarSectionBuilder` декомпозирован в фасад + специализированные
+     компоненты секций с сохранением обратной совместимости публичного API.
+195. Добавлены специализированные builder-ы:
+     - `FamiliarResourcesSectionBuilder`
+     - `FamiliarStatsSectionBuilder`
+     - `FamiliarIconListsSectionBuilder`
+     - `FamiliarLoreSectionAppender`
+196. `FamiliarSectionBuilder` теперь отвечает только за orchestration делегации
+     секционным компонентам (SRP), без inline-сборки всех блоков сразу.
+
+## Следующий шаг
+
+- Перейти к пункту 3: вынести hardcoded стили из familiar/inventory dialogs
+  в style-provider классы и подключить их через DI-friendly default wiring.
+197. Вынесены hardcoded стили familiar-header в `FamiliarHeaderStyleProvider`;
+     `FamiliarHeaderBuilder` переведен на DI этой зависимости.
+198. Вынесены hardcoded стили familiar-sections в
+     `FamiliarSectionStyleProvider`; подключены в:
+     - `FamiliarResourcesSectionBuilder`
+     - `FamiliarStatsSectionBuilder`
+     - `FamiliarIconListsSectionBuilder`
+     - `FamiliarLoreSectionAppender`.
+199. В inventory-dialog flow добавлен `InventoryDialogStyleProvider`;
+     `InventoryItemAttachmentsSection` переведен на style-provider вместо
+     inline CSS строк.
+200. Добавлены unit-тесты style-provider классов:
+     `FamiliarHeaderStyleProviderTest`,
+     `FamiliarSectionStyleProviderTest`,
+     `InventoryDialogStyleProviderTest`.
+
+## Следующий шаг
+
+- Завершить текущую волну: добавить фасадные/интеграционные unit-тесты на
+  orchestration `AddInventoryItemDialog` dependencies (builder/action factory
+  wiring через package-private constructor) и затем перейти к следующему
+  крупному UI-кандидату в overview (`TopBar`/`ActiveEffectsPane`).
+201. `ActiveEffectsPane` декомпозирован:
+     доменная фильтрация/форматирование эффектов вынесена в
+     `ActiveEffectsService` + `ActiveEffectBadge`.
+202. В active-effects flow добавлены DIP-компоненты:
+     `ActiveEffectsStyleProvider`, `ActiveEffectIconResolver`,
+     `CharacterAssetActiveEffectIconResolver`; pane работает как thin-view.
+203. Добавлены unit-тесты `ActiveEffectsServiceTest` и
+     `ActiveEffectsStyleProviderTest`.
+204. `TopBar` дополнительно разгружен на секционные builder-компоненты:
+     - `TopBarInfoPaneBuilder` + `TopBarInfoComponents`
+     - `TopBarActionsRowBuilder` + `TopBarActionButtons`
+     - `StageResolver` + `JavaFxStageResolver`.
+205. `TopBar` переведен к orchestration-роли:
+     сборка левой инфо-секции и action-row вынесена в отдельные builder-ы,
+     сохранено текущее поведение обработчиков и tooltip wiring.
+
+## Следующий шаг
+
+- Вынести hardcoded стили из `TopBarInfoPaneBuilder` и
+  `TopBarActionsRowBuilder` в отдельные style-provider-ы и добавить
+  unit-тесты style токенов для закрепления UI-конфигурации.
+206. `ActiveEffectsPane` переведен на SRP/DIP:
+     доменная агрегация активных эффектов вынесена в `ActiveEffectsService`,
+     введена модель `ActiveEffectBadge`.
+207. В active-effects UI добавлены style/icon абстракции:
+     `ActiveEffectsStyleProvider`, `ActiveEffectIconResolver`,
+     `CharacterAssetActiveEffectIconResolver`.
+208. `TopBar` дополнительно декомпозирован:
+     - `TopBarInfoPaneBuilder` + `TopBarInfoComponents`
+     - `TopBarActionsRowBuilder` + `TopBarActionButtons`
+     - `StageResolver` + `JavaFxStageResolver`.
+209. Вынесены hardcoded стили topbar-секций:
+     `TopBarInfoStyleProvider` и `TopBarActionsStyleProvider` подключены
+     в соответствующие builder-компоненты.
+210. Добавлены unit-тесты:
+     `ActiveEffectsServiceTest`, `ActiveEffectsStyleProviderTest`,
+     `TopBarInfoStyleProviderTest`, `TopBarActionsStyleProviderTest`.
+
+## Следующий шаг
+
+- Разгрузить `TopBarController` через dialog-launcher порты
+  (`DescriptionDialogLauncher`, `NotesDialogLauncher`,
+  `EditStatsDialogLauncher`, `LevelUpDialogLauncher`) и вынести UI-диалог
+  инстанцирование из controller в JavaFX-адаптеры.
+211. `TopBarController` очищен от прямого `new ...Dialog(...)`:
+     инстанцирование диалогов вынесено в launcher-порты:
+     `DescriptionDialogLauncher`, `NotesDialogLauncher`,
+     `EditStatsDialogLauncher`, `LevelUpDialogLauncher`.
+212. Добавлены JavaFX-адаптеры launcher-портов:
+     `JavaFxDescriptionDialogLauncher`, `JavaFxNotesDialogLauncher`,
+     `JavaFxEditStatsDialogLauncher`, `JavaFxLevelUpDialogLauncher`.
+213. Убрана зависимость `TopBarController` от `CharacterOverviewScreen`:
+     обновление UI после edit/level-up теперь приходит извне через
+     callback `Runnable` из `TopBar`.
+214. `TopBar` синхронизирован с новым controller API:
+     callback-и обновления hp/armor/level/mana формируются на уровне view,
+     controller остается orchestration-слоем без UI-деталей.
+215. Добавлен unit-тест `TopBarControllerTest` на delegation behavior
+     launcher-портов, `persistSaveString` и `backToStart`.
+
+## Следующий шаг
+
+- Закрыть текущую волну тестов на новые builder-ы:
+  добавить легкие orchestration-тесты для `TopBarActionsRowBuilder` и
+  `TopBarInfoPaneBuilder` (без JavaFX toolkit-heavy сценариев), затем
+  перейти к следующему приоритетному блоку из overview/panel.
+216. В topbar-flow введены dialog-launcher порты:
+     `DescriptionDialogLauncher`, `NotesDialogLauncher`,
+     `EditStatsDialogLauncher`, `LevelUpDialogLauncher`.
+217. Добавлены JavaFX-адаптеры launcher-портов:
+     `JavaFxDescriptionDialogLauncher`, `JavaFxNotesDialogLauncher`,
+     `JavaFxEditStatsDialogLauncher`, `JavaFxLevelUpDialogLauncher`.
+218. `TopBarController` очищен от `new ...Dialog(...)` и прямых
+     UI-зависимостей; инстанцирование диалогов вынесено в launcher-адаптеры,
+     а post-update UI делегируется через callback из view.
+219. Убрана зависимость `TopBarController` от `CharacterOverviewScreen`;
+     `TopBar` формирует callback обновления hp/armor/mana/level локально.
+220. Добавлен unit-тест `TopBarControllerTest`.
+221. `FamiliarsPanel` дополнительно декомпозирован:
+     - `FamiliarsPanelStyleProvider`
+     - `FamiliarCardStyleProvider`
+     - `FamiliarAvatarResolver` + `CharacterAssetFamiliarAvatarResolver`
+     - `FamiliarCardBuilder`.
+     Панель оставлена тонким list/orchestration-контейнером.
+222. Добавлены unit-тесты `FamiliarsPanelStyleProviderTest` и
+     `FamiliarCardStyleProviderTest`.
+
+## Следующий шаг
+
+- Перейти к аналогичной декомпозиции `BuffsInventoryPanel`:
+  вынести wrapper styles/builders и унифицировать panel composition flow
+  (buffs wrapper + inventory + familiars) через отдельный builder/service.

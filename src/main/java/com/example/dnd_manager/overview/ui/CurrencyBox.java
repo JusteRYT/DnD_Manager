@@ -18,9 +18,15 @@ public class CurrencyBox extends VBox {
     private final String pathSilverIcon = "/com/example/dnd_manager/icon/icon_silver.png";
     private final String pathCooperIcon = "/com/example/dnd_manager/icon/icon_cooper.png";
     private final SaveCharacterUseCase saveCharacterUseCase;
+    private final CurrencyService currencyService;
 
     public CurrencyBox(Character character, SaveCharacterUseCase saveCharacterUseCase) {
+        this(character, saveCharacterUseCase, new CurrencyService());
+    }
+
+    CurrencyBox(Character character, SaveCharacterUseCase saveCharacterUseCase, CurrencyService currencyService) {
         this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
+        this.currencyService = Objects.requireNonNull(currencyService, "currencyService must not be null");
         setSpacing(10);
         setPadding(new Insets(12));
 
@@ -53,14 +59,15 @@ public class CurrencyBox extends VBox {
     }
 
     private void update(Character c, int delta) {
-        c.setTotalCooper(Math.max(0, c.getTotalCooper() + delta));
+        currencyService.adjust(c, delta);
         saveCharacterUseCase.execute(c);
         refresh(c);
     }
 
     private void refresh(Character c) {
-        goldText.setText(String.valueOf(c.getTotalCooper() / 10));
-        silverText.setText(String.valueOf(c.getTotalCooper() / 5));
-        copperText.setText(String.valueOf(c.getTotalCooper()));
+        CurrencyDisplayValues values = currencyService.toDisplayValues(c.getTotalCooper());
+        goldText.setText(String.valueOf(values.gold()));
+        silverText.setText(String.valueOf(values.silver()));
+        copperText.setText(String.valueOf(values.copper()));
     }
 }

@@ -20,6 +20,7 @@ public class FamiliarInfoDialog extends BaseDialog {
     private final SaveCharacterUseCase saveCharacterUseCase;
     private final FamiliarHeaderBuilder familiarHeaderBuilder;
     private final FamiliarSectionBuilder familiarSectionBuilder;
+    private final FamiliarResourceSnapshotFactory resourceSnapshotFactory;
     @Setter
     private Runnable onAnyUpdate;
 
@@ -35,7 +36,8 @@ public class FamiliarInfoDialog extends BaseDialog {
                 owner,
                 saveCharacterUseCase,
                 new FamiliarHeaderBuilder(),
-                new FamiliarSectionBuilder()
+                new FamiliarSectionBuilder(),
+                new FamiliarResourceSnapshotFactory()
         );
     }
 
@@ -45,7 +47,8 @@ public class FamiliarInfoDialog extends BaseDialog {
             Character owner,
             SaveCharacterUseCase saveCharacterUseCase,
             FamiliarHeaderBuilder familiarHeaderBuilder,
-            FamiliarSectionBuilder familiarSectionBuilder
+            FamiliarSectionBuilder familiarSectionBuilder,
+            FamiliarResourceSnapshotFactory resourceSnapshotFactory
     ) {
         super(ownerStage, familiar.getName(), 550, 700);
         this.familiar = familiar;
@@ -53,6 +56,7 @@ public class FamiliarInfoDialog extends BaseDialog {
         this.saveCharacterUseCase = saveCharacterUseCase;
         this.familiarHeaderBuilder = familiarHeaderBuilder;
         this.familiarSectionBuilder = familiarSectionBuilder;
+        this.resourceSnapshotFactory = resourceSnapshotFactory;
     }
 
     @Override
@@ -60,30 +64,22 @@ public class FamiliarInfoDialog extends BaseDialog {
         contentArea.setSpacing(15);
         contentArea.setPadding(new Insets(15, 25, 25, 25));
 
-        Label hpValLabel = new Label(familiar.getCurrentHp() + "/" + familiar.getMaxHp());
-        hpValLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-size: 15px; -fx-font-weight: bold;");
+        Label hpValLabel = createResourceValueLabel("#ff6b6b");
+        Label mpValLabel = createResourceValueLabel("#4dabf7");
+        Label acValLabel = createResourceValueLabel("#74c0fc");
+        Label lvlValLabel = createResourceValueLabel("#ff922b");
 
-        Label mpValLabel = new Label(familiar.getCurrentMana() + "/" + familiar.getMaxMana());
-        mpValLabel.setStyle("-fx-text-fill: #4dabf7; -fx-font-size: 15px; -fx-font-weight: bold;");
-
-        Label acValLabel = new Label(String.valueOf(familiar.getArmor()));
-        acValLabel.setStyle("-fx-text-fill: #74c0fc; -fx-font-size: 15px; -fx-font-weight: bold;");
-
-        Label lvlValLabel = new Label(String.valueOf(familiar.getLevel()));
-        lvlValLabel.setStyle("-fx-text-fill: #ff922b; -fx-font-size: 15px; -fx-font-weight: bold;");
+        FamiliarResourcePresenter resourcePresenter = new FamiliarResourcePresenter(
+                resourceSnapshotFactory,
+                new JavaFxFamiliarResourceDisplay(hpValLabel, mpValLabel, acValLabel, lvlValLabel)
+        );
+        resourcePresenter.refresh(familiar);
 
         HpBar hpBar = new HpBar(familiar, owner, saveCharacterUseCase);
         ManaBar manaBar = new ManaBar(familiar, owner, saveCharacterUseCase);
 
-        hpBar.setOnUpdate(() -> {
-            hpValLabel.setText(familiar.getCurrentHp() + "/" + familiar.getMaxHp());
-            if (onAnyUpdate != null) onAnyUpdate.run();
-        });
-
-        manaBar.setOnUpdate(() -> {
-            mpValLabel.setText(familiar.getCurrentMana() + "/" + familiar.getMaxMana());
-            if (onAnyUpdate != null) onAnyUpdate.run();
-        });
+        hpBar.setOnUpdate(resourcePresenter.updateHandler(familiar, onAnyUpdate));
+        manaBar.setOnUpdate(resourcePresenter.updateHandler(familiar, onAnyUpdate));
 
         VBox mainScrollContent = new VBox(20);
 
@@ -103,6 +99,12 @@ public class FamiliarInfoDialog extends BaseDialog {
                 separator,
                 wrapInAppScrollPane(mainScrollContent)
         );
+    }
+
+    private Label createResourceValueLabel(String color) {
+        Label label = new Label();
+        label.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 15px; -fx-font-weight: bold;");
+        return label;
     }
 
     private ScrollPane wrapInAppScrollPane(VBox content) {

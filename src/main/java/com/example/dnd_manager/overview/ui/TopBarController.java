@@ -2,12 +2,6 @@ package com.example.dnd_manager.overview.ui;
 
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.overview.dialogs.CharacterNotesDialog;
-import com.example.dnd_manager.overview.dialogs.EditStatsDialog;
-import com.example.dnd_manager.overview.dialogs.FullDescriptionDialog;
-import com.example.dnd_manager.overview.dialogs.LevelUpDialog;
-import com.example.dnd_manager.screen.CharacterOverviewScreen;
-import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import java.util.Objects;
 
@@ -17,42 +11,53 @@ import java.util.Objects;
 public class TopBarController {
 
     private final Character character;
-    private final CharacterOverviewScreen parentScreen;
     private final SaveCharacterUseCase saveCharacterUseCase;
     private final Runnable backToStartAction;
     private final CharacterDescriptionFileExporter descriptionFileExporter;
     private final CharacterSaveStringService saveStringService;
+    private final DescriptionDialogLauncher descriptionDialogLauncher;
+    private final NotesDialogLauncher notesDialogLauncher;
+    private final EditStatsDialogLauncher editStatsDialogLauncher;
+    private final LevelUpDialogLauncher levelUpDialogLauncher;
 
     public TopBarController(
             Character character,
-            CharacterOverviewScreen parentScreen,
             SaveCharacterUseCase saveCharacterUseCase,
             Runnable backToStartAction
     ) {
         this(
                 character,
-                parentScreen,
                 saveCharacterUseCase,
                 backToStartAction,
                 new CharacterDescriptionFileExporter(),
-                new CharacterSaveStringService(saveCharacterUseCase)
+                new CharacterSaveStringService(saveCharacterUseCase),
+                new JavaFxDescriptionDialogLauncher(),
+                new JavaFxNotesDialogLauncher(),
+                new JavaFxEditStatsDialogLauncher(),
+                new JavaFxLevelUpDialogLauncher()
         );
     }
 
     TopBarController(
             Character character,
-            CharacterOverviewScreen parentScreen,
             SaveCharacterUseCase saveCharacterUseCase,
             Runnable backToStartAction,
             CharacterDescriptionFileExporter descriptionFileExporter,
-            CharacterSaveStringService saveStringService
+            CharacterSaveStringService saveStringService,
+            DescriptionDialogLauncher descriptionDialogLauncher,
+            NotesDialogLauncher notesDialogLauncher,
+            EditStatsDialogLauncher editStatsDialogLauncher,
+            LevelUpDialogLauncher levelUpDialogLauncher
     ) {
-        this.character = character;
-        this.parentScreen = parentScreen;
+        this.character = Objects.requireNonNull(character, "character must not be null");
         this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
         this.backToStartAction = Objects.requireNonNull(backToStartAction, "backToStartAction must not be null");
         this.descriptionFileExporter = Objects.requireNonNull(descriptionFileExporter, "descriptionFileExporter must not be null");
         this.saveStringService = Objects.requireNonNull(saveStringService, "saveStringService must not be null");
+        this.descriptionDialogLauncher = Objects.requireNonNull(descriptionDialogLauncher, "descriptionDialogLauncher must not be null");
+        this.notesDialogLauncher = Objects.requireNonNull(notesDialogLauncher, "notesDialogLauncher must not be null");
+        this.editStatsDialogLauncher = Objects.requireNonNull(editStatsDialogLauncher, "editStatsDialogLauncher must not be null");
+        this.levelUpDialogLauncher = Objects.requireNonNull(levelUpDialogLauncher, "levelUpDialogLauncher must not be null");
     }
 
     public void exportDescription(Stage owner) {
@@ -60,31 +65,24 @@ public class TopBarController {
     }
 
     public void showDescription(Stage owner) {
-        new FullDescriptionDialog(owner, character).show();
+        descriptionDialogLauncher.show(owner, character);
     }
 
     public void showNotes(Stage owner) {
-        new CharacterNotesDialog(owner, character).show();
+        notesDialogLauncher.show(owner, character);
     }
 
-    public void openEditStats(Stage owner, Label hpLabel, Label armorLabel, Label levelValue) {
-        EditStatsDialog dialog = new EditStatsDialog(
+    public void openEditStats(Stage owner, Runnable onUpdated) {
+        editStatsDialogLauncher.show(
                 owner,
                 character,
                 saveCharacterUseCase,
-                () -> {
-                    hpLabel.setText(String.valueOf(character.getCurrentHp()));
-                    armorLabel.setText(String.valueOf(character.getArmor()));
-                    parentScreen.getManaBar().refresh();
-                    levelValue.setText(String.valueOf(character.getLevel()));
-                }
+                onUpdated
         );
-        dialog.show();
     }
 
-    public void openLevelUp(Stage owner, Label levelValue) {
-        new LevelUpDialog(owner, character, saveCharacterUseCase, () ->
-                levelValue.setText(String.valueOf(character.getLevel()))).show();
+    public void openLevelUp(Stage owner, Runnable onLevelUpdated) {
+        levelUpDialogLauncher.show(owner, character, saveCharacterUseCase, onLevelUpdated);
     }
 
     public void persistSaveString(String text) {

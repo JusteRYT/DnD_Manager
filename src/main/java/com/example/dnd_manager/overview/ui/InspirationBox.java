@@ -19,9 +19,19 @@ import java.util.Objects;
 public class InspirationBox extends VBox {
     private final Label valLabel = new Label();
     private final SaveCharacterUseCase saveCharacterUseCase;
+    private final InspirationService inspirationService;
 
     public InspirationBox(Character character, SaveCharacterUseCase saveCharacterUseCase) {
+        this(character, saveCharacterUseCase, new InspirationService());
+    }
+
+    InspirationBox(
+            Character character,
+            SaveCharacterUseCase saveCharacterUseCase,
+            InspirationService inspirationService
+    ) {
         this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
+        this.inspirationService = Objects.requireNonNull(inspirationService, "inspirationService must not be null");
         setSpacing(8);
         setPadding(new Insets(12));
 
@@ -58,16 +68,12 @@ public class InspirationBox extends VBox {
 
         var add = AppButtonFactory.createValueAdjustButton(true, 24, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
         add.setOnAction(e -> {
-            character.setInspiration(character.getInspiration() + 1);
-            saveCharacterUseCase.execute(character);
-            valLabel.setText(String.valueOf(character.getInspiration()));
+            updateInspiration(character, 1);
         });
 
         var remove = AppButtonFactory.createValueAdjustButton(false, 24, AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
         remove.setOnAction(e -> {
-            character.setInspiration(character.getInspiration() - 1);
-            saveCharacterUseCase.execute(character);
-            valLabel.setText(String.valueOf(character.getInspiration()));
+            updateInspiration(character, -1);
         });
 
         row.getChildren().addAll(icon, valContainer, add, remove);
@@ -91,5 +97,11 @@ public class InspirationBox extends VBox {
 
         getChildren().addAll(title, row);
         valLabel.setText(String.valueOf(character.getInspiration()));
+    }
+
+    private void updateInspiration(Character character, int delta) {
+        int value = inspirationService.adjust(character, delta);
+        saveCharacterUseCase.execute(character);
+        valLabel.setText(String.valueOf(value));
     }
 }

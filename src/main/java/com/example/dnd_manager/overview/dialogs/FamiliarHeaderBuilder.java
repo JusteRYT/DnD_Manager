@@ -1,8 +1,6 @@
 package com.example.dnd_manager.overview.dialogs;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.repository.CharacterAssetResolver;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -11,9 +9,31 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 
+import java.util.Objects;
+
 public class FamiliarHeaderBuilder {
 
-    private static final String FALLBACK_IMAGE = "/com/example/dnd_manager/icon/no_image.png";
+    private final FamiliarAvatarImageResolver avatarImageResolver;
+    private final FamiliarMetaTextFormatter metaTextFormatter;
+    private final FamiliarHeaderStyleProvider styleProvider;
+
+    public FamiliarHeaderBuilder() {
+        this(
+                new CharacterAssetFamiliarAvatarImageResolver(),
+                new FamiliarMetaTextFormatter(),
+                new FamiliarHeaderStyleProvider()
+        );
+    }
+
+    FamiliarHeaderBuilder(
+            FamiliarAvatarImageResolver avatarImageResolver,
+            FamiliarMetaTextFormatter metaTextFormatter,
+            FamiliarHeaderStyleProvider styleProvider
+    ) {
+        this.avatarImageResolver = Objects.requireNonNull(avatarImageResolver, "avatarImageResolver must not be null");
+        this.metaTextFormatter = Objects.requireNonNull(metaTextFormatter, "metaTextFormatter must not be null");
+        this.styleProvider = Objects.requireNonNull(styleProvider, "styleProvider must not be null");
+    }
 
     public HBox build(Character familiar, Character owner) {
         HBox header = new HBox(20);
@@ -36,28 +56,18 @@ public class FamiliarHeaderBuilder {
     }
 
     private Image resolveAvatar(Character familiar, Character owner) {
-        try {
-            return new Image(CharacterAssetResolver.resolve(owner.getName(), familiar.getAvatarImage()));
-        } catch (Exception ignored) {
-            return new Image(getClass().getResource(FALLBACK_IMAGE).toExternalForm());
-        }
+        return avatarImageResolver.resolve(familiar, owner);
     }
 
     private VBox createInfo(Character familiar) {
         VBox info = new VBox(2);
 
         Label name = new Label(familiar.getName());
-        name.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #9c27b0;");
+        name.setStyle(styleProvider.nameStyle());
 
-        String metaText = String.format(
-                "%s • %s • %s %s",
-                familiar.getRace(),
-                familiar.getCharacterClass(),
-                I18n.t("label.familiarsLvl"),
-                familiar.getLevel()
-        );
+        String metaText = metaTextFormatter.format(familiar);
         Label meta = new Label(metaText);
-        meta.setStyle("-fx-text-fill: #888;");
+        meta.setStyle(styleProvider.metaStyle());
 
         info.getChildren().addAll(name, meta);
         return info;
