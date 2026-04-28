@@ -1,5 +1,9 @@
 package com.example.dnd_manager.updater;
 
+import com.example.dnd_manager.updater.release.UpdateChecker;
+
+import com.example.dnd_manager.updater.model.GitHubRelease;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.Optional;
@@ -32,3 +36,16 @@ class AppUpdateIntegrationTest {
         System.out.println("Download URL: " + release.assets.getFirst().downloadUrl);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

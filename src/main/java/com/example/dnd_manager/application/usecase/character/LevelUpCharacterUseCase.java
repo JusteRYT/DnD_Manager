@@ -17,3 +17,15 @@ public class LevelUpCharacterUseCase {
         saveCharacterUseCase.execute(character);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

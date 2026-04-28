@@ -5,7 +5,6 @@ import com.example.dnd_manager.assets.logic.AssetDnDManager;
 import com.example.dnd_manager.assets.logic.AssetSelectionModel;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppContextMenu;
-import com.example.dnd_manager.theme.AppTheme;
 import javafx.collections.SetChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,6 +21,7 @@ import java.util.function.Consumer;
 public class AssetCard extends VBox {
     private final Path filePath;
     private final AssetSelectionModel selectionModel;
+    private final AssetCardStyleProvider styleProvider = new AssetCardStyleProvider();
 
     public AssetCard(Path filePath, Image img, AssetSelectionModel selectionModel,
                      AssetActionHandler actionHandler, AssetDnDManager dndManager,
@@ -41,7 +41,7 @@ public class AssetCard extends VBox {
             view.setPreserveRatio(true);
 
             Label label = new Label(filePath.getFileName().toString());
-            label.setStyle("-fx-text-fill: white; -fx-font-size: 11px;");
+            label.setStyle(styleProvider.fileNameLabelStyle());
             label.setTextOverrun(OverrunStyle.CENTER_ELLIPSIS);
 
             getChildren().addAll(view, label);
@@ -75,9 +75,7 @@ public class AssetCard extends VBox {
 
     private void updateStyle() {
         boolean selected = selectionModel.isSelected(filePath);
-        setStyle("-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-width: 2; " +
-                "-fx-background-color: " + (selected ? "#404040;" : "#2b2b2b;") +
-                "-fx-border-color: " + (selected ? AppTheme.TEXT_ACCENT : "transparent") + ";");
+        setStyle(styleProvider.cardStyle(selected));
     }
 
     private void showMenu(javafx.scene.input.MouseEvent e, AssetActionHandler handler) {
@@ -89,3 +87,15 @@ public class AssetCard extends VBox {
         menu.show(this, e.getScreenX(), e.getScreenY());
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

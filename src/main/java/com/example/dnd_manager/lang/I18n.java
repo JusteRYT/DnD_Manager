@@ -32,10 +32,6 @@ public final class I18n {
         bundle = loadBundle(locale);
     }
 
-    public static Locale getLocale() {
-        return currentLocale;
-    }
-
     public static String t(String key) {
         return bundle.getString(key);
     }
@@ -44,3 +40,15 @@ public final class I18n {
         return currentLocale.equals(Locale.ENGLISH);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

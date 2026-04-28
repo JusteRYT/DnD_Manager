@@ -51,3 +51,15 @@ public class CharacterEditScreen extends AbstractCharacterFormScreen {
         backToStartAction.run();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

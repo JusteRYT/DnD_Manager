@@ -31,3 +31,15 @@ class GlobalAssetServiceTest {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+

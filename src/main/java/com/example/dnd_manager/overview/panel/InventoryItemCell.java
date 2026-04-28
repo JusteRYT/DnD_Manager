@@ -1,10 +1,10 @@
 package com.example.dnd_manager.overview.panel;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.inventory.InventoryItem;
-import com.example.dnd_manager.info.inventory.InventoryItemPopup;
+import com.example.dnd_manager.info.inventory.model.InventoryItem;
+import com.example.dnd_manager.info.inventory.popup.InventoryItemPopup;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.repository.CharacterAssetResolver;
+import com.example.dnd_manager.infrastructure.assets.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppContextMenu;
 import javafx.animation.PauseTransition;
 import javafx.geometry.Pos;
@@ -110,3 +110,15 @@ public class InventoryItemCell extends StackPane {
         popup.getContent().add(new InventoryItemPopup(item));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

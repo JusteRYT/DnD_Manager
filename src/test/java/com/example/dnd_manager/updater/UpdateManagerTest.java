@@ -1,5 +1,15 @@
 package com.example.dnd_manager.updater;
 
+import com.example.dnd_manager.updater.port.UpdatePackageDownloader;
+
+import com.example.dnd_manager.updater.port.UpdateInstallerLauncher;
+
+import com.example.dnd_manager.updater.port.ApplicationTerminator;
+
+import com.example.dnd_manager.updater.model.GitHubRelease;
+
+import com.example.dnd_manager.updater.flow.UpdateManager;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -99,4 +109,21 @@ class UpdateManagerTest {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -1,7 +1,7 @@
 package com.example.dnd_manager.overview.panel;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.inventory.InventoryItem;
+import com.example.dnd_manager.info.inventory.model.InventoryItem;
 import javafx.stage.Stage;
 
 import java.util.Objects;
@@ -47,3 +47,15 @@ public class InventoryPanelController {
         onCharacterUpdated.accept(character);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

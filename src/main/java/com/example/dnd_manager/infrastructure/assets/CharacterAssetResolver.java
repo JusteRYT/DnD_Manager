@@ -1,0 +1,121 @@
+package com.example.dnd_manager.infrastructure.assets;
+
+import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.infrastructure.persistence.CharacterStoragePathResolver;
+import javafx.scene.image.Image;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
+
+public final class CharacterAssetResolver {
+
+    private static final Logger log = LoggerFactory.getLogger(CharacterAssetResolver.class);
+    private static final String DEFAULT_ICON = "/com/example/dnd_manager/icon/no_image.png";
+    private static final String DEFAULT_AVATAR_RESOURCE = "/com/example/dnd_manager/icon/user.png";
+
+    private CharacterAssetResolver() {
+    }
+
+    public static String resolve(String characterName, String relativePath) {
+        return CharacterStoragePathResolver
+                .getCharacterDir(characterName)
+                .resolve(relativePath)
+                .toUri()
+                .toString();
+    }
+
+    public static Image getImage(Character character, String iconPath, double width, double height) {
+        String name = (character != null) ? character.getName() : "";
+
+        if (iconPath == null || iconPath.isBlank() || iconPath.contains("no_image.png")) {
+            return getDefaultImage(width, height);
+        }
+
+        try {
+            String decodedPath = URLDecoder.decode(iconPath, StandardCharsets.UTF_8);
+            Path targetPath = null;
+
+            if (decodedPath.startsWith("file:")) {
+                targetPath = Path.of(URI.create(decodedPath));
+            } else {
+                Path path = Path.of(decodedPath);
+
+                if (path.isAbsolute()) {
+                    targetPath = path;
+                } else {
+                    Path directPath = path.toAbsolutePath();
+                    if (Files.exists(directPath)) {
+                        targetPath = directPath;
+                    } else if (!name.isBlank()) {
+                        targetPath = CharacterStoragePathResolver
+                                .getCharacterDir(name)
+                                .resolve(decodedPath);
+                    }
+                }
+            }
+
+            if (targetPath != null && Files.exists(targetPath)) {
+                try (InputStream is = Files.newInputStream(targetPath)) {
+                    return new Image(is, width, height, true, true);
+                }
+            }
+
+            if (iconPath.contains(":/")) {
+                return new Image(iconPath, width, height, true, true, true);
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to load image safely: {} (Character: {})", iconPath, name, e);
+        }
+
+        return getDefaultImage(width, height);
+    }
+
+    private static Image getDefaultImage(double width, double height) {
+        return new Image(Objects.requireNonNull(
+                CharacterAssetResolver.class.getResource(DEFAULT_ICON)).toExternalForm(), width, height, true, true, true);
+    }
+
+    public static Image getAvatarImage(Character character, String path, double width, double height) {
+        if (path == null || path.isBlank()) {
+            return getResourceImage(width, height);
+        }
+
+        Image image = getImage(character, path, width, height);
+
+        if (isDefaultIcon(image)) {
+            return getResourceImage(width, height);
+        }
+
+        return image;
+    }
+
+    private static Image getResourceImage(double width, double height) {
+        String url = Objects.requireNonNull(CharacterAssetResolver.class.getResource(CharacterAssetResolver.DEFAULT_AVATAR_RESOURCE)).toExternalForm();
+        return new Image(url, width, height, true, true, true);
+    }
+
+    private static boolean isDefaultIcon(Image img) {
+        if (img == null) return true;
+        String url = img.getUrl();
+        return url != null && url.contains("no_image.png");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+

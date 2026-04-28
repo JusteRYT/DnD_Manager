@@ -1,9 +1,9 @@
 package com.example.dnd_manager.info.utils;
 
-import com.example.dnd_manager.info.editors.AbstractEntityEditor;
+import com.example.dnd_manager.info.editors.common.AbstractEntityEditor;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
+import com.example.dnd_manager.theme.button.AppButtonFactory;
+import com.example.dnd_manager.theme.scroll.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -53,3 +53,15 @@ public class SubEditorManager {
         subStage.showAndWait();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

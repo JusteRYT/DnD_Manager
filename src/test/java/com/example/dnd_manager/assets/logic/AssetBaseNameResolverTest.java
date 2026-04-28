@@ -23,3 +23,15 @@ class AssetBaseNameResolverTest {
         assertEquals(".hidden", resolver.resolve(".hidden"));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

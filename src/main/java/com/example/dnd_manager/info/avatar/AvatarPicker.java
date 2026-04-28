@@ -3,9 +3,9 @@ package com.example.dnd_manager.info.avatar;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.text.dto.AvatarData;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.repository.CharacterAssetResolver;
+import com.example.dnd_manager.infrastructure.assets.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppTheme;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -116,8 +116,21 @@ public class AvatarPicker extends VBox {
         -fx-padding: 6 14;
         -fx-cursor: hand;
         """;
+        String hoverStyle = """
+        -fx-background-color: #353535;
+        -fx-text-fill: %s;
+        -fx-font-family: 'Cinzel';
+        -fx-font-size: 13px;
+        -fx-font-weight: bold;
+        -fx-background-radius: 6;
+        -fx-border-radius: 6;
+        -fx-border-color: %s;
+        -fx-border-width: 1;
+        -fx-padding: 6 14;
+        -fx-cursor: hand;
+        """.formatted(accent, accent);
         btn.setStyle(style);
-        btn.setOnMouseEntered(e -> btn.setStyle(style + "-fx-background-color: #353535; -fx-text-fill: " + accent + "; -fx-border-color: " + accent + ";"));
+        btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
         btn.setOnMouseExited(e -> btn.setStyle(style));
         return btn;
     }
@@ -126,3 +139,14 @@ public class AvatarPicker extends VBox {
         return new AvatarData(currentPath);
     }
 }
+
+
+
+
+
+
+
+
+
+
+

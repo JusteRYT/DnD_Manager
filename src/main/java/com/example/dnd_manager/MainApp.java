@@ -1,8 +1,8 @@
 package com.example.dnd_manager;
 
 import com.example.dnd_manager.application.AppContext;
-import com.example.dnd_manager.repository.JsonCharacterRepository;
-import com.example.dnd_manager.screen.StartScreen;
+import com.example.dnd_manager.infrastructure.persistence.JsonCharacterRepository;
+import com.example.dnd_manager.screen.start.StartScreen;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.CustomTitleBar;
 import com.example.dnd_manager.theme.WindowResizer;
@@ -73,6 +73,18 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         log.debug("Main method called, launching JavaFX...");
-        launch();
+        launch(args);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

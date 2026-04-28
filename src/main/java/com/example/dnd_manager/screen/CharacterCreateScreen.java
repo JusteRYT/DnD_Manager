@@ -55,3 +55,15 @@ public class CharacterCreateScreen extends AbstractCharacterFormScreen {
         backToStartAction.run();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

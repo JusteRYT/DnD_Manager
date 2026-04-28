@@ -14,3 +14,15 @@ public class AssetBaseNameResolver {
         return fileName.substring(0, dot);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

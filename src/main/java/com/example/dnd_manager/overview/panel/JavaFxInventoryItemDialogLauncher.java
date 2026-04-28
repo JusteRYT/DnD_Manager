@@ -1,9 +1,9 @@
 package com.example.dnd_manager.overview.panel;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.inventory.InventoryItem;
-import com.example.dnd_manager.overview.dialogs.AddInventoryItemDialog;
-import com.example.dnd_manager.overview.dialogs.EditInventoryItemDialog;
+import com.example.dnd_manager.info.inventory.model.InventoryItem;
+import com.example.dnd_manager.overview.dialogs.inventory.AddInventoryItemDialog;
+import com.example.dnd_manager.overview.dialogs.inventory.EditInventoryItemDialog;
 import javafx.stage.Stage;
 
 import java.util.function.Consumer;
@@ -20,3 +20,15 @@ public class JavaFxInventoryItemDialogLauncher implements InventoryItemDialogLau
         new EditInventoryItemDialog(owner, character, item, onComplete).show();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

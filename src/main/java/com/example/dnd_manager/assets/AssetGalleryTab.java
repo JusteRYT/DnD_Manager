@@ -3,20 +3,18 @@ package com.example.dnd_manager.assets;
 import com.example.dnd_manager.assets.logic.AssetActionHandler;
 import com.example.dnd_manager.assets.logic.AssetDnDManager;
 import com.example.dnd_manager.assets.logic.AssetGalleryController;
+import com.example.dnd_manager.assets.logic.AssetGalleryLoadingCoordinator;
 import com.example.dnd_manager.assets.logic.AssetSelectionModel;
 import com.example.dnd_manager.assets.service.AssetGalleryService;
 import com.example.dnd_manager.assets.ui.AssetCard;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
+import com.example.dnd_manager.assets.ui.AssetCardFactory;
+import com.example.dnd_manager.assets.ui.AssetGalleryTabStyleProvider;
+import com.example.dnd_manager.assets.ui.AssetGalleryView;
+import com.example.dnd_manager.assets.ui.AssetGalleryViewBuilder;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -30,12 +28,13 @@ public class AssetGalleryTab extends VBox {
     private static final Logger log = LoggerFactory.getLogger(AssetGalleryTab.class);
 
     private final FlowPane galleryPane;
-    private Thread loadingThread;
 
     private final AssetSelectionModel selectionModel = new AssetSelectionModel();
     private final AssetActionHandler actionHandler;
     private final AssetDnDManager dndManager;
     private final AssetGalleryController galleryController;
+    private final AssetCardFactory cardFactory = new AssetCardFactory();
+    private final AssetGalleryLoadingCoordinator loadingCoordinator = new AssetGalleryLoadingCoordinator();
     private Consumer<Path> selectionCallback;
 
     public AssetGalleryTab(AssetCategory category, Path basePath, Stage stage, AssetDnDManager dndManager) {
@@ -47,53 +46,24 @@ public class AssetGalleryTab extends VBox {
         );
         this.dndManager = dndManager;
         this.actionHandler = new AssetActionHandler(this::loadImages, stage);
+        AssetGalleryTabStyleProvider styleProvider = new AssetGalleryTabStyleProvider();
+        AssetGalleryViewBuilder viewBuilder = new AssetGalleryViewBuilder(styleProvider);
 
         // Настройка контейнера: убираем лишние отступы, чтобы занять всё пространство
         setSpacing(15);
         setPadding(new Insets(10, 0, 0, 0));
         setFillWidth(true); // VBox будет растягивать детей по горизонтали
         setMaxHeight(Double.MAX_VALUE);
-        setStyle("-fx-background-color: transparent;");
+        setStyle(styleProvider.rootStyle());
 
         galleryController.ensureCategoryDirectory();
 
-        Button uploadBtn = AppButtonFactory.actionAdd("Add assets", 150);
-        uploadBtn.setOnAction(e -> galleryController.handleUpload(this::loadImages));
+        AssetGalleryView view = viewBuilder.build(category, selectionModel::clear);
+        view.uploadButton().setOnAction(e -> galleryController.handleUpload(this::loadImages));
+        galleryPane = view.galleryPane();
 
-        if (category.isAll()) {
-            uploadBtn.setVisible(false);
-            uploadBtn.setManaged(false);
-        }
-
-        HBox controls = new HBox(20, uploadBtn);
-        controls.setAlignment(Pos.CENTER_LEFT);
-        controls.setPadding(new Insets(0, 10, 0, 10));
-
-        // --- Сетка галереи ---
-        galleryPane = new FlowPane(15, 15);
-        galleryPane.setAlignment(Pos.TOP_LEFT);
-        galleryPane.setPadding(new Insets(10));
-
-        // Клик по пустому месту сбрасывает выделение через модель
-        galleryPane.setOnMouseClicked(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && e.getTarget() == galleryPane) {
-                selectionModel.clear();
-            }
-        });
-
-        // --- Скролл и растяжение ---
-        ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(galleryPane);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-control-inner-background: transparent;");
-
-        // Позволяем ScrollPane забирать всё свободное место в VBox
         VBox.setVgrow(this, Priority.ALWAYS);
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
-
-        // Биндинг ширины для корректного переноса иконок
-        galleryPane.prefWidthProperty().bind(scrollPane.widthProperty().subtract(20));
-
-        getChildren().addAll(controls, scrollPane);
+        getChildren().addAll(view.controls(), view.scrollPane());
 
         loadImages();
     }
@@ -107,16 +77,10 @@ public class AssetGalleryTab extends VBox {
      * Interrupts any ongoing loading process before starting a new one.
      */
     public void loadImages() {
-        if (loadingThread != null && loadingThread.isAlive()) {
-            loadingThread.interrupt();
-        }
-
-        Platform.runLater(() -> {
-            selectionModel.clear();
-            galleryPane.getChildren().clear();
-        });
-
-        loadingThread = galleryController.startLoadingImages(
+        loadingCoordinator.load(
+                galleryController,
+                galleryPane,
+                selectionModel::clear,
                 this::addCard,
                 e -> log.error("Failed to load images", e)
         );
@@ -149,7 +113,7 @@ public class AssetGalleryTab extends VBox {
                 return;
             }
 
-            AssetCard card = new AssetCard(
+            AssetCard card = cardFactory.create(
                     path,
                     image,
                     selectionModel,
@@ -164,3 +128,15 @@ public class AssetGalleryTab extends VBox {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+

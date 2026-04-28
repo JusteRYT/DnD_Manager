@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 
 public class BaseInfoForm extends VBox {
 
+    private final BaseInfoFormStyleProvider styleProvider = new BaseInfoFormStyleProvider();
     private final AppTextField nameField = new AppTextField(I18n.t("nameField.name"), true);
     private final AppTextField raceField = new AppTextField(I18n.t("raceField.name"), true);
     private final AppTextField classField = new AppTextField(I18n.t("classField.name"), true);
@@ -30,11 +31,8 @@ public class BaseInfoForm extends VBox {
         setPadding(new Insets(20));
         setSpacing(15);
 
-        Label sectionTitle = new Label("BASIC INFORMATION");
-        sectionTitle.setStyle("-fx-font-size: 18px; " +
-                "-fx-text-fill: #c89b3c; " +
-                "-fx-font-weight: bold; " +
-                "-fx-letter-spacing: 1px;");
+        Label sectionTitle = new Label(I18n.t("baseInfo.title"));
+        sectionTitle.setStyle(styleProvider.sectionTitleStyle());
         getChildren().add(sectionTitle);
 
         configureNameValidation();
@@ -63,7 +61,7 @@ public class BaseInfoForm extends VBox {
     private void add(GridPane grid, String labelText, AppTextField appField, int col, int row, int colSpan) {
         VBox container = new VBox(5);
         Label label = new Label(labelText.toUpperCase());
-        label.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 12px; -fx-font-weight: bold;");
+        label.setStyle(styleProvider.fieldLabelStyle());
 
         VBox fieldAndErrorBox = new VBox(2, appField.getField());
         if (appField == nameField) {
@@ -78,12 +76,7 @@ public class BaseInfoForm extends VBox {
     }
 
     private void configureNameValidation() {
-        // Меняем на стандартный красный
-        nameRequiredLabel.setStyle("""
-                -fx-text-fill: #ff6b6b;
-                -fx-font-size: 10px;
-                -fx-font-weight: bold;
-                """);
+        nameRequiredLabel.setStyle(styleProvider.requiredLabelStyle());
 
         nameRequiredLabel.setVisible(false);
         nameRequiredLabel.setManaged(false);
@@ -132,3 +125,15 @@ public class BaseInfoForm extends VBox {
         levelField.setValue(data.level());
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

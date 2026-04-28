@@ -3,8 +3,8 @@ package com.example.dnd_manager.info.section;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.familiar.FamiliarEditorRow;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.overview.dialogs.FamiliarDialog;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import com.example.dnd_manager.overview.dialogs.familiar.FamiliarDialog;
+import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -68,3 +68,14 @@ public class FamiliarsSection extends VBox {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+

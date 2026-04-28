@@ -18,7 +18,7 @@ public class AppComboBox<T> extends ComboBox<T> {
             -fx-background-insets: 0, 1;
             -fx-background-radius: 6;
             -fx-border-radius: 6;
-            -fx-padding: 2 5 2 5; 
+            -fx-padding: 2 5 2 5;
             -fx-font-size: 12px;
             -fx-text-fill: #eee;
             -fx-focus-color: transparent;
@@ -55,7 +55,7 @@ public class AppComboBox<T> extends ComboBox<T> {
 
             cell.sceneProperty().addListener((obs, oldScene, newScene) -> {
                 if (newScene != null) {
-                    ListView<?> listView = (ListView<?>) cell.getListView();
+                    ListView<T> listView = cell.getListView();
                     if (listView != null) {
                         listView.setStyle("""
                             -fx-background-color: #3a3a3a, #1e1e1e;
@@ -89,3 +89,14 @@ public class AppComboBox<T> extends ComboBox<T> {
         });
     }
 }
+
+
+
+
+
+
+
+
+
+
+

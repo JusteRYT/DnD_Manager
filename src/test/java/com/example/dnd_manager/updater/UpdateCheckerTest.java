@@ -1,5 +1,13 @@
 package com.example.dnd_manager.updater;
 
+import com.example.dnd_manager.updater.version.SemanticVersionComparator;
+
+import com.example.dnd_manager.updater.release.UpdateChecker;
+
+import com.example.dnd_manager.updater.port.ReleaseProvider;
+
+import com.example.dnd_manager.updater.model.GitHubRelease;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
@@ -59,4 +67,20 @@ class UpdateCheckerTest {
         assertSame(release, fetched.get());
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

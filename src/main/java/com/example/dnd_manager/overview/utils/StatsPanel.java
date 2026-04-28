@@ -1,7 +1,7 @@
 package com.example.dnd_manager.overview.utils;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.stats.StatsGridView;
+import com.example.dnd_manager.info.stats.view.StatsGridView;
 import com.example.dnd_manager.lang.I18n;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -17,8 +17,8 @@ public class StatsPanel extends VBox {
 
         Label title = new Label(I18n.t("stats.label.overview").toUpperCase());
         title.setStyle("""
-            -fx-text-fill: #b0b0b0; 
-            -fx-font-size: 14px; 
+            -fx-text-fill: #b0b0b0;
+            -fx-font-size: 14px;
             -fx-font-weight: bold;
             -fx-letter-spacing: 2px;
             """);
@@ -40,3 +40,14 @@ public class StatsPanel extends VBox {
         getChildren().add(statsBox);
     }
 }
+
+
+
+
+
+
+
+
+
+
+

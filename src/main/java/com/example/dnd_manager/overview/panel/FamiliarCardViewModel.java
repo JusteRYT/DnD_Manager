@@ -7,3 +7,15 @@ public record FamiliarCardViewModel(
         String acText
 ) {
 }
+
+
+
+
+
+
+
+
+
+
+
+

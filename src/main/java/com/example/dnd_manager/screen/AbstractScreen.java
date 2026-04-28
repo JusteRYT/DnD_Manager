@@ -28,3 +28,15 @@ public abstract class AbstractScreen {
 
     protected abstract VBox buildForm();
 }
+
+
+
+
+
+
+
+
+
+
+
+

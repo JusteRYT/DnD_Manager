@@ -37,3 +37,15 @@ public class FamiliarsPanelController {
         dialogLauncher.show(parentStage, familiar, ownerCharacter, saveCharacterUseCase, onAnyUpdate);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

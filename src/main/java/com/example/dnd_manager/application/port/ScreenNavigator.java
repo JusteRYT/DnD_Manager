@@ -10,3 +10,15 @@ public interface ScreenNavigator {
     void open(Node view);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+

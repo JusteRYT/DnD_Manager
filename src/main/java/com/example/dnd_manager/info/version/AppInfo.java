@@ -21,3 +21,15 @@ public final class AppInfo {
         return VERSION;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

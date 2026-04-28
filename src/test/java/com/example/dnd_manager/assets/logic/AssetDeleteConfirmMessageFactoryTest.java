@@ -28,3 +28,15 @@ class AssetDeleteConfirmMessageFactoryTest {
         assertTrue(text.contains("2"));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

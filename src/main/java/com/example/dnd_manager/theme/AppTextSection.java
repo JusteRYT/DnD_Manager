@@ -88,15 +88,18 @@ public class AppTextSection extends VBox {
         return contentArea.getText().trim();
     }
 
-    public void setTitle(String title) {
-        if (titleLabel != null) titleLabel.setText(title.toUpperCase());
-    }
-
-    public String getTitle() {
-        return titleLabel != null ? titleLabel.getText() : null;
-    }
-
     public void clear() {
         contentArea.clear();
     }
 }
+
+
+
+
+
+
+
+
+
+
+

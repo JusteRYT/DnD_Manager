@@ -34,3 +34,15 @@ public class UpdateCharacterStatsUseCase {
         saveCharacterUseCase.execute(character);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

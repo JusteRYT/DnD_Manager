@@ -22,3 +22,15 @@ public enum AssetCategory {
         return this == ALL;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

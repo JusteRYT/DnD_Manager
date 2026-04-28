@@ -56,3 +56,15 @@ public class CharacterUseCases {
         return levelUpCharacterUseCase;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

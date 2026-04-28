@@ -1,7 +1,7 @@
 package com.example.dnd_manager.overview.panel;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.inventory.InventoryItem;
+import com.example.dnd_manager.info.inventory.model.InventoryItem;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -87,3 +87,15 @@ class InventoryPanelControllerTest {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

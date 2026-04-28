@@ -55,3 +55,15 @@ class UpdateCharacterStatsUseCaseTest {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

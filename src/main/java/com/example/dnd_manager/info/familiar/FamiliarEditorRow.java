@@ -1,7 +1,7 @@
 package com.example.dnd_manager.info.familiar;
 
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.info.editors.AbstractEntityRow;
+import com.example.dnd_manager.info.editors.common.AbstractEntityRow;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
@@ -35,3 +35,14 @@ public class FamiliarEditorRow extends AbstractEntityRow<Character> {
         return familiar.getAvatarImage();
     }
 }
+
+
+
+
+
+
+
+
+
+
+

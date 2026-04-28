@@ -3,9 +3,11 @@ package com.example.dnd_manager.overview.panel;
 
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.tooltip.BuffsView;
+import com.example.dnd_manager.tooltip.view.BuffsView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 /**
  * Right panel: Buffs/Debuffs + Inventory
@@ -25,38 +27,43 @@ public class BuffsInventoryPanel extends VBox {
             Runnable onRefresh,
             SaveCharacterUseCase saveCharacterUseCase
     ) {
+        this(character, stage, onRefresh, saveCharacterUseCase, new BuffsWrapperBuilder());
+    }
+
+    BuffsInventoryPanel(
+            Character character,
+            Stage stage,
+            Runnable onRefresh,
+            SaveCharacterUseCase saveCharacterUseCase,
+            BuffsWrapperBuilder buffsWrapperBuilder
+    ) {
         setSpacing(15);
-        this.character = character;
+        this.character = Objects.requireNonNull(character, "character must not be null");
+        BuffsWrapperBuilder wrapperBuilder = Objects.requireNonNull(buffsWrapperBuilder, "buffsWrapperBuilder must not be null");
         this.buffsView = new BuffsView(character);
 
-        VBox buffsWrapper = new VBox(buffsView);
+        InventoryPanel inventoryPanel = new InventoryPanel(character, c -> onRefresh.run());
 
-        String accentColor = "#3aa3c3";
-        String commonStyle = """
-                -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
-                -fx-background-radius: 10;
-                -fx-border-color: %s;
-                -fx-border-radius: 10;
-                -fx-border-width: 1;
-                -fx-padding: 8;
-                """.formatted(accentColor);
-
-        String idleStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, rgba(58, 163, 195, 0.2), 15, 0, 0, 0);";
-        String hoverStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, %s, 10, 0.2, 0, 0);".formatted(accentColor);
-
-        buffsWrapper.setStyle(idleStyle);
-
-        buffsWrapper.setOnMouseEntered(e -> buffsWrapper.setStyle(hoverStyle));
-        buffsWrapper.setOnMouseExited(e -> buffsWrapper.setStyle(idleStyle));
-
-        InventoryPanel inventoryPanel = new InventoryPanel(character, c -> {
-            onRefresh.run();
-        });
-
-        getChildren().addAll(buffsWrapper, inventoryPanel, new FamiliarsPanel(character, stage, saveCharacterUseCase));
+        getChildren().addAll(
+                wrapperBuilder.build(buffsView),
+                inventoryPanel,
+                new FamiliarsPanel(character, stage, saveCharacterUseCase)
+        );
     }
 
     public void refreshBuffs() {
         buffsView.refresh(character);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

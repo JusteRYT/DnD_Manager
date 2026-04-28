@@ -1,9 +1,9 @@
 package com.example.dnd_manager.domain;
 
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.repository.CharacterAssetResolver;
+import com.example.dnd_manager.infrastructure.assets.CharacterAssetResolver;
 import com.example.dnd_manager.theme.AppTheme;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -17,10 +17,14 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
 public class CharacterCard extends VBox {
+
+    private static final Logger log = LoggerFactory.getLogger(CharacterCard.class);
 
     private static final double CARD_WIDTH = 250;
     private static final double IMAGE_HEIGHT = 300; // Вертикальное соотношение
@@ -52,8 +56,8 @@ public class CharacterCard extends VBox {
         try {
             Image img = CharacterAssetResolver.getImage(character, character.getAvatarImage(), CARD_WIDTH, IMAGE_HEIGHT);
             avatar.setImage(img);
-        } catch (Exception ignored) {
-
+        } catch (Exception ex) {
+            log.debug("Failed to load avatar for character card '{}'", character.getName(), ex);
         }
 
         avatar.setFitWidth(CARD_WIDTH - 24);
@@ -102,3 +106,15 @@ public class CharacterCard extends VBox {
         setOnMouseClicked(e -> onSelected.accept(character));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

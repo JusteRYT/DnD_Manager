@@ -1,5 +1,8 @@
 package com.example.dnd_manager.assets.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -8,6 +11,8 @@ import java.util.Set;
  * File operations for asset rename/delete use-cases.
  */
 public class AssetFileService {
+
+    private static final Logger log = LoggerFactory.getLogger(AssetFileService.class);
 
     public Path buildRenamedPath(Path target, String userInputName) {
         String fileName = target.getFileName().toString();
@@ -29,10 +34,21 @@ public class AssetFileService {
         for (Path path : targets) {
             try {
                 java.nio.file.Files.deleteIfExists(path);
-            } catch (IOException ignored) {
-                // caller decides logging policy
+            } catch (IOException ex) {
+                log.warn("Failed to delete asset file {}", path, ex);
             }
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 

@@ -2,8 +2,8 @@ package com.example.dnd_manager.overview.panel;
 
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.overview.ui.CurrencyBox;
-import com.example.dnd_manager.overview.ui.ManaBar;
+import com.example.dnd_manager.overview.ui.currency.CurrencyBox;
+import com.example.dnd_manager.overview.ui.resources.ManaBar;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
@@ -48,3 +48,15 @@ public class ResourcePanel extends HBox {
         getChildren().addAll(currencyBox, rightStack.container());
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,5 +1,9 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.screen.start.StartScreenController;
+
+import com.example.dnd_manager.screen.start.StartScreenFlowFactory;
+
 import com.example.dnd_manager.application.CharacterUseCases;
 import com.example.dnd_manager.application.port.CharacterGateway;
 import com.example.dnd_manager.application.port.ScreenNavigator;
@@ -16,9 +20,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StartScreenControllerTest {
 
@@ -96,7 +100,7 @@ class StartScreenControllerTest {
         assertEquals(0, errorSpy.calls);
         assertEquals(Boolean.FALSE, factory.lastSelectionMode);
         assertSame(openStartSpy, factory.lastBackAction);
-        assertTrue(factory.lastSelectionConsumer != null);
+        assertNotNull(factory.lastSelectionConsumer);
     }
 
     @Test
@@ -247,4 +251,18 @@ class StartScreenControllerTest {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

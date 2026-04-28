@@ -1,5 +1,7 @@
 package com.example.dnd_manager.updater;
 
+import com.example.dnd_manager.updater.ui.UpdateProgressCalculator;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,3 +30,16 @@ class UpdateProgressCalculatorTest {
         assertEquals(0.0, calculator.calculate(-10, 100));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

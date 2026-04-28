@@ -19,3 +19,15 @@ public interface CharacterGateway {
     void deleteCharacter(Character character);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+

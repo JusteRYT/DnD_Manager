@@ -1,0 +1,115 @@
+package com.example.dnd_manager.overview.ui.inspiration;
+
+import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
+import com.example.dnd_manager.domain.Character;
+import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.theme.AppTheme;
+import com.example.dnd_manager.theme.button.AppButtonFactory;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+
+import java.util.Objects;
+
+public class InspirationBox extends VBox {
+    private final Label valLabel = new Label();
+    private final SaveCharacterUseCase saveCharacterUseCase;
+    private final InspirationService inspirationService;
+
+    public InspirationBox(Character character, SaveCharacterUseCase saveCharacterUseCase) {
+        this(character, saveCharacterUseCase, new InspirationService());
+    }
+
+    InspirationBox(
+            Character character,
+            SaveCharacterUseCase saveCharacterUseCase,
+            InspirationService inspirationService
+    ) {
+        this.saveCharacterUseCase = Objects.requireNonNull(saveCharacterUseCase, "saveCharacterUseCase must not be null");
+        this.inspirationService = Objects.requireNonNull(inspirationService, "inspirationService must not be null");
+        setSpacing(8);
+        setPadding(new Insets(12));
+
+        Label title = new Label(I18n.t("inspirationPanel.title"));
+        title.setStyle("""
+                -fx-text-fill: #dba1ff;
+                -fx-font-size: 16px;
+                -fx-font-weight: bold;
+                -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.8), 2, 0, 0, 1);
+                """);
+
+        HBox row = new HBox(12);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        ImageView icon = new ImageView(
+                new Image(Objects.requireNonNull(
+                        getClass().getResourceAsStream("/com/example/dnd_manager/icon/inspiration_icon.png")
+                ))
+        );
+        icon.setFitWidth(28);
+        icon.setFitHeight(28);
+        icon.setPreserveRatio(true);
+        icon.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(155, 89, 182, 0.6), 5, 0, 0, 0);");
+
+        valLabel.setStyle("""
+                        -fx-text-fill: #ffffff;
+                        -fx-font-weight: bold;
+                        -fx-font-family: "Consolas";
+                        -fx-font-size: 18px;
+                """);
+
+        StackPane valContainer = new StackPane(valLabel);
+        valContainer.setStyle("-fx-background-color: #1a1a1a; -fx-background-radius: 5; -fx-min-width: 40;");
+
+        var add = AppButtonFactory.createValueAdjustButton(true, 24, AppTheme.BUTTON_PRIMARY, AppTheme.BUTTON_PRIMARY_HOVER);
+        add.setOnAction(e -> updateInspiration(character, 1));
+
+        var remove = AppButtonFactory.createValueAdjustButton(false, 24, AppTheme.BUTTON_REMOVE, AppTheme.BUTTON_REMOVE_HOVER);
+        remove.setOnAction(e -> updateInspiration(character, -1));
+
+        row.getChildren().addAll(icon, valContainer, add, remove);
+
+        String accentColor = "#9b59b6"; // Фиолетовый цвет бордера
+        String commonStyle = """
+            -fx-background-color: linear-gradient(to bottom right, #2b2b2b, #1f1f1f);
+            -fx-background-radius: 8;
+            -fx-border-color: %s;
+            -fx-border-radius: 8;
+            -fx-border-width: 1;
+            """.formatted(accentColor);
+
+        String idleStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, rgba(155, 89, 182, 0.2), 10, 0, 0, 0);";
+        String hoverStyle = commonStyle + "-fx-effect: dropshadow(three-pass-box, %s, 10, 0.2, 0, 0);".formatted(accentColor);
+
+        setStyle(idleStyle);
+
+        setOnMouseEntered(e -> setStyle(hoverStyle));
+        setOnMouseExited(e -> setStyle(idleStyle));
+
+        getChildren().addAll(title, row);
+        valLabel.setText(String.valueOf(character.getInspiration()));
+    }
+
+    private void updateInspiration(Character character, int delta) {
+        int value = inspirationService.adjust(character, delta);
+        saveCharacterUseCase.execute(character);
+        valLabel.setText(String.valueOf(value));
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

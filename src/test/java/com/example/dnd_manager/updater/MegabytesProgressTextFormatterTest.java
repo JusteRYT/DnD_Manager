@@ -1,5 +1,7 @@
 package com.example.dnd_manager.updater;
 
+import com.example.dnd_manager.updater.ui.MegabytesProgressTextFormatter;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -18,3 +20,16 @@ class MegabytesProgressTextFormatterTest {
         );
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

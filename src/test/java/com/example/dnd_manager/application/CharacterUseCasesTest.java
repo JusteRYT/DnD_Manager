@@ -111,3 +111,15 @@ class CharacterUseCasesTest {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

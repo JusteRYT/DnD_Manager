@@ -7,3 +7,15 @@ package com.example.dnd_manager.info.text.dto;
  */
 public record AvatarData(String imagePath) {
 }
+
+
+
+
+
+
+
+
+
+
+
+

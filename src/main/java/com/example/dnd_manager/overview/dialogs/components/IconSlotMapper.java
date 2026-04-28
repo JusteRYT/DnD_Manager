@@ -1,8 +1,8 @@
 package com.example.dnd_manager.overview.dialogs.components;
 
-import com.example.dnd_manager.info.buff_debuff.Buff;
-import com.example.dnd_manager.info.inventory.InventoryItem;
-import com.example.dnd_manager.info.skills.Skill;
+import com.example.dnd_manager.info.buff_debuff.model.Buff;
+import com.example.dnd_manager.info.inventory.model.InventoryItem;
+import com.example.dnd_manager.info.skills.model.Skill;
 import com.example.dnd_manager.lang.I18n;
 
 import java.util.Map;
@@ -61,3 +61,15 @@ public class IconSlotMapper {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+

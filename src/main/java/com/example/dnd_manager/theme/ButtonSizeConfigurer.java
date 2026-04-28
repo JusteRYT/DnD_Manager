@@ -26,3 +26,15 @@ public final class ButtonSizeConfigurer {
         button.setMaxSize(width, height);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

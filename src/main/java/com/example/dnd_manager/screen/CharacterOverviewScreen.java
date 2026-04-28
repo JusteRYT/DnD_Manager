@@ -5,10 +5,10 @@ import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCas
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.overview.panel.BuffsInventoryPanel;
 import com.example.dnd_manager.overview.panel.ResourcePanel;
-import com.example.dnd_manager.overview.ui.ManaBar;
-import com.example.dnd_manager.overview.ui.TopBar;
+import com.example.dnd_manager.overview.ui.resources.ManaBar;
+import com.example.dnd_manager.overview.ui.topbar.TopBar;
 import com.example.dnd_manager.overview.utils.StatsPanel;
-import com.example.dnd_manager.tooltip.SkillsView;
+import com.example.dnd_manager.tooltip.view.SkillsView;
 import javafx.geometry.Insets;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -45,7 +45,6 @@ public class CharacterOverviewScreen extends BorderPane {
         this.topBar = new TopBar(
                 character,
                 this,
-                screenNavigator,
                 saveCharacterUseCase,
                 backToStartAction
         );
@@ -109,3 +108,15 @@ public class CharacterOverviewScreen extends BorderPane {
         topBar.refresh(character);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

@@ -16,7 +16,6 @@ public class WindowResizer {
 
     // Начальные параметры окна в момент клика
     private double startX;
-    private double startY;
     private double startW;
     private double startH;
 
@@ -73,7 +72,6 @@ public class WindowResizer {
 
         // Запоминаем начальное состояние окна
         startX = stage.getX();
-        startY = stage.getY();
         startW = stage.getWidth();
         startH = stage.getHeight();
 
@@ -130,3 +128,14 @@ public class WindowResizer {
         event.consume();
     }
 }
+
+
+
+
+
+
+
+
+
+
+

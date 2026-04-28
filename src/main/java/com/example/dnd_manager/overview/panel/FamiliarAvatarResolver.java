@@ -7,3 +7,15 @@ public interface FamiliarAvatarResolver {
     Image resolve(String ownerName, String familiarAvatarPath);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+

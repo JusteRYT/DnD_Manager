@@ -4,8 +4,9 @@ import com.example.dnd_manager.application.usecase.character.UpdateCharacterStat
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.overview.dialogs.common.BaseDialog;
 import com.example.dnd_manager.theme.IntegerField;
-import com.example.dnd_manager.theme.factory.AppButtonFactory;
+import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -88,3 +89,15 @@ public class EditStatsDialog extends BaseDialog {
         return field.getText().isBlank() ? null : field.getInt();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

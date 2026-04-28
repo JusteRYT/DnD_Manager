@@ -1,10 +1,10 @@
 package com.example.dnd_manager.domain;
 
 
-import com.example.dnd_manager.info.buff_debuff.Buff;
-import com.example.dnd_manager.info.inventory.InventoryItem;
-import com.example.dnd_manager.info.skills.Skill;
-import com.example.dnd_manager.info.stats.Stats;
+import com.example.dnd_manager.info.buff_debuff.model.Buff;
+import com.example.dnd_manager.info.inventory.model.InventoryItem;
+import com.example.dnd_manager.info.skills.model.Skill;
+import com.example.dnd_manager.info.stats.model.Stats;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -52,3 +52,15 @@ public class Character {
         this.originalName = this.name;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

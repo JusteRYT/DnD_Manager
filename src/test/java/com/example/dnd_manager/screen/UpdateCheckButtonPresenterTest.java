@@ -1,5 +1,9 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.screen.update.UpdateCheckButtonPresenter;
+
+import com.example.dnd_manager.screen.update.UpdateCheckButtonView;
+
 import com.example.dnd_manager.lang.I18n;
 import org.junit.jupiter.api.Test;
 
@@ -50,3 +54,17 @@ class UpdateCheckButtonPresenterTest {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

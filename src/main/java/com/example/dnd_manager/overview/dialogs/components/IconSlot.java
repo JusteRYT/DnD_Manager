@@ -2,7 +2,7 @@ package com.example.dnd_manager.overview.dialogs.components;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.repository.CharacterAssetResolver;
+import com.example.dnd_manager.infrastructure.assets.CharacterAssetResolver;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -89,3 +89,14 @@ public class IconSlot extends StackPane {
         Tooltip.install(this, t);
     }
 }
+
+
+
+
+
+
+
+
+
+
+

@@ -20,3 +20,15 @@ public class AssetDeleteConfirmMessageFactory {
         return String.format(I18n.t("asset.delete.confirm.multiple"), targets.size());
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

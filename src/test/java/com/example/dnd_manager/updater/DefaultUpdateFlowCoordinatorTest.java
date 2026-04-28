@@ -1,11 +1,22 @@
 package com.example.dnd_manager.updater;
 
+import com.example.dnd_manager.updater.port.UpdateService;
+
+import com.example.dnd_manager.updater.port.UiDispatcher;
+
+import com.example.dnd_manager.updater.port.AsyncRunner;
+
+import com.example.dnd_manager.updater.model.GitHubRelease;
+
+import com.example.dnd_manager.updater.flow.DefaultUpdateFlowCoordinator;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -16,7 +27,7 @@ class DefaultUpdateFlowCoordinatorTest {
         FakeUpdateService updateService = new FakeUpdateService();
         GitHubRelease release = new GitHubRelease();
         release.tagName = "v1.0.1";
-        updateService.checkResult = Optional.of(release);
+        updateService.checkRelease = release;
 
         DefaultUpdateFlowCoordinator coordinator = new DefaultUpdateFlowCoordinator(
                 updateService,
@@ -31,7 +42,7 @@ class DefaultUpdateFlowCoordinatorTest {
 
         assertTrue(resultRef.get().isPresent());
         assertSame(release, resultRef.get().get());
-        assertTrue(errorRef.get() == null);
+        assertNull(errorRef.get());
     }
 
     @Test
@@ -51,7 +62,7 @@ class DefaultUpdateFlowCoordinatorTest {
 
         coordinator.checkForUpdate(resultRef::set, errorRef::set);
 
-        assertTrue(resultRef.get() == null);
+        assertNull(resultRef.get());
         assertSame(expected, errorRef.get());
     }
 
@@ -78,7 +89,7 @@ class DefaultUpdateFlowCoordinatorTest {
 
         assertSame(release, updateService.lastAppliedRelease);
         assertTrue(progressed.get());
-        assertTrue(errorRef.get() == null);
+        assertNull(errorRef.get());
     }
 
     @Test
@@ -116,7 +127,7 @@ class DefaultUpdateFlowCoordinatorTest {
     }
 
     private static final class FakeUpdateService implements UpdateService {
-        private Optional<GitHubRelease> checkResult = Optional.empty();
+        private GitHubRelease checkRelease;
         private RuntimeException checkError;
         private RuntimeException applyError;
         private GitHubRelease lastAppliedRelease;
@@ -126,7 +137,7 @@ class DefaultUpdateFlowCoordinatorTest {
             if (checkError != null) {
                 throw checkError;
             }
-            return checkResult;
+            return Optional.ofNullable(checkRelease);
         }
 
         @Override
@@ -139,4 +150,21 @@ class DefaultUpdateFlowCoordinatorTest {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -758,3 +758,500 @@
 - Перейти к аналогичной декомпозиции `BuffsInventoryPanel`:
   вынести wrapper styles/builders и унифицировать panel composition flow
   (buffs wrapper + inventory + familiars) через отдельный builder/service.
+223. `BuffsInventoryPanel` декомпозирован:
+     стиль wrapper-а вынесен в `BuffsInventoryPanelStyleProvider`,
+     сборка hoverable buffs-wrapper вынесена в `BuffsWrapperBuilder`.
+224. Добавлен unit-тест `BuffsInventoryPanelStyleProviderTest`.
+225. Добавлены точечные диагностические логи без изменения поведения:
+     - `AssetFileService` логирует failed delete на warn
+     - `CharacterCard` логирует avatar-load fallback на debug
+     - familiar/avatar/effect icon resolvers логируют fallback на debug
+     - `CharacterAssetProcessor` логирует unsupported path comparison на debug.
+226. Проверен код на остаточные `printStackTrace`/`System.out`/широкие ignored catch:
+     намеренно оставлен только `NumberFormatException ignored` в
+     `InventoryItemCountResolver`, так как это штатный fallback пользовательского ввода.
+227. Прогнаны проверки:
+     - `compile`
+     - targeted test набор по refactor-зонам
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- После ручной проверки UI можно собрать финальный коммит/PR этого большого
+  рефакторинга. Архитектурно основные горячие overview/dialog/panel узлы уже
+  разрезаны на thin-view, presenter/service, builder и launcher слои.
+228. `SkillCardView` декомпозирован:
+     форматирование effect badge вынесено в `SkillEffectBadgeFactory` +
+     `SkillEffectBadge`, тексты описания - в `SkillDescriptionTextFactory`,
+     source badge - в `SkillSourceBadgeViewModelFactory` + view-model.
+229. Стили `SkillCardView` вынесены в `SkillCardStyleProvider`; сам view
+     оставлен координатором JavaFX-нод, popup и hover-взаимодействий.
+230. Добавлены unit-тесты для skill-card pure слоя:
+     `SkillEffectBadgeFactoryTest`, `SkillDescriptionTextFactoryTest`,
+     `SkillSourceBadgeViewModelFactoryTest`, `SkillCardStyleProviderTest`.
+231. `InventoryEditor` очищен от части hardcoded text:
+     summary attached effects вынесен в `InventoryEditorEffectsSummaryFormatter`,
+     подписи кнопок/sub-editor title переведены на i18n-ключи.
+232. Добавлены i18n-ключи для inventory editor effects/icon fallback в
+     `messages_en.properties` и `messages_ru.properties`.
+233. Добавлен unit-тест `InventoryEditorEffectsSummaryFormatterTest`.
+234. `AbstractCharacterFormScreen.syncDataToCharacter` разгружен:
+     перенос core form data в `Character` вынесен в
+     `CharacterCoreFormDataApplier` + DTO `CharacterCoreFormData`.
+235. Добавлен unit-тест `CharacterCoreFormDataApplierTest`.
+236. Повторно прогнаны проверки после финального refactor pass:
+     - compile
+     - targeted tests для новых компонентов
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- Для дальнейшей полировки можно отдельно заняться оставшимися крупными
+  JavaFX view/editor классами (`GradientButtonFactory`, `BaseInfoForm`,
+  `SkillsEditor`, `FamiliarEditor`), но основные проблемные orchestration
+  и domain-mapping участки текущей волны вынесены в отдельные компоненты.
+237. В `info/editors` добавлен общий `EditorItemMutationService`:
+     repeated add-or-replace логика вынесена из `BuffEditor`, `SkillsEditor`
+     и `InventoryEditor`.
+238. `BuffEditor`, `SkillsEditor`, `InventoryEditor` переведены на общий
+     mutation-сервис вместо inline `indexOf/set/add` ветвлений.
+239. В `FamiliarEditor` core field mapping вынесен в `FamiliarCoreData` +
+     `FamiliarCoreDataApplier`; UI-класс больше не хранит parse/apply логику.
+240. В `AbstractEntityEditor` вынесены общие стили editor-шаблона в
+     `EntityEditorStyleProvider`.
+241. Добавлены unit-тесты editor-слоя:
+     `EditorItemMutationServiceTest`, `FamiliarCoreDataApplierTest`,
+     `EntityEditorStyleProviderTest`.
+242. Повторно прогнаны проверки после editors pass:
+     - compile
+     - targeted tests по `info/editors` и `info/skills`
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- После этого прохода `info/editors` уже не является нетронутым монолитом:
+  общие mutation/style/core-mapping части вынесены и покрыты тестами.
+  Дальнейшая полировка возможна на уровне UI-builder-ов каждого editor-а,
+  но это уже более мелкая декомпозиция JavaFX layout-кода.
+243. `GradientButtonFactory` подключен к `GradientButtonStyleProvider`:
+     inline CSS для value-adjust, edit/delete и primary кнопок вынесен из
+     фабрики в отдельный style provider.
+244. `BaseInfoForm` разгружен:
+     заголовок переведен на i18n-ключ `baseInfo.title`, стили section/field/error
+     вынесены в `BaseInfoFormStyleProvider`.
+245. `AbstractCharacterFormScreen` разгружен от каркасных CSS-строк:
+     root/stats/magical-border стили вынесены в `CharacterFormStyleProvider`.
+246. Assets UI получил отдельные style provider-ы:
+     `AssetCardStyleProvider` для карточки ассета и
+     `AssetGalleryTabStyleProvider` для root/scrollPane стилей галереи.
+247. `SkillCardView` частично разгружен от popup-геометрии:
+     расчет позиции popup-а вынесен в `SkillPopupPositionCalculator` +
+     value-object `SkillPopupPosition`.
+248. Добавлены unit-тесты:
+     `GradientButtonStyleProviderTest`, `BaseInfoFormStyleProviderTest`,
+     `CharacterFormStyleProviderTest`, `AssetCardStyleProviderTest`,
+     `AssetGalleryTabStyleProviderTest`, `SkillPopupPositionCalculatorTest`.
+249. Прогнаны проверки после очередного SOLID pass:
+     - compile
+     - targeted tests по новым style/popup компонентам
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- Если нужна дальнейшая микрополировка, следующий слой - вынос JavaFX layout
+  builders из `SkillCardView`, `InventoryEditor`, `SkillsEditor` и
+  `FamiliarEditor`. При этом основные data-mapping/style/popup/asset
+  ответственности уже вынесены в отдельные компоненты и покрыты тестами.
+250. `SkillCardView` дополнительно декомпозирован:
+     - effect label creation вынесен в `SkillEffectLabelFactory`
+     - source badge view вынесен в `SkillSourceBadgeViewFactory`
+     - icon frame creation вынесен в `SkillIconFrameBuilder`
+     - popup content creation вынесен в `SkillPopupContentBuilder`.
+251. `SkillCardView` после этого прохода остается thin coordinator-ом:
+     задает размер карточки, собирает top-level ноды и управляет hover/popup
+     lifecycle, а детали дочерних нод вынесены наружу.
+252. В editor-слое добавлен `IconPathDisplayFormatter` и подключен к
+     `BuffEditor`, `SkillsEditor`, `InventoryEditor`, `FamiliarEditor` для
+     единого отображения выбранных icon/avatar путей.
+253. Создание domain items вынесено из UI editor-классов:
+     `BuffEditorItemFactory`, `SkillEditorItemFactory`,
+     `InventoryEditorItemFactory`.
+254. Добавлены unit-тесты:
+     `IconPathDisplayFormatterTest`, `BuffEditorItemFactoryTest`,
+     `SkillEditorItemFactoryTest`, `InventoryEditorItemFactoryTest`.
+255. Прогнаны targeted tests по editor и skill-card refactor зонам.
+
+## Следующий шаг
+
+- Оставшаяся полировка: вынести layout rows/builders из `InventoryEditor`,
+  `SkillsEditor`, `BuffEditor`, `FamiliarEditor` и постепенно уменьшить
+  `AbstractCharacterFormScreen` через component/layout builders.
+256. `GradientButtonFactory` превращен в фасад:
+     конкретные виды кнопок вынесены в builder-классы:
+     `ValueAdjustGradientButtonBuilder`, `DeleteGradientButtonBuilder`,
+     `PrimaryGradientButtonBuilder`, `EditIconGradientButtonBuilder`,
+     `AddEffectGradientButtonBuilder`.
+257. Причины изменения button-логики разделены:
+     value adjust/delete/primary/edit/add-effect кнопки больше не живут в одном
+     монолитном factory-классе.
+258. После разрезания `GradientButtonFactory` повторно пройдена компиляция.
+
+## Следующий шаг
+
+- Дальше наиболее полезны builder-ы для форм:
+  `InventoryEditor`, `SkillsEditor`, `BuffEditor`, `FamiliarEditor`,
+  а также component/layout builders для `AbstractCharacterFormScreen`.
+259. В editor layout-слой добавлен общий `EditorFormLayoutBuilder`:
+     repeated `VBox(label, content)`, row-сборка, validated name field и
+     icon path label creation вынесены из конкретных editor-ов.
+260. `InventoryEditor`, `SkillsEditor`, `BuffEditor` переведены на
+     `EditorFormLayoutBuilder` для повторяемых form row/field/icon-label
+     конструкций.
+261. `FamiliarEditor` получил `FamiliarEditorStyleProvider` и также использует
+     `EditorFormLayoutBuilder` для base form layout.
+262. Низкоценный JavaFX-node unit-тест для `EditorFormLayoutBuilder` не оставлен,
+     так как `Label` требует initialized JavaFX toolkit в headless Maven.
+     Вместо этого покрыты pure style/factory/formatter компоненты.
+263. Добавлен unit-тест `FamiliarEditorStyleProviderTest`.
+264. Прогнаны проверки:
+     - compile
+     - targeted tests по editor style/factory/formatter компонентам.
+
+## Следующий шаг
+
+- Оставшиеся крупные участки для следующей волны:
+  `AbstractCharacterFormScreen` component/layout builders,
+  `InventoryEditor`/`SkillsEditor` full form builders,
+  `AssetGalleryTab` loading/controller split.
+265. `AbstractCharacterFormScreen` декомпозирован:
+     создание create/edit компонентов вынесено в `CharacterFormComponentFactory`,
+     набор компонентов описан record-ом `CharacterFormComponents`.
+266. Hero-card layout вынесен в `CharacterHeroCardSectionBuilder`.
+267. Action buttons layout вынесен в `CharacterFormActionButtonsBuilder`.
+268. Magical border decoration вынесена в `MagicalBorderDecorator`.
+269. Top-level form composition и `SectionBox` wrapping вынесены в
+     `CharacterFormLayoutBuilder`.
+270. `AbstractCharacterFormScreen` после прохода стал orchestration-классом:
+     хранит зависимости/состояние, делегирует build-form composition и отвечает
+     за sync/save lifecycle.
+271. Пройдена компиляция после form-screen decomposition.
+
+## Следующий шаг
+
+- Следующие самые крупные зоны: `InventoryEditor`, `SkillCardView`,
+  `SkillsEditor`, `AssetGalleryTab`, `AbstractEntityEditor`.
+272. `InventoryEditor` дополнительно декомпозирован:
+     создание input form controls вынесено в `InventoryEditorFormBuilder`,
+     ссылки на элементы формы описаны record-ом `InventoryEditorFormControls`.
+273. `EditorFormLayoutBuilder` расширен методом `label`, чтобы form-builder-ы
+     могли переиспользовать label factory без ручной сборки labels в editor-ах.
+274. `InventoryEditor` теперь отвечает за callbacks/save/edit state, а не за
+     полный manual layout input form.
+275. Пройдены проверки после inventory form builder pass:
+     - compile
+     - targeted tests по editor pure компонентам.
+
+## Следующий шаг
+
+- Аналогичный form-builder подход можно применить к `SkillsEditor` и
+  `BuffEditor`, затем перейти к `AssetGalleryTab` loading/controller split.
+276. `SkillsEditor` декомпозирован аналогично inventory editor:
+     input form creation вынесен в `SkillsEditorFormBuilder`, элементы формы
+     описаны record-ом `SkillsEditorFormControls`.
+277. `BuffEditor` получил `BuffEditorFormBuilder` и `BuffEditorFormControls`;
+     ручная сборка name/description/type/icon/button rows вынесена из editor-а.
+278. `SkillsEditor` и `BuffEditor` после прохода отвечают за callbacks,
+     edit/save state и применение данных, а не за manual layout формы.
+279. Пройдены проверки:
+     - compile
+     - targeted tests по editor pure компонентам
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- Следующий приоритет: `AssetGalleryTab` loading/controller split либо
+  дальнейшая декомпозиция `SkillCardView` interaction lifecycle.
+280. `AssetGalleryTab` частично декомпозирован:
+     toolbar/grid/scrollPane layout вынесен в `AssetGalleryViewBuilder`,
+     создан record `AssetGalleryView` для передачи построенных view-нод.
+281. Создание `AssetCard` вынесено в `AssetCardFactory`; tab больше не знает
+     детали конструктора карточки ассета.
+282. `AssetGalleryTab` теперь в основном координирует loading thread,
+     selection callback и связь controller/view, а не строит весь layout вручную.
+283. Пройдена компиляция после asset gallery split.
+
+## Следующий шаг
+
+- Дальше можно вынести loading-thread lifecycle из `AssetGalleryTab` или
+  перейти к `SkillCardView` interaction lifecycle.
+284. Loading lifecycle `AssetGalleryTab` вынесен в
+     `AssetGalleryLoadingCoordinator`: interrupt текущего потока, clear UI через
+     `Platform.runLater` и запуск нового loading thread больше не находятся в tab.
+285. `AssetGalleryTab` больше не хранит `Thread`; он делегирует загрузку
+     coordinator-у и оставляет у себя только callbacks/card creation binding.
+286. Пройдена компиляция после loading coordinator split.
+
+## Следующий шаг
+
+- Следующий кандидат: `SkillCardView` interaction lifecycle либо
+  `AbstractEntityEditor` base layout/lifecycle split.
+287. `SkillCardView` дополнительно разгружен:
+     popup hover/timer/show-hide lifecycle вынесен в
+     `SkillPopupInteractionController`.
+288. `SkillCardView` теперь собирает карточку и делегирует popup interaction
+     controller-у; `isMouseInPopup`, `isMouseInDesc` и `Timeline` больше не
+     находятся во view-классе.
+289. `AbstractEntityEditor` split:
+     shell layout вынесен в `EntityEditorShellBuilder` + record
+     `EntityEditorShell`.
+290. Rendering списка элементов вынесен в generic `EntityEditorItemRenderer`.
+291. `AbstractEntityEditor` после прохода отвечает за lifecycle базового editor-а,
+     validation helpers и asset import helper, а не за ручную сборку shell/render.
+292. Пройдены проверки:
+     - compile
+     - targeted tests по skill-card и editor компонентам.
+
+## Следующий шаг
+
+- Оставшиеся крупные классы: `InventoryEditor`, `SkillCardView` уже заметно
+  тоньше, дальше можно идти в `ResourceBar`, `EffectsBuilderField`,
+  `BuffListView`, `CharacterExporter`/repository сервисы.
+293. Начат package architecture pass:
+     form-helper классы, ранее лежавшие напрямую в `screen`, перенесены в
+     `screen.form`.
+294. В `screen.form` перенесены:
+     `CharacterCoreFormData`, `CharacterCoreFormDataApplier`,
+     `CharacterFormActionButtonsBuilder`, `CharacterFormComponentFactory`,
+     `CharacterFormComponents`, `CharacterFormLayoutBuilder`,
+     `CharacterFormStyleProvider`, `CharacterHeroCardSectionBuilder`,
+     `MagicalBorderDecorator`.
+295. Assets helpers разнесены по слоям:
+     loading lifecycle `AssetGalleryLoadingCoordinator` перенесен в
+     `assets.logic`, view/layout records/builders `AssetGalleryView`,
+     `AssetGalleryViewBuilder`, `AssetGalleryTabStyleProvider` перенесены в
+     `assets.ui`.
+296. Тесты перенесенных классов обновлены под новые package declarations:
+     `screen.form` и `assets.ui`.
+297. Пройдены проверки после package reorganization:
+     - compile
+     - targeted tests по перенесенным form/assets компонентам
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- Продолжить package architecture pass:
+  `info.editors` можно разделить на `common`, `buff`, `inventory`, `skills`,
+  `familiar`; `info.skills` можно разделить на `model`, `view`, `popup`.
+298. Выполнен крупный package architecture pass для `info.editors`:
+     базовые helpers перенесены в `info.editors.common`,
+     buff editor-слой в `info.editors.buff`,
+     inventory editor-слой в `info.editors.inventory`,
+     skills editor-слой в `info.editors.skills`,
+     familiar editor-слой в `info.editors.familiar`.
+299. Тесты editor-слоя перенесены в соответствующие подпакеты:
+     `common`, `buff`, `inventory`, `skills`, `familiar`.
+300. Выполнен package split для `info.skills`:
+     domain-модель перенесена в `info.skills.model`,
+     JavaFX view/builders перенесены в `info.skills.view`,
+     popup lifecycle/content/positioning перенесены в `info.skills.popup`.
+301. Обновлены imports по проекту после package split; межпакетные зависимости
+     стали явными вместо неявной видимости внутри одного пакета.
+302. Пройдены проверки:
+     - compile
+     - targeted tests по перенесенным editor/skills компонентам.
+
+## Следующий шаг
+
+- После этого package-pass самые очевидные крупные границы уже лучше выражены.
+  Следующая волна может пройти по `overview.dialogs` на подпакеты
+  `inventory`, `familiar`, `common`, либо по `repository/service`
+  инфраструктурным пакетам.
+303. Выполнен package split для `overview.dialogs`:
+     common dialog shell/base/error/confirm/notes/rename/full-description
+     перенесены в `overview.dialogs.common`.
+304. Inventory dialog flow перенесен в `overview.dialogs.inventory`:
+     add/edit dialogs, form state/builder/validator/view, icon chooser,
+     presenter, submit/mutation services и inventory dialog style provider.
+305. Familiar dialog flow перенесен в `overview.dialogs.familiar`:
+     familiar dialogs, header/resources/sections builders, presenters,
+     formatters, avatar resolvers и resource display adapters.
+306. `overview.dialogs.components` оставлен как отдельный components-пакет для
+     icon-slot view-model/mapper/view деталей.
+307. Обновлены imports и package declarations по main/test коду после
+     `overview.dialogs` split.
+308. Пройдены проверки:
+     - compile
+     - targeted tests по inventory/familiar dialog компонентам.
+
+## Следующий шаг
+
+- Следующий package-pass: `overview.ui` на `topbar`, `resources`, `effects`,
+  `currency`, `launchers/services`, либо `repository/service` на
+  infrastructure/application boundaries.
+309. Выполнен package split для `overview.ui`:
+     top bar flow перенесен в `overview.ui.topbar`.
+310. Resource widgets/value logic перенесены в `overview.ui.resources`:
+     hp/mana bars, resource metrics, `ResourceBar`, `ResourceValueAdjuster`.
+311. Active effects перенесены в `overview.ui.effects`:
+     pane, badge, icon resolver, style provider, service и asset resolver.
+312. Currency и inspiration разнесены в `overview.ui.currency` и
+     `overview.ui.inspiration`.
+313. Dialog/file/stage launcher ports/adapters перенесены в
+     `overview.ui.launchers`; VRChat save/avatar clipboard helpers перенесены в
+     `overview.ui.vrc`.
+314. `CharacterDescriptionFileExporter(CharacterDescriptionSaveChooser)` сделан
+     public для явной DI/тестируемости после package boundary split.
+315. Обновлены imports и package declarations по main/test коду после
+     `overview.ui` split.
+316. Пройдены проверки:
+     - compile
+     - targeted tests по topbar/resources/effects/currency/inspiration/vrc/launchers.
+
+## Следующий шаг
+
+- Следующая архитектурная граница: `repository`/`service` разделить на
+  infrastructure persistence/assets и application services.
+317. Выполнен package split для storage/service слоев:
+     persistence-классы из `repository` перенесены в
+     `infrastructure.persistence`.
+318. Asset infrastructure из `repository` перенесена в
+     `infrastructure.assets`: `CharacterAssetProcessor`,
+     `CharacterAssetResolver`, `IconStorageService`.
+319. Application-level services из `service` перенесены в
+     `application.service`: exporter, transfer, image integrity, notes services.
+320. После package boundary split сделаны публичными необходимые
+     infrastructure APIs:
+     `CharacterAssetProcessor`, `copyIcons`, `extractFileName`.
+321. Обновлены imports и тестовые пакеты для persistence/assets/application
+     services.
+322. Пройдены проверки:
+     - compile
+     - targeted tests по persistence/assets/application service компонентам.
+
+## Следующий шаг
+
+- Следующие возможные package-pass зоны: `theme.factory` на button/window/scroll
+  либо `info.inventory`/`info.buff_debuff` на model/view/popup/style.
+323. Выполнен package split для `theme.factory`:
+     button factories/builders перенесены в `theme.button`,
+     scroll pane factory перенесен в `theme.scroll`,
+     window factory перенесен в `theme.window`.
+324. Обновлены imports после theme split; явная зависимость
+     `IconButtonFactory -> WindowFactory` оформлена через import
+     `theme.window.WindowFactory`.
+325. Пройдены проверки:
+     - compile
+     - targeted test `GradientButtonStyleProviderTest`.
+
+## Следующий шаг
+
+- Следующая package зона: `info.inventory` и `info.buff_debuff` на
+  `model/view/popup/style`.
+326. Выполнен package split для `info.inventory`:
+     `InventoryItem` перенесен в `info.inventory.model`,
+     `InventoryRow` перенесен в `info.inventory.view`,
+     `InventoryItemPopup` перенесен в `info.inventory.popup`.
+327. Выполнен package split для `info.buff_debuff`:
+     `Buff`, `BuffType`, `BuffWithSource` перенесены в
+     `info.buff_debuff.model`,
+     `BuffColumnStyle`, `BuffEditorRow`, `BuffIconViewFactory`,
+     `BuffListView` перенесены в `info.buff_debuff.view`,
+     `BuffPopupView` перенесен в `info.buff_debuff.popup`.
+328. Обновлены imports по проекту после inventory/buff model-view-popup split,
+     включая tooltip/adapters.
+329. Пройдены проверки:
+     - compile
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- Оставшиеся package-кандидаты стали менее критичны: `tooltip`, `info.stats`,
+  `screen` subflows и updater можно полировать отдельно. Основные bounded
+  contexts уже разнесены.
+330. Выполнен package split для `info.stats`:
+     `StatEnum` и `Stats` перенесены в `info.stats.model`,
+     `StatRow` и `StatsGridView` перенесены в `info.stats.view`,
+     `StatsEditor` перенесен в `info.stats.editor`.
+331. Выполнен package split для `tooltip`:
+     `BuffsView` и `SkillsView` перенесены в `tooltip.view`, чтобы root
+     package не смешивал view-классы с потенциальной логикой tooltip слоя.
+332. Обновлены imports после stats/tooltip split; исправлены внутренние
+     зависимости `editor -> model/view` и `view -> model`.
+333. Пройдены проверки:
+     - compile
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- Архитектурно основные грязные root-пакеты разнесены. Дальше имеет смысл
+  точечно полировать оставшиеся крупные классы без больших package-move:
+  `screen` flow/update controllers, `updater` сценарии, отдельные JavaFX
+  view-компоненты с большим количеством inline-style.
+334. Выполнен package split для `updater`:
+     ports/interfaces перенесены в `updater.port`, release DTO в
+     `updater.model`, GitHub release source/checker в `updater.release`,
+     downloader/path provider в `updater.download`, installer/terminator в
+     `updater.install`, async/UI dispatch adapters в `updater.runtime`,
+     progress UI в `updater.ui`, orchestration в `updater.flow`, application
+     service в `updater.service`, comparator в `updater.version`.
+335. Root production package `updater` очищен от классов; теперь он состоит из
+     явных подпакетов по ответственности.
+336. DI-конструкторы `UpdateManager` и `UpdateChecker` сделаны public, потому
+     что после package split они стали boundary API для тестов и сборки
+     сценариев обновления.
+337. Обновлены imports production и updater tests после package split.
+338. Пройдены проверки:
+     - compile
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- Оставшийся рефакторинг теперь скорее точечный: можно дальше выносить inline
+  style/builders из отдельных JavaFX view и дробить `screen` на более мелкие
+  подпакеты, но основные архитектурные root-mix зоны уже закрыты.
+339. Выполнен package split для `screen` root:
+     start flow перенесен в `screen.start`, selection flow в
+     `screen.selection`, asset manager screen в `screen.assets`,
+     import/export flow в `screen.transfer`, update button/presenter flow в
+     `screen.update`.
+340. В root `screen` оставлены только базовые/entry-point классы:
+     `AbstractScreen`, `ScreenManager`, `FormMode`, form screen wrappers и
+     overview screen.
+341. Обновлены imports production и screen tests после package split.
+342. Пройдены проверки:
+     - compile
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- Следующая разумная зона: либо вынести оставшиеся form/overview entry-point
+  classes в подпакеты по flow, либо начать уменьшать отдельные JavaFX view с
+  inline style через style provider/builder extraction.
+343. Выполнена cleanup-проверка после package refactor на явные unused-хвосты.
+344. Удален неиспользуемый интерфейс `info.familiar.Displayable`.
+345. Удалены неиспользуемые методы/API:
+     `Stats.copyFrom`, `I18n.getLocale`, `StorageService.init`,
+     `AbstractCharacterFormScreen.applyMagicalBorder`,
+     `AppTextSection.setTitle/getTitle`.
+346. Контрольный поиск по single-use public classes оставил только `Launcher`,
+     который является manifest/main entry point и удаляться не должен.
+347. Пройдены проверки:
+     - compile
+     - полный `mvn test`.
+
+## Следующий шаг
+
+- Если IDE еще показывает `is never used`, это, скорее всего, public boundary
+  classes/constructors, используемые через DI/default constructors/tests или
+  entry-points. Их лучше не удалять без конкретного списка предупреждений из IDE.
+348. Выполнена IDE-warning cleanup pass по конкретному списку предупреждений:
+     удален unused `TextSection`, убраны unused поля/методы/конструкторы,
+     поправлены redundant casts, expression lambdas, getFirst/assert helpers,
+     try-with-resources для `Files.walk/list`, fallback resource null-safety,
+     deprecated `URL(String)` usage и CSS duplicate-property warnings.
+349. Сохранены без агрессивной чистки предупреждения вида "may have Lombok" там,
+     где текущие fluent accessors являются частью локального API и замена на
+     Lombok изменила бы стиль вызовов.
+350. Пройдены проверки:
+     - compile через полный test lifecycle
+     - полный `mvn test`.

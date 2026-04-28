@@ -42,3 +42,15 @@ public class IconSlotViewModel {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+

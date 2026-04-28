@@ -14,3 +14,15 @@ public class FamiliarCardViewModelMapper {
         return new FamiliarCardViewModel(familiar.getName(), raceClass, hpText, acText);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

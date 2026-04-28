@@ -1,5 +1,9 @@
 package com.example.dnd_manager.updater;
 
+import com.example.dnd_manager.updater.version.SemanticVersionComparator;
+
+import com.example.dnd_manager.updater.port.VersionComparator;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,3 +36,17 @@ class AppUpdateTest {
         assertFalse(comparator.isRemoteNewer("v1.0.5", "1.0.5"));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

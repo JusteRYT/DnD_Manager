@@ -13,3 +13,15 @@ public record BaseInfoData(
         int level
 ) {
 }
+
+
+
+
+
+
+
+
+
+
+
+

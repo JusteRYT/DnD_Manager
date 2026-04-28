@@ -2,8 +2,8 @@ package com.example.dnd_manager.overview.panel;
 
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.overview.ui.InspirationBox;
-import com.example.dnd_manager.overview.ui.ManaBar;
+import com.example.dnd_manager.overview.ui.inspiration.InspirationBox;
+import com.example.dnd_manager.overview.ui.resources.ManaBar;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 
@@ -26,4 +26,16 @@ public class ResourcePanelRightStackBuilder {
         return new ResourcePanelRightStack(rightStack, manaBar);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 

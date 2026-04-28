@@ -1,10 +1,13 @@
 package com.example.dnd_manager.screen;
 
+import com.example.dnd_manager.screen.assets.AssetManagerController;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AssetManagerControllerTest {
@@ -33,8 +36,21 @@ class AssetManagerControllerTest {
         assertFalse(pickerTitle.isBlank());
         assertFalse(managerExit.isBlank());
         assertFalse(pickerExit.isBlank());
-        assertFalse(managerTitle.equals(pickerTitle));
-        assertFalse(managerExit.equals(pickerExit));
+        assertNotEquals(managerTitle, pickerTitle);
+        assertNotEquals(managerExit, pickerExit);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 

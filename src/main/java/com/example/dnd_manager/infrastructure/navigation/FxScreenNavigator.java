@@ -24,3 +24,15 @@ public class FxScreenNavigator implements ScreenNavigator {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+

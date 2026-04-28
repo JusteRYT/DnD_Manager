@@ -2,7 +2,7 @@ package com.example.dnd_manager.overview.panel;
 
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
-import com.example.dnd_manager.overview.dialogs.FamiliarInfoDialog;
+import com.example.dnd_manager.overview.dialogs.familiar.FamiliarInfoDialog;
 import javafx.stage.Stage;
 
 public class JavaFxFamiliarInfoDialogLauncher implements FamiliarInfoDialogLauncher {
@@ -20,3 +20,15 @@ public class JavaFxFamiliarInfoDialogLauncher implements FamiliarInfoDialogLaunc
         dialog.show();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

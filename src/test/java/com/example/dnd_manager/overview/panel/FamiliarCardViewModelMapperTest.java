@@ -44,3 +44,15 @@ class FamiliarCardViewModelMapperTest {
         assertEquals("", vm.raceClass());
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

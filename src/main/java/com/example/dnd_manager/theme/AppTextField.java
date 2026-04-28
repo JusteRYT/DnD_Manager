@@ -37,7 +37,7 @@ public class AppTextField {
                     -fx-border-color: #3a3a3a;
                     -fx-border-radius: 6;
                     -fx-background-radius: 6;
-                    -fx-padding: 10 15 10 15; 
+                    -fx-padding: 10 15 10 15;
                     -fx-font-size: 13px;
                 """);
 
@@ -81,3 +81,15 @@ public class AppTextField {
         field.clear();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

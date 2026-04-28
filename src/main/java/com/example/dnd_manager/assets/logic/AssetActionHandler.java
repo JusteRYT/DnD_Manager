@@ -2,8 +2,8 @@ package com.example.dnd_manager.assets.logic;
 
 import com.example.dnd_manager.assets.service.AssetFileService;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.overview.dialogs.AppConfirmDialog;
-import com.example.dnd_manager.overview.dialogs.RenameDialog;
+import com.example.dnd_manager.overview.dialogs.common.AppConfirmDialog;
+import com.example.dnd_manager.overview.dialogs.common.RenameDialog;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
@@ -84,3 +84,15 @@ public class AssetActionHandler {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

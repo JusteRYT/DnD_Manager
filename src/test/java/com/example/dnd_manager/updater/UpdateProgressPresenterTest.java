@@ -1,5 +1,13 @@
 package com.example.dnd_manager.updater;
 
+import com.example.dnd_manager.updater.ui.UpdateProgressPresenter;
+
+import com.example.dnd_manager.updater.ui.UpdateProgressCalculator;
+
+import com.example.dnd_manager.updater.port.UpdateProgressView;
+
+import com.example.dnd_manager.updater.port.UpdateProgressTextFormatter;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,3 +38,19 @@ class UpdateProgressPresenterTest {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

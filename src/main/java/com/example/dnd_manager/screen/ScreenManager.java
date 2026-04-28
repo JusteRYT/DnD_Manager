@@ -1,6 +1,6 @@
 package com.example.dnd_manager.screen;
 
-import com.example.dnd_manager.theme.factory.AppScrollPaneFactory;
+import com.example.dnd_manager.theme.scroll.AppScrollPaneFactory;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
@@ -44,3 +44,15 @@ public class ScreenManager {
         root.getChildren().add(scrollPane);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

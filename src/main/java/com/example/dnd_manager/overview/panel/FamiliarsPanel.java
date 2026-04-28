@@ -76,3 +76,15 @@ public class FamiliarsPanel extends VBox {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

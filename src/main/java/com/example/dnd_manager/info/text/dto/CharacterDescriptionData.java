@@ -13,3 +13,15 @@ public record CharacterDescriptionData(
         String backstory
 ) {
 }
+
+
+
+
+
+
+
+
+
+
+
+
