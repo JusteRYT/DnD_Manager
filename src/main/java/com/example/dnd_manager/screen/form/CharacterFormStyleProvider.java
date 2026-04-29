@@ -2,8 +2,6 @@ package com.example.dnd_manager.screen.form;
 
 public class CharacterFormStyleProvider {
 
-    private static final String ASTRAL_TEXT = "#f0f2f7";
-
     public String formStyle() {
         return """
                 -fx-background-color:

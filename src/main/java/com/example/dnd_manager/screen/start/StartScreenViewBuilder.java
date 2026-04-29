@@ -235,9 +235,9 @@ public class StartScreenViewBuilder {
         VBox mainActions = new VBox(ACTION_STRIP_GAP);
         mainActions.setAlignment(Pos.CENTER);
 
-        Button createButton = createPrimaryButton(I18n.t("button.create"), actions.onCreate(), "sword");
-        Button loadButton = createSecondaryButton(I18n.t("button.load"), actions.onLoad(), SECONDARY_ACTION_HEIGHT, "load");
-        Button editButton = createSecondaryButton(I18n.t("button.edit"), actions.onEdit(), SECONDARY_ACTION_HEIGHT, "pencil");
+        Button createButton = createPrimaryButton(I18n.t("button.create"), actions.onCreate());
+        Button loadButton = createSecondaryButton(I18n.t("button.load"), actions.onLoad(), "load");
+        Button editButton = createSecondaryButton(I18n.t("button.edit"), actions.onEdit(), "pencil");
         mainActions.getChildren().addAll(createButton, loadButton, editButton);
 
         VBox secondaryActions = new VBox(ACTION_STRIP_GAP);
@@ -245,13 +245,11 @@ public class StartScreenViewBuilder {
         Button assetManagerButton = createSecondaryButton(
                 I18n.t("button.assets"),
                 actions.onAssets(),
-                SECONDARY_ACTION_HEIGHT,
                 "asset"
         );
         Button transferButton = createSecondaryButton(
                 I18n.t("button.importExport"),
                 actions.onTransfer(),
-                SECONDARY_ACTION_HEIGHT,
                 "arrows"
         );
         secondaryActions.getChildren().addAll(assetManagerButton, transferButton);
@@ -263,7 +261,7 @@ public class StartScreenViewBuilder {
         Button updateButton = createUtilityButton(I18n.t("button.checkUpdate"), null, "update");
         updateButton.setPrefWidth(UPDATE_ACTION_WIDTH);
         updateButton.setOnAction(e -> actions.onUpdateCheck().accept(updateButton));
-        Button donateButton = createDonateButton(I18n.t("button.donate"), actions.onDonate(), "heart");
+        Button donateButton = createDonateButton(I18n.t("button.donate"), actions.onDonate());
 
         HBox smallActions = new HBox(ACTION_STRIP_GAP, languageButton, donateButton);
         smallActions.setAlignment(Pos.CENTER);
@@ -312,17 +310,17 @@ public class StartScreenViewBuilder {
         return card;
     }
 
-    private Button createPrimaryButton(String text, Runnable action, String icon) {
+    private Button createPrimaryButton(String text, Runnable action) {
         Button button = createButton(text, MAIN_ACTION_HEIGHT, action);
-        applyButtonIcon(button, icon);
+        applyButtonIcon(button, "sword");
         styles.applyPrimaryAction(button);
         button.setMaxWidth(Double.MAX_VALUE);
         VBox.setVgrow(button, Priority.NEVER);
         return button;
     }
 
-    private Button createSecondaryButton(String text, Runnable action, int height, String icon) {
-        Button button = createButton(text, height, action);
+    private Button createSecondaryButton(String text, Runnable action, String icon) {
+        Button button = createButton(text, SECONDARY_ACTION_HEIGHT, action);
         applyButtonIcon(button, icon);
         styles.applySecondaryAction(button);
         button.setMaxWidth(Double.MAX_VALUE);
@@ -337,9 +335,9 @@ public class StartScreenViewBuilder {
         return button;
     }
 
-    private Button createDonateButton(String text, Runnable action, String icon) {
+    private Button createDonateButton(String text, Runnable action) {
         Button button = createButton(text, UTILITY_ACTION_HEIGHT, action);
-        applyButtonIcon(button, icon);
+        applyButtonIcon(button, "heart");
         styles.applyDonateAction(button);
         button.setMaxWidth(Double.MAX_VALUE);
         return button;
@@ -417,10 +415,6 @@ public class StartScreenViewBuilder {
         glyph.setStyle(styles.iconGlyphStyle(fontSize));
         root.getChildren().add(glyph);
         return root;
-    }
-
-    private StackPane createImageIcon(String resourcePath) {
-        return createImageIcon(resourcePath, false);
     }
 
     private StackPane createImageIcon(String resourcePath, boolean forceWhite) {

@@ -21,7 +21,7 @@ public abstract class AbstractEntityRow<T> extends HBox {
     protected final T item;
     protected final Character character;
     protected final EntityEditorStyleProvider styleProvider = new EntityEditorStyleProvider();
-    private StackPane iconFrame;
+    private final StackPane iconFrame;
 
     public AbstractEntityRow(T item, Runnable onRemove, Runnable onEdit, Character character) {
         this.item = item;
@@ -30,13 +30,6 @@ public abstract class AbstractEntityRow<T> extends HBox {
         setSpacing(14);
         setAlignment(Pos.CENTER_LEFT);
         setMinHeight(Region.USE_PREF_SIZE);
-        applyRowAccent(
-                "rgba(175, 196, 216, 0.14)",
-                "rgba(75, 93, 127, 0.38)",
-                "rgba(175, 196, 216, 0.58)"
-        );
-
-        // --- Icon ---
         ImageView iconView = new ImageView();
         iconView.setFitWidth(42);
         iconView.setFitHeight(42);
@@ -54,7 +47,12 @@ public abstract class AbstractEntityRow<T> extends HBox {
                 "rgba(75, 93, 127, 0.42)"
         ));
 
-        // --- Info Box (Content) ---
+        applyRowAccent(
+                "rgba(175, 196, 216, 0.14)",
+                "rgba(75, 93, 127, 0.38)",
+                "rgba(175, 196, 216, 0.58)"
+        );
+
         VBox infoBox = new VBox(5);
         HBox.setHgrow(infoBox, Priority.ALWAYS);
         fillContent(infoBox, item);
@@ -78,14 +76,19 @@ public abstract class AbstractEntityRow<T> extends HBox {
     protected final void applyRowAccent(String accentGlow, String idleBorder, String hoverBorder) {
         String idleStyle = styleProvider.entityRowStyle(false, accentGlow, idleBorder);
         String hoverStyle = styleProvider.entityRowStyle(true, accentGlow, hoverBorder);
+        String idleIconStyle = styleProvider.entityIconFrameStyle(accentGlow, idleBorder);
+        String hoverIconStyle = styleProvider.entityIconFrameStyle(accentGlow, hoverBorder);
 
         setStyle(idleStyle);
-        setOnMouseEntered(e -> setStyle(hoverStyle));
-        setOnMouseExited(e -> setStyle(idleStyle));
-
-        if (iconFrame != null) {
-            iconFrame.setStyle(styleProvider.entityIconFrameStyle(accentGlow, hoverBorder));
-        }
+        iconFrame.setStyle(idleIconStyle);
+        setOnMouseEntered(e -> {
+            setStyle(hoverStyle);
+            iconFrame.setStyle(hoverIconStyle);
+        });
+        setOnMouseExited(e -> {
+            setStyle(idleStyle);
+            iconFrame.setStyle(idleIconStyle);
+        });
     }
 
     protected final Label createTitleLabel(String text, String color, String glow) {
@@ -115,17 +118,10 @@ public abstract class AbstractEntityRow<T> extends HBox {
         return chip;
     }
 
-    /**
-     * Наследник должен наполнить VBox метками (Label)
-     */
     protected abstract void fillContent(VBox container, T item);
 
-    /**
-     * Наследник должен вернуть путь к иконке
-     */
     protected abstract String getIconPath(T item);
 
-    // Общая логика загрузки картинки
     private Image resolveIcon(T item, Character character) {
         return CharacterAssetResolver.getImage(character, getIconPath(item), 32, 32);
     }

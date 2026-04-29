@@ -12,6 +12,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -86,7 +87,7 @@ class CachedReleaseProviderTest {
 
             @Override
             public List<GitHubRelease> fetchRecentReleases(int limit) {
-                return List.of(latest, previous).stream().limit(limit).toList();
+                return Stream.of(latest, previous).limit(limit).toList();
             }
         };
 

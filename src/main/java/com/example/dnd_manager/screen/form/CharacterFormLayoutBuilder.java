@@ -120,11 +120,6 @@ public class CharacterFormLayoutBuilder {
     private record SectionEntry(String titleKey, Node content) {
     }
 
-    public Pane wrapInPanel(Node content) {
-        StackPane box = new StackPane(content);
-        box.setPadding(new Insets(10));
-        return box;
-    }
 }
 
 

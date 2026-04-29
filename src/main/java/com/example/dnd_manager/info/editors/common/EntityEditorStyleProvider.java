@@ -116,7 +116,8 @@ public class EntityEditorStyleProvider {
                 -fx-border-color: %s;
                 -fx-border-radius: 14;
                 -fx-border-width: 1;
-                """.formatted(borderColor);
+                -fx-effect: dropshadow(gaussian, %s, 10, 0.18, 0, 0);
+                """.formatted(borderColor, accentGlow);
     }
 
     public String entityTitleStyle(String color, String glow) {

@@ -40,11 +40,11 @@ public abstract class AbstractEntityEditor<T> extends VBox {
     private VBox listPanel;
     private HBox editorBody;
 
-    public AbstractEntityEditor(Character character, String titleKey) {
-        this(character, titleKey, new GlobalAssetService());
+    public AbstractEntityEditor(Character character) {
+        this(character, new GlobalAssetService());
     }
 
-    public AbstractEntityEditor(Character character, String titleKey, GlobalAssetService globalAssetService) {
+    public AbstractEntityEditor(Character character, GlobalAssetService globalAssetService) {
         this.character = character;
         this.globalAssetService = globalAssetService;
         setSpacing(15);

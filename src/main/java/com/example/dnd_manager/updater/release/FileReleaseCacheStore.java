@@ -28,10 +28,6 @@ public class FileReleaseCacheStore implements ReleaseCacheStore {
         this(defaultCacheFile(), new ObjectMapper());
     }
 
-    public FileReleaseCacheStore(Path cacheFile) {
-        this(cacheFile, new ObjectMapper());
-    }
-
     FileReleaseCacheStore(Path cacheFile, ObjectMapper mapper) {
         this.cacheFile = cacheFile;
         this.mapper = mapper;

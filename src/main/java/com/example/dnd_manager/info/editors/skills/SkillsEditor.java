@@ -45,7 +45,7 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
     private final SkillsEditorFormBuilder formBuilder = new SkillsEditorFormBuilder(layoutBuilder);
 
     public SkillsEditor(Character character) {
-        super(character, "label.skillsEditor");
+        super(character);
         initializeEditor("label.skillsEditor");
     }
 

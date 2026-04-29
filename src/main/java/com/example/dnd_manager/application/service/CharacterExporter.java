@@ -126,9 +126,7 @@ public class CharacterExporter {
 
             if (skill.effects() != null && !skill.effects().isEmpty()) {
                 String effectsStr = skill.effects().stream()
-                        .map(eff -> {
-                            return eff.getDisplayName() + ": " + eff.getValue();
-                        })
+                        .map(eff -> eff.getDisplayName() + ": " + eff.getValue())
                         .collect(Collectors.joining(", "));
                 sb.append("    ✳ ").append(I18n.t("skill.attrEffects")).append(": ").append(effectsStr).append("\n");
             }

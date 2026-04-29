@@ -19,7 +19,7 @@ class EntityEditorItemRendererTest {
         EntityEditorItemRenderer<String> renderer = new EntityEditorItemRenderer<>(
                 container,
                 Label::new,
-                () -> new VBox()
+                VBox::new
         );
 
         renderer.refresh(List.of());

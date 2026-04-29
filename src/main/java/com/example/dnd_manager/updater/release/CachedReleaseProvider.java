@@ -26,7 +26,7 @@ public class CachedReleaseProvider implements ReleaseProvider {
         this(remoteProvider, cacheStore, refreshInterval, Clock.systemDefaultZone());
     }
 
-    CachedReleaseProvider(
+    public CachedReleaseProvider(
             ReleaseProvider remoteProvider,
             ReleaseCacheStore cacheStore,
             Duration refreshInterval,
@@ -54,7 +54,7 @@ public class CachedReleaseProvider implements ReleaseProvider {
 
         List<GitHubRelease> remoteReleases = remoteProvider.fetchRecentReleases(limit);
         if (!remoteReleases.isEmpty()) {
-            saveIfChanged(cachedRelease, remoteReleases);
+            saveIfChanged(cachedRelease.orElse(null), remoteReleases);
             return remoteReleases;
         }
 
@@ -71,8 +71,8 @@ public class CachedReleaseProvider implements ReleaseProvider {
         return !nextRefresh.isAfter(clock.instant());
     }
 
-    private void saveIfChanged(Optional<CachedRelease> cachedRelease, List<GitHubRelease> remoteReleases) {
-        if (cachedRelease.isEmpty() || hasChanged(cachedRelease.get().releases(), remoteReleases)) {
+    private void saveIfChanged(CachedRelease cachedRelease, List<GitHubRelease> remoteReleases) {
+        if (cachedRelease == null || hasChanged(cachedRelease.releases(), remoteReleases)) {
             cacheStore.save(new CachedRelease(remoteReleases, clock.instant()));
         }
     }

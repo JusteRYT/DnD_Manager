@@ -104,8 +104,8 @@ public class StartScreenReleaseNewsFormatter {
         List<String> cleaned = Arrays.stream(markdown.split("\\R"))
                 .map(this::cleanMarkdownLine)
                 .filter(line -> !line.isBlank())
-                .filter(line -> line.length() > 3)
                 .filter(line -> !line.equals("-"))
+                .filter(line -> line.length() > 3)
                 .toList();
 
         for (String line : cleaned) {

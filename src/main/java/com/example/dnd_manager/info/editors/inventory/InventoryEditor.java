@@ -51,7 +51,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
     );
 
     public InventoryEditor(Character character) {
-        super(character, "label.inventoryEditor");
+        super(character);
         initializeEditor("label.inventoryEditor");
     }
 

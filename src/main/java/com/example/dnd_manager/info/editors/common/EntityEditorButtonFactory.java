@@ -8,8 +8,7 @@ public final class EntityEditorButtonFactory {
     }
 
     public static Button primary(String text, double width) {
-        Button button = button(text, width, 38, primaryStyle(false), primaryStyle(true));
-        return button;
+        return button(text, width, 38, primaryStyle(false), primaryStyle(true));
     }
 
     public static Button secondary(String text, double width) {

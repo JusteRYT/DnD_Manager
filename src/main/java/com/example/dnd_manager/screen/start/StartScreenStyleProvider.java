@@ -57,68 +57,6 @@ public class StartScreenStyleProvider {
                 """;
     }
 
-    public String mapRouteStyle() {
-        return """
-                -fx-background-color: linear-gradient(to right, transparent, rgba(175, 196, 216, 0.34), transparent);
-                -fx-background-radius: 999;
-                """;
-    }
-
-    public String featureChipStyle() {
-        return """
-                -fx-background-color:
-                    radial-gradient(center 0% 0%, radius 120%, rgba(223, 230, 236, 0.07), transparent 62%),
-                    rgba(24, 34, 56, 0.58);
-                -fx-background-radius: 999;
-                -fx-border-color: rgba(75, 93, 127, 0.42);
-                -fx-border-radius: 999;
-                -fx-border-width: 1;
-                -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.16), 12, 0.18, 0, 4);
-                """;
-    }
-
-    public String questCardStyle() {
-        return """
-                -fx-background-color:
-                    radial-gradient(center 0% 0%, radius 120%, rgba(223, 230, 236, 0.08), transparent 62%),
-                    linear-gradient(from 0% 0% to 100% 100%, rgba(24, 34, 56, 0.64), rgba(15, 19, 35, 0.70));
-                -fx-background-radius: 18;
-                -fx-border-color: rgba(75, 93, 127, 0.42);
-                -fx-border-radius: 18;
-                -fx-border-width: 1;
-                -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.18), 16, 0.18, 0, 6);
-                """;
-    }
-
-    public String questIconStyle() {
-        return """
-                -fx-background-color:
-                    radial-gradient(center 50% 35%, radius 86%, rgba(223, 230, 236, 0.22), transparent 62%),
-                    rgba(16, 23, 42, 0.56);
-                -fx-background-radius: 999;
-                -fx-border-color: rgba(175, 196, 216, 0.38);
-                -fx-border-radius: 999;
-                -fx-border-width: 1;
-                -fx-text-fill: #eef3f6;
-                -fx-font-size: 17px;
-                """;
-    }
-
-    public String featureChipTitleStyle() {
-        return """
-                -fx-text-fill: #f0f2f7;
-                -fx-font-size: 12px;
-                -fx-font-weight: bold;
-                """;
-    }
-
-    public String featureChipHintStyle() {
-        return """
-                -fx-text-fill: #aab8cf;
-                -fx-font-size: 10px;
-                """;
-    }
-
     public String mapNodeStyle() {
         return """
                 -fx-background-color:
@@ -135,100 +73,6 @@ public class StartScreenStyleProvider {
                 """;
     }
 
-    public String campaignBoardStyle() {
-        return """
-                -fx-background-color:
-                    radial-gradient(center 14% 0%, radius 92%, rgba(223, 230, 236, 0.11), transparent 58%),
-                    radial-gradient(center 100% 100%, radius 100%, rgba(196, 189, 214, 0.10), transparent 60%),
-                    linear-gradient(from 0% 0% to 100% 100%, rgba(24, 34, 56, 0.82), rgba(15, 19, 35, 0.78));
-                -fx-background-radius: 22;
-                -fx-border-color: rgba(175, 196, 216, 0.42);
-                -fx-border-radius: 22;
-                -fx-border-width: 1;
-                -fx-effect:
-                    dropshadow(gaussian, rgba(0, 0, 0, 0.24), 24, 0.20, 0, 10),
-                    innershadow(gaussian, rgba(223, 230, 236, 0.05), 20, 0.16, 0, 0);
-                """;
-    }
-
-    public String boardIconStyle() {
-        return """
-                -fx-background-color:
-                    radial-gradient(center 50% 35%, radius 86%, rgba(223, 230, 236, 0.26), transparent 62%),
-                    rgba(16, 23, 42, 0.58);
-                -fx-background-radius: 999;
-                -fx-border-color: rgba(175, 196, 216, 0.48);
-                -fx-border-radius: 999;
-                -fx-border-width: 1;
-                -fx-text-fill: #eef3f6;
-                -fx-font-size: 20px;
-                -fx-font-weight: bold;
-                -fx-effect: dropshadow(gaussian, rgba(175, 196, 216, 0.18), 12, 0.22, 0, 0);
-                """;
-    }
-
-    public String boardTitleStyle() {
-        return """
-                -fx-text-fill: #f0f2f7;
-                -fx-font-size: 18px;
-                -fx-font-weight: bold;
-                """;
-    }
-
-    public String boardHintStyle() {
-        return """
-                -fx-text-fill: #b6bed0;
-                -fx-font-size: 12px;
-                -fx-line-spacing: 3px;
-                """;
-    }
-
-    public String boardRowStyle() {
-        return """
-                -fx-background-color: rgba(16, 23, 42, 0.38);
-                -fx-background-radius: 12;
-                -fx-border-color: rgba(75, 93, 127, 0.25);
-                -fx-border-radius: 12;
-                -fx-border-width: 1;
-                """;
-    }
-
-    public String boardRowIconStyle() {
-        return """
-                -fx-background-color: rgba(223, 230, 236, 0.10);
-                -fx-background-radius: 999;
-                -fx-border-color: rgba(175, 196, 216, 0.30);
-                -fx-border-radius: 999;
-                -fx-border-width: 1;
-                -fx-text-fill: #eef3f6;
-                -fx-font-size: 14px;
-                -fx-font-weight: bold;
-                """;
-    }
-
-    public String compassFieldStyle() {
-        return """
-                -fx-background-color:
-                    radial-gradient(center 50% 50%, radius 56%, rgba(175, 196, 216, 0.11), transparent 64%),
-                    radial-gradient(center 48% 52%, radius 92%, rgba(24, 34, 56, 0.42), transparent 74%);
-                -fx-background-radius: 999;
-                """;
-    }
-
-    public String starPointStyle() {
-        return """
-                -fx-fill: #d7e0ea;
-                -fx-effect: dropshadow(gaussian, rgba(215, 224, 234, 0.46), 12, 0.24, 0, 0);
-                """;
-    }
-
-    public String starRouteStyle() {
-        return """
-                -fx-stroke: rgba(183, 201, 221, 0.26);
-                -fx-stroke-width: 1;
-                """;
-    }
-
     public String newsIconStyle() {
         return """
                 -fx-fill: #b7c9dd;
@@ -238,37 +82,10 @@ public class StartScreenStyleProvider {
                 """;
     }
 
-    public String contactIconStyle() {
-        return """
-                -fx-fill: #c4bdd6;
-                -fx-stroke: rgba(223, 230, 236, 0.52);
-                -fx-stroke-width: 1;
-                -fx-effect: dropshadow(gaussian, rgba(196, 189, 214, 0.30), 10, 0.24, 0, 0);
-                """;
-    }
-
     public String newsCardStyle() {
         return """
                 -fx-background-color: transparent;
                 -fx-background-radius: 14;
-                """;
-    }
-
-    public String telegramPanelStyle() {
-        return """
-                -fx-background-color: transparent;
-                -fx-background-radius: 14;
-                """;
-    }
-
-    public String telegramFooterStyle() {
-        return """
-                -fx-background-color: rgba(10, 16, 31, 0.45);
-                -fx-background-radius: 12;
-                -fx-border-color: rgba(75, 93, 127, 0.48);
-                -fx-border-radius: 12;
-                -fx-border-width: 1;
-                -fx-padding: 2 2 2 2;
                 """;
     }
 
@@ -376,96 +193,10 @@ public class StartScreenStyleProvider {
                 """;
     }
 
-    public String actionSectionStyle() {
-        return """
-                -fx-background-color: rgba(11, 19, 35, 0.52);
-                -fx-background-radius: 14;
-                -fx-border-color: rgba(72, 85, 117, 0.34);
-                -fx-border-radius: 14;
-                -fx-border-width: 1;
-                -fx-padding: 8;
-                """;
-    }
-
-    public String actionSectionTitleStyle() {
-        return """
-                -fx-text-fill: #b7c9dd;
-                -fx-font-size: 12px;
-                -fx-font-weight: bold;
-                -fx-letter-spacing: 0.5;
-                """;
-    }
-
     public String sectionHintStyle() {
         return """
                 -fx-text-fill: #b6bed0;
                 -fx-font-size: 12px;
-                """;
-    }
-
-    public String compassCaptionStyle() {
-        return """
-                -fx-text-fill: #aebbd0;
-                -fx-font-size: 11px;
-                -fx-font-weight: bold;
-                """;
-    }
-
-    public String logoSealStyle() {
-        return """
-                -fx-background-color:
-                    radial-gradient(center 50% 50%, radius 48%, rgba(223, 230, 236, 0.12), transparent 62%),
-                    radial-gradient(center 50% 50%, radius 88%, rgba(175, 196, 216, 0.18), transparent 70%);
-                -fx-background-radius: 999;
-                """;
-    }
-
-    public String logoOuterRingStyle() {
-        return """
-                -fx-fill: rgba(24, 34, 56, 0.34);
-                -fx-stroke: rgba(187, 201, 218, 0.82);
-                -fx-stroke-width: 2.2;
-                """;
-    }
-
-    public String logoMiddleRingStyle() {
-        return """
-                -fx-fill: transparent;
-                -fx-stroke: rgba(175, 196, 216, 0.56);
-                -fx-stroke-width: 1.4;
-                """;
-    }
-
-    public String logoInnerRingStyle() {
-        return """
-                -fx-fill: rgba(16, 23, 42, 0.34);
-                -fx-stroke: rgba(196, 189, 214, 0.58);
-                -fx-stroke-width: 1.4;
-                """;
-    }
-
-    public String logoDieStyle() {
-        return """
-                -fx-fill: linear-gradient(to bottom, #253149, #151d31);
-                -fx-stroke: #dfe6ec;
-                -fx-stroke-width: 2;
-                -fx-effect: dropshadow(gaussian, rgba(175, 196, 216, 0.20), 14, 0.24, 0, 0);
-                """;
-    }
-
-    public String logoFacetStyle() {
-        return """
-                -fx-stroke: rgba(223, 230, 236, 0.52);
-                -fx-stroke-width: 1.1;
-                """;
-    }
-
-    public String logoTextStyle() {
-        return """
-                -fx-text-fill: #f7faf5;
-                -fx-font-size: 34px;
-                -fx-font-weight: bold;
-                -fx-effect: dropshadow(gaussian, rgba(223, 230, 236, 0.28), 10, 0.20, 0, 0);
                 """;
     }
 
@@ -479,10 +210,6 @@ public class StartScreenStyleProvider {
                 -fx-border-radius: 999;
                 -fx-border-width: 1;
                 """;
-    }
-
-    public String iconGlyphStyle() {
-        return iconGlyphStyle(18);
     }
 
     public String iconGlyphStyle(int fontSize) {
@@ -549,10 +276,6 @@ public class StartScreenStyleProvider {
 
     public void applyDonateAction(Button button) {
         applyButtonStyle(button, donateActionStyle(false), donateActionStyle(true));
-    }
-
-    public void applyTelegramAction(Button button) {
-        applyButtonStyle(button, telegramActionStyle(false, 12), telegramActionStyle(true, 12));
     }
 
     public void applyTelegramAction(Button button, int fontSize) {

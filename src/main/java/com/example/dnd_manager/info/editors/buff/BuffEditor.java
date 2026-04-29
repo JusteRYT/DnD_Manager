@@ -41,7 +41,7 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
     private final BuffEditorFormBuilder formBuilder = new BuffEditorFormBuilder(layoutBuilder);
 
     public BuffEditor(Character character) {
-        super(character, "label.buffsEditor");
+        super(character);
         initializeEditor("label.buffsEditor");
     }
 
