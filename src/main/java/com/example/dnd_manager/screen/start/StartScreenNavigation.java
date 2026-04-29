@@ -1,6 +1,7 @@
 package com.example.dnd_manager.screen.start;
 
 import com.example.dnd_manager.application.CharacterUseCases;
+import com.example.dnd_manager.application.port.ExternalLinkOpener;
 import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.application.service.CharacterImageIntegrityService;
 import com.example.dnd_manager.application.service.CharacterTransferService;
@@ -21,7 +22,8 @@ public final class StartScreenNavigation {
             CharacterUseCases characterUseCases,
             CharacterImageIntegrityService characterImageIntegrityService,
             CharacterTransferService characterTransferService,
-            UpdateFlowCoordinator updateFlowCoordinator
+            UpdateFlowCoordinator updateFlowCoordinator,
+            ExternalLinkOpener externalLinkOpener
     ) {
         return () -> screenNavigator.open(
                 new StartScreen(
@@ -30,7 +32,8 @@ public final class StartScreenNavigation {
                         characterUseCases,
                         characterImageIntegrityService,
                         characterTransferService,
-                        updateFlowCoordinator
+                        updateFlowCoordinator,
+                        externalLinkOpener
                 ).getView()
         );
     }

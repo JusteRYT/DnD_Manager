@@ -1,7 +1,7 @@
 package com.example.dnd_manager.theme.window;
 
 import com.example.dnd_manager.theme.AppTheme;
-import com.example.dnd_manager.theme.CustomTitleBar; // Твой класс титлбара
+import com.example.dnd_manager.theme.CustomTitleBar;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.Priority;
@@ -17,17 +17,14 @@ public class WindowFactory {
         Stage modalStage = new Stage();
         modalStage.initOwner(owner);
         modalStage.initModality(Modality.APPLICATION_MODAL);
-        modalStage.initStyle(StageStyle.UNDECORATED); // Убираем стандартные рамки Windows
+        modalStage.initStyle(StageStyle.UNDECORATED);
 
-        // Создаем корень окна, как в главном окне
         VBox root = new VBox();
         root.setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + "; " +
-                "-fx-border-color: #4a4a4a; -fx-border-width: 1; -fx-border-radius: 5;");
+                "-fx-border-color: " + AppTheme.BORDER_ACCENT + "; -fx-border-width: 1; -fx-border-radius: 5;");
 
-        // Добавляем твой кастомный TitleBar
         CustomTitleBar titleBar = new CustomTitleBar(modalStage);
 
-        // Оборачиваем контент в ScrollPane или просто добавляем (AssetManagerScreen сам BorderPane)
         VBox.setVgrow(content, Priority.ALWAYS);
 
         root.getChildren().addAll(titleBar, content);

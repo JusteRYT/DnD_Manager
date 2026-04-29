@@ -4,9 +4,7 @@ import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.Node;
 import javafx.stage.Stage;
 
 public class CharacterCreateScreen extends AbstractCharacterFormScreen {
@@ -21,11 +19,11 @@ public class CharacterCreateScreen extends AbstractCharacterFormScreen {
     }
 
     @Override
-    protected Label buildTitle() {
-        Label title = new Label(I18n.t("label.title.create_character"));
-        title.setStyle("-fx-font-size: 36px; -fx-font-weight: 900; -fx-text-fill: #c89b3c;");
-        BorderPane.setAlignment(title, Pos.CENTER);
-        return title;
+    protected Node buildTitle() {
+        return buildStyledTitle(
+                I18n.t("label.title.create_character"),
+                I18n.t("characterForm.title.createHint")
+        );
     }
 
     @Override

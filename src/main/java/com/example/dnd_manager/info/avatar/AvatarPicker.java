@@ -4,7 +4,6 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.text.dto.AvatarData;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.infrastructure.assets.CharacterAssetResolver;
-import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -24,6 +23,7 @@ public class AvatarPicker extends VBox {
     private static final String DEFAULT_AVATAR = "/com/example/dnd_manager/icon/user.png";
     private final ImageView imageView = new ImageView();
     private final double AVATAR_SIZE = 220;
+    private final AvatarPickerStyleProvider styleProvider = new AvatarPickerStyleProvider();
 
     private String currentPath;
     private final Character character;
@@ -46,13 +46,7 @@ public class AvatarPicker extends VBox {
 
         // Контейнер и ImageView
         StackPane imageContainer = new StackPane();
-        imageContainer.setStyle("""
-                    -fx-border-color: #4a4a4a;
-                    -fx-border-width: 2;
-                    -fx-border-radius: 10;
-                    -fx-background-radius: 10;
-                    -fx-padding: 3;
-                """);
+        imageContainer.setStyle(styleProvider.frameStyle());
 
         imageView.setFitWidth(AVATAR_SIZE);
         imageView.setFitHeight(AVATAR_SIZE * 1.2);
@@ -68,6 +62,10 @@ public class AvatarPicker extends VBox {
         uploadBtn.setOnAction(event -> chooseFromFileSystem());
 
         Button galleryBtn = AppButtonFactory.assetPickerButton();
+        galleryBtn.setPrefWidth(120);
+        galleryBtn.setStyle(styleProvider.actionButtonStyle(false));
+        galleryBtn.setOnMouseEntered(e -> galleryBtn.setStyle(styleProvider.actionButtonStyle(true)));
+        galleryBtn.setOnMouseExited(e -> galleryBtn.setStyle(styleProvider.actionButtonStyle(false)));
         AppButtonFactory.attachAssetPicker(galleryBtn, this::updateAvatarState);
 
         HBox controls = new HBox(10, uploadBtn, galleryBtn);
@@ -102,36 +100,9 @@ public class AvatarPicker extends VBox {
 
     private Button createStyledButton(String text) {
         Button btn = new Button(text);
-        String accent = AppTheme.TEXT_ACCENT;
-        String style = """
-        -fx-background-color: #2f2f2f;
-        -fx-text-fill: #c89b3c;
-        -fx-font-family: 'Cinzel';
-        -fx-font-size: 13px;
-        -fx-font-weight: bold;
-        -fx-background-radius: 6;
-        -fx-border-radius: 6;
-        -fx-border-color: #444;
-        -fx-border-width: 1;
-        -fx-padding: 6 14;
-        -fx-cursor: hand;
-        """;
-        String hoverStyle = """
-        -fx-background-color: #353535;
-        -fx-text-fill: %s;
-        -fx-font-family: 'Cinzel';
-        -fx-font-size: 13px;
-        -fx-font-weight: bold;
-        -fx-background-radius: 6;
-        -fx-border-radius: 6;
-        -fx-border-color: %s;
-        -fx-border-width: 1;
-        -fx-padding: 6 14;
-        -fx-cursor: hand;
-        """.formatted(accent, accent);
-        btn.setStyle(style);
-        btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
-        btn.setOnMouseExited(e -> btn.setStyle(style));
+        btn.setStyle(styleProvider.actionButtonStyle(false));
+        btn.setOnMouseEntered(e -> btn.setStyle(styleProvider.actionButtonStyle(true)));
+        btn.setOnMouseExited(e -> btn.setStyle(styleProvider.actionButtonStyle(false)));
         return btn;
     }
 

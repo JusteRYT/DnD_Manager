@@ -3,11 +3,12 @@ package com.example.dnd_manager.info.editors.buff;
 import com.example.dnd_manager.assets.AssetCategory;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.model.Buff;
+import com.example.dnd_manager.info.buff_debuff.model.BuffType;
 import com.example.dnd_manager.info.buff_debuff.view.BuffEditorRow;
 import com.example.dnd_manager.info.editors.common.AbstractEntityEditor;
 import com.example.dnd_manager.info.editors.common.EditorFormLayoutBuilder;
 import com.example.dnd_manager.info.editors.common.EditorItemMutationService;
-import com.example.dnd_manager.info.editors.common.IconPathDisplayFormatter;
+import com.example.dnd_manager.info.utils.SubEditorManager;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppComboBox;
 import com.example.dnd_manager.theme.AppTextField;
@@ -17,7 +18,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BuffEditor extends AbstractEntityEditor<Buff> {
@@ -32,13 +36,13 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
     private final AtomicReference<String> iconPath = new AtomicReference<>("");
     private Label iconPathLabel;
     private final EditorItemMutationService itemMutationService = new EditorItemMutationService();
-    private final IconPathDisplayFormatter iconPathDisplayFormatter = new IconPathDisplayFormatter();
     private final BuffEditorItemFactory itemFactory = new BuffEditorItemFactory();
     private final EditorFormLayoutBuilder layoutBuilder = new EditorFormLayoutBuilder(this::createFieldLabel);
     private final BuffEditorFormBuilder formBuilder = new BuffEditorFormBuilder(layoutBuilder);
 
     public BuffEditor(Character character) {
         super(character, "label.buffsEditor");
+        initializeEditor("label.buffsEditor");
     }
 
     @Override
@@ -58,17 +62,18 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
 
         AppButtonFactory.attachAssetPicker(controls.assetPickerButton(), path -> {
             iconPath.set(path);
-            iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(path));
+            showIconPreview(iconPathLabel, path);
         });
 
         controls.iconButton().setOnAction(e -> {
             String path = chooseAndImportIcon(AssetCategory.BUFFS);
             if (path != null) {
                 iconPath.set(path);
-                iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(path));
+                showIconPreview(iconPathLabel, path);
             }
         });
 
+        showIconPreview(iconPathLabel, "");
         addButton.setOnAction(e -> handleSave());
     }
 
@@ -91,12 +96,33 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
     }
 
     private void prepareEdit(Buff buff) {
+        openEditDialog(buff);
+    }
+
+    private void openEditDialog(Buff buff) {
+        List<Buff> editBuffer = new ArrayList<>();
+        editBuffer.add(buff);
+
+        BuffEditor editor = new BuffEditor(null);
+        editor.prepareEditInline(buff);
+
+        Stage owner = getScene() != null && getScene().getWindow() instanceof Stage stage ? stage : null;
+        SubEditorManager.open(owner, editor, editBuffer, I18n.t("label.buffsEditor"), () -> {
+            if (!editBuffer.isEmpty()) {
+                Buff updatedBuff = editBuffer.getFirst();
+                itemMutationService.addOrReplace(items, buff, updatedBuff);
+                refreshUI();
+            }
+        });
+    }
+
+    private void prepareEditInline(Buff buff) {
         this.editingItem = buff;
         nameField.setText(buff.name());
         descriptionField.setText(buff.description());
-        typeBox.setValue(buff.type());
+        typeBox.setValue(BuffType.displayName(buff.type()));
         iconPath.set(buff.iconPath());
-        iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(buff.iconPath()));
+        showIconPreview(iconPathLabel, buff.iconPath());
 
         addButton.setText(I18n.t("button.save"));
         nameField.getField().requestFocus();
@@ -106,7 +132,7 @@ public class BuffEditor extends AbstractEntityEditor<Buff> {
         nameField.clear();
         descriptionField.setText("");
         iconPath.set("");
-        iconPathLabel.setText("");
+        showIconPreview(iconPathLabel, "");
         nameRequiredLabel.setVisible(false);
     }
 

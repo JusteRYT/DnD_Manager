@@ -56,7 +56,7 @@ public class SkillIconFrameBuilder {
     private DropShadow createFrameGlow() {
         DropShadow frameGlow = new DropShadow();
         frameGlow.setBlurType(BlurType.THREE_PASS_BOX);
-        frameGlow.setColor(Color.web("#c89b3c", 0.7));
+        frameGlow.setColor(Color.web("#b7c9dd", 0.38));
         frameGlow.setRadius(12);
         frameGlow.setSpread(0.1);
         return frameGlow;

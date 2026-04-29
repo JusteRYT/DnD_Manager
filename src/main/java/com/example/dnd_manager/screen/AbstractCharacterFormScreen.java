@@ -21,6 +21,9 @@ import com.example.dnd_manager.screen.form.CharacterFormStyleProvider;
 import com.example.dnd_manager.screen.form.CharacterHeroCardSectionBuilder;
 import com.example.dnd_manager.screen.form.MagicalBorderDecorator;
 import javafx.scene.layout.HBox;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -68,6 +71,22 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
         this.character = Objects.requireNonNull(character, "character must not be null");
         this.mode = Objects.requireNonNull(mode, "mode must not be null");
         this.originalName = character.getName();
+    }
+
+    @Override
+    public Parent getView() {
+        BorderPane root = new BorderPane();
+        root.setStyle(styleProvider.formStyle());
+
+        Node title = buildTitle();
+        root.setTop(title);
+
+        VBox form = buildForm();
+        form.setPadding(new javafx.geometry.Insets(10, 10, 10, 10));
+        form.setSpacing(15);
+        root.setCenter(form);
+
+        return root;
     }
 
     @Override
@@ -124,6 +143,19 @@ public abstract class AbstractCharacterFormScreen extends AbstractScreen {
     protected abstract String getSaveButtonLabel();
     protected abstract void handleSave();
     protected abstract void handleExit();
+
+    protected Node buildStyledTitle(String titleText, String subtitleText) {
+        javafx.scene.control.Label title = new javafx.scene.control.Label(titleText);
+        title.setStyle(styleProvider.screenTitleStyle());
+
+        javafx.scene.control.Label subtitle = new javafx.scene.control.Label(subtitleText);
+        subtitle.setStyle(styleProvider.screenSubtitleStyle());
+
+        VBox titleBox = new VBox(2, title, subtitle);
+        titleBox.setAlignment(javafx.geometry.Pos.CENTER);
+        titleBox.setStyle(styleProvider.titlePanelStyle());
+        return titleBox;
+    }
 }
 
 

@@ -82,7 +82,7 @@ public class InventoryItemAttachmentsSection {
     }
 
     private <E> void openSubEditor(AbstractEntityEditor<E> editor, List<E> targetList, String title) {
-        SubEditorManager.open(stage, editor, targetList, title, this::updateLabels);
+        SubEditorManager.openCollection(stage, editor, targetList, title, this::updateLabels);
     }
 }
 

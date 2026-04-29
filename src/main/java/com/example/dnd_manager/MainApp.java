@@ -2,10 +2,12 @@ package com.example.dnd_manager;
 
 import com.example.dnd_manager.application.AppContext;
 import com.example.dnd_manager.infrastructure.persistence.JsonCharacterRepository;
+import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.start.StartScreen;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.theme.CustomTitleBar;
 import com.example.dnd_manager.theme.WindowResizer;
+import com.example.dnd_manager.theme.window.MainWindowConfigurer;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -26,6 +28,7 @@ public class MainApp extends Application {
         log.debug("Operating System: {}", System.getProperty("os.name"));
         log.debug("User Home: {}", System.getProperty("user.home"));
         primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.setTitle(I18n.t("title.main"));
         log.debug("Stage style set to UNDECORATED");
 
         StorageService storageService = new StorageService(new JsonCharacterRepository());
@@ -48,18 +51,13 @@ public class MainApp extends Application {
         }
 
         VBox root = new VBox();
-        root.setStyle("-fx-border-color: #3a3a3a; -fx-border-width: 1; -fx-background-color: #1e1e1e;");
-        root.setPadding(new javafx.geometry.Insets(0, 2, 2, 2));
 
         CustomTitleBar titleBar = new CustomTitleBar(primaryStage);
         root.getChildren().add(titleBar);
         log.debug("Custom title bar attached.");
 
-        Scene scene = new Scene(root, 1200, 800);
+        Scene scene = new MainWindowConfigurer().configure(primaryStage, root);
         primaryStage.setScene(scene);
-
-        primaryStage.setMinWidth(800);
-        primaryStage.setMinHeight(600);
 
         // 3. Используем менеджер для загрузки первого экрана
         log.info("Loading initial screen: StartScreen");
@@ -68,6 +66,7 @@ public class MainApp extends Application {
 
         WindowResizer.listen(primaryStage, RESIZE_MARGIN);
         primaryStage.show();
+        primaryStage.centerOnScreen();
         log.info("Application window is now visible.");
     }
 

@@ -11,7 +11,9 @@ class BaseInfoFormStyleProviderTest {
     @Test
     void styleTokens_areProvided() {
         assertTrue(provider.sectionTitleStyle().contains("-fx-letter-spacing"));
-        assertTrue(provider.fieldLabelStyle().contains("#c89b3c"));
+        assertTrue(provider.fieldLabelStyle().contains("#b7c9dd"));
+        assertTrue(provider.panelStyle().contains("-fx-border-color: transparent"));
+        assertTrue(provider.fieldCardStyle().contains("-fx-border-width: 0"));
         assertTrue(provider.requiredLabelStyle().contains("#ff6b6b"));
     }
 }

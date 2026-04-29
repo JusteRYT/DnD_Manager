@@ -30,11 +30,11 @@ final class IconButtonFactory {
         button.setMaxSize(size, size);
         button.setPickOnBounds(true);
 
-        String goldPrimary = AppTheme.BUTTON_PRIMARY;
-        String glowColor = "rgba(200, 155, 60, 0.4)";
+        String borderAccent = AppTheme.BUTTON_PRIMARY;
+        String glowColor = "rgba(175, 196, 216, 0.28)";
 
-        String colorHoverBg = "#2a2a2a";
-        String colorPressedBg = "#141414";
+        String colorHoverBg = "#11172a";
+        String colorPressedBg = "#070b14";
         String shadowCss = "-fx-effect: dropshadow(three-pass-box, %s, 12, 0.1, 0, 0);".formatted(glowColor);
 
         String hoverStyle = """
@@ -45,7 +45,7 @@ final class IconButtonFactory {
         -fx-border-width: 1.2;
         -fx-cursor: hand;
         %s
-        """.formatted(colorHoverBg, goldPrimary, shadowCss);
+        """.formatted(colorHoverBg, borderAccent, shadowCss);
 
         String pressedStyle = """
         -fx-background-color: %s;
@@ -54,7 +54,7 @@ final class IconButtonFactory {
         -fx-border-radius: 6;
         -fx-border-width: 1.2;
         -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.8), 8, 0, 0, 1);
-        """.formatted(colorPressedBg, goldPrimary);
+        """.formatted(colorPressedBg, borderAccent);
 
         button.setStyle(hoverStyle);
 
@@ -98,7 +98,7 @@ final class IconButtonFactory {
         -fx-font-family: 'Cinzel';
         -fx-font-size: 13px;
         -fx-font-weight: bold;
-        -fx-border-color: #3f3f3f;
+        -fx-border-color: #293550;
         -fx-border-radius: 6;
         -fx-background-radius: 6;
         -fx-padding: 6 14;
@@ -106,7 +106,7 @@ final class IconButtonFactory {
         """.formatted(accent);
 
         String hoverStyle = """
-        -fx-background-color: rgba(200,155,60,0.08);
+        -fx-background-color: rgba(175, 196, 216, 0.08);
         -fx-text-fill: %s;
         -fx-font-family: 'Cinzel';
         -fx-font-size: 13px;

@@ -1,6 +1,7 @@
 package com.example.dnd_manager.info.buff_debuff.popup;
 
 import com.example.dnd_manager.info.buff_debuff.model.Buff;
+import com.example.dnd_manager.info.buff_debuff.model.BuffType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -39,7 +40,7 @@ public class BuffPopupView extends VBox {
         name.setMaxWidth(MAX_POPUP_WIDTH - 24);
         name.setMinHeight(VBox.USE_PREF_SIZE);
 
-        Label type = new Label(buff.type());
+        Label type = new Label(BuffType.displayName(buff.type()));
         type.setStyle("""
             -fx-text-fill: #9cdcfe;
             -fx-font-size: 12px;

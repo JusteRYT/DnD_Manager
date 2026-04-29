@@ -7,6 +7,7 @@ import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.IntegerField;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -30,6 +31,7 @@ public class BaseInfoForm extends VBox {
     public BaseInfoForm(FormMode mode, BaseInfoData data) {
         setPadding(new Insets(20));
         setSpacing(15);
+        setStyle(styleProvider.panelStyle());
 
         Label sectionTitle = new Label(I18n.t("baseInfo.title"));
         sectionTitle.setStyle(styleProvider.sectionTitleStyle());
@@ -40,6 +42,15 @@ public class BaseInfoForm extends VBox {
         GridPane grid = new GridPane();
         grid.setHgap(20);
         grid.setVgap(10);
+        grid.setMaxWidth(Double.MAX_VALUE);
+
+        ColumnConstraints leftColumn = new ColumnConstraints();
+        leftColumn.setPercentWidth(50);
+        leftColumn.setHgrow(Priority.ALWAYS);
+        ColumnConstraints rightColumn = new ColumnConstraints();
+        rightColumn.setPercentWidth(50);
+        rightColumn.setHgrow(Priority.ALWAYS);
+        grid.getColumnConstraints().addAll(leftColumn, rightColumn);
 
         add(grid, I18n.t("nameField.name"), nameField, 0, 0, 2);
         add(grid, I18n.t("raceField.name"), raceField, 0, 1, 1);
@@ -52,6 +63,13 @@ public class BaseInfoForm extends VBox {
         GridPane.setHgrow(nameField.getField(), Priority.ALWAYS);
         GridPane.setHgrow(raceField.getField(), Priority.ALWAYS);
         GridPane.setHgrow(classField.getField(), Priority.ALWAYS);
+        nameField.getField().setMaxWidth(Double.MAX_VALUE);
+        raceField.getField().setMaxWidth(Double.MAX_VALUE);
+        classField.getField().setMaxWidth(Double.MAX_VALUE);
+        levelField.getField().setMaxWidth(Double.MAX_VALUE);
+        hpField.getField().setMaxWidth(Double.MAX_VALUE);
+        armorField.getField().setMaxWidth(Double.MAX_VALUE);
+        manaField.getField().setMaxWidth(Double.MAX_VALUE);
 
         getChildren().add(grid);
 
@@ -60,9 +78,11 @@ public class BaseInfoForm extends VBox {
 
     private void add(GridPane grid, String labelText, AppTextField appField, int col, int row, int colSpan) {
         VBox container = new VBox(5);
+        container.setStyle(styleProvider.fieldCardStyle());
         Label label = new Label(labelText.toUpperCase());
         label.setStyle(styleProvider.fieldLabelStyle());
 
+        appField.getField().setPromptText("");
         VBox fieldAndErrorBox = new VBox(2, appField.getField());
         if (appField == nameField) {
             fieldAndErrorBox.getChildren().add(nameRequiredLabel);

@@ -2,6 +2,7 @@ package com.example.dnd_manager.application.service;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.model.Buff;
+import com.example.dnd_manager.info.buff_debuff.model.BuffType;
 import com.example.dnd_manager.info.inventory.model.InventoryItem;
 import com.example.dnd_manager.info.skills.model.Skill;
 import com.example.dnd_manager.info.stats.model.StatEnum;
@@ -115,23 +116,18 @@ public class CharacterExporter {
         if (skills.isEmpty()) return;
 
         for (Skill skill : skills) {
-            String actTypeKey = "skill.activationType." + skill.activationType().toLowerCase();
-
             // Формат: [ИСТОЧНИК] НАЗВАНИЕ (Тип активации)
             sb.append(String.format(" [%s] %s (%s)%n",
                     sourceName.toUpperCase(),
                     skill.name().toUpperCase(),
-                    I18n.t(actTypeKey)));
+                    skill.activationDisplayName()));
 
             sb.append("    └ ").append(skill.description()).append("\n");
 
             if (skill.effects() != null && !skill.effects().isEmpty()) {
                 String effectsStr = skill.effects().stream()
                         .map(eff -> {
-                            String typeLabel = (eff.getCustomName() != null)
-                                    ? eff.getCustomName()
-                                    : I18n.t("skill.effectType." + eff.getType().toLowerCase());
-                            return typeLabel + ": " + eff.getValue();
+                            return eff.getDisplayName() + ": " + eff.getValue();
                         })
                         .collect(Collectors.joining(", "));
                 sb.append("    ✳ ").append(I18n.t("skill.attrEffects")).append(": ").append(effectsStr).append("\n");
@@ -142,10 +138,9 @@ public class CharacterExporter {
 
     private static void appendBuffs(StringBuilder sb, List<Buff> buffs, String sourceName) {
         for (Buff buff : buffs) {
-            String typeKey = buff.type().equalsIgnoreCase("BUFF") ? "buffType.buffName" : "buffType.debuffName";
             // Формат: [ТИП] Название: Описание (Источник)
             sb.append(String.format(" [%s] %s: %s (%s)%n",
-                    I18n.t(typeKey), buff.name(), buff.description(), sourceName));
+                    BuffType.displayName(buff.type()), buff.name(), buff.description(), sourceName));
         }
     }
 

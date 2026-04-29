@@ -14,7 +14,7 @@ class SkillEffectBadgeFactoryTest {
         SkillEffectBadge badge = factory.create(new SkillEffect("DAMAGE", null, "2d6"));
 
         assertEquals("DAMAGE 2d6", badge.text());
-        assertEquals("#ff5555", badge.color());
+        assertEquals("#c56f82", badge.color());
     }
 
     @Test
@@ -22,7 +22,7 @@ class SkillEffectBadgeFactoryTest {
         SkillEffectBadge badge = factory.create(new SkillEffect("RANGE", null, "30"));
 
         assertEquals("RANGE 30", badge.text());
-        assertEquals("#55ccff", badge.color());
+        assertEquals("#9fb2c8", badge.color());
     }
 }
 

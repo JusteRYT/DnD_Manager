@@ -3,20 +3,21 @@ package com.example.dnd_manager.info.editors.familiar;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.editors.buff.BuffEditor;
 import com.example.dnd_manager.info.editors.common.EditorFormLayoutBuilder;
-import com.example.dnd_manager.info.editors.common.IconPathDisplayFormatter;
+import com.example.dnd_manager.info.editors.common.EntityEditorButtonFactory;
 import com.example.dnd_manager.info.editors.inventory.InventoryEditor;
 import com.example.dnd_manager.info.editors.skills.SkillsEditor;
 import com.example.dnd_manager.info.stats.editor.StatsEditor;
+import com.example.dnd_manager.infrastructure.assets.CharacterAssetResolver;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.screen.FormMode;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.IntegerField;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
 import com.example.dnd_manager.theme.scroll.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -44,7 +45,6 @@ public class FamiliarEditor extends VBox {
     private InventoryEditor inventoryEditor;
     private SkillsEditor skillsEditor;
     private final FamiliarCoreDataApplier coreDataApplier = new FamiliarCoreDataApplier();
-    private final IconPathDisplayFormatter iconPathDisplayFormatter = new IconPathDisplayFormatter();
     private final FamiliarEditorStyleProvider styleProvider = new FamiliarEditorStyleProvider();
     private final EditorFormLayoutBuilder layoutBuilder = new EditorFormLayoutBuilder(this::createLabel);
 
@@ -78,13 +78,13 @@ public class FamiliarEditor extends VBox {
         manaField.getField().setPrefWidth(80);
 
         iconPathLabel = layoutBuilder.iconPathLabel();
-        Button btnIcon = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
+        Button btnIcon = EntityEditorButtonFactory.iconPicker(I18n.t("button.addIcon"));
         btnIcon.setOnAction(e -> chooseAvatar());
 
-        Button btnAssetsIcon = AppButtonFactory.assetPickerButton();
-        AppButtonFactory.attachAssetPicker(btnAssetsIcon, path -> {
+        Button btnAssetsIcon = EntityEditorButtonFactory.secondary(I18n.t("button.Assets"), 120);
+        com.example.dnd_manager.theme.button.AppButtonFactory.attachAssetPicker(btnAssetsIcon, path -> {
             avatarPath.set(path);
-            iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(path));
+            showAvatarPreview(path);
         });
 
         HBox buttonBox = layoutBuilder.row(10, btnIcon, btnAssetsIcon);
@@ -113,9 +113,7 @@ public class FamiliarEditor extends VBox {
         armorField.setText(String.valueOf(familiar.getArmor()));
         manaField.setText(String.valueOf(familiar.getMaxMana()));
         avatarPath.set(familiar.getAvatarImage());
-        if (familiar.getAvatarImage() != null) {
-            iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(familiar.getAvatarImage()));
-        }
+        showAvatarPreview(familiar.getAvatarImage());
     }
 
     public void applyChanges() {
@@ -140,8 +138,19 @@ public class FamiliarEditor extends VBox {
         File file = chooser.showOpenDialog(getScene().getWindow());
         if (file != null) {
             avatarPath.set(file.getAbsolutePath());
-            iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(file.getAbsolutePath()));
+            showAvatarPreview(file.getAbsolutePath());
         }
+    }
+
+    private void showAvatarPreview(String path) {
+        boolean hasAvatar = path != null && !path.isBlank();
+        ImageView preview = new ImageView(CharacterAssetResolver.getAvatarImage(familiar, path, 34, 34));
+        preview.setFitWidth(34);
+        preview.setFitHeight(34);
+        preview.setPreserveRatio(true);
+        preview.setSmooth(true);
+        iconPathLabel.setGraphic(preview);
+        iconPathLabel.setText(hasAvatar ? I18n.t("editor.avatar.selected") : I18n.t("editor.avatar.noneSelected"));
     }
 
     private Label createLabel(String text) {

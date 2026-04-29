@@ -5,7 +5,8 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.editors.common.AbstractEntityEditor;
 import com.example.dnd_manager.info.editors.common.EditorFormLayoutBuilder;
 import com.example.dnd_manager.info.editors.common.EditorItemMutationService;
-import com.example.dnd_manager.info.editors.common.IconPathDisplayFormatter;
+import com.example.dnd_manager.info.utils.SubEditorManager;
+import com.example.dnd_manager.info.skills.model.ActivationType;
 import com.example.dnd_manager.info.skills.view.EffectsBuilderField;
 import com.example.dnd_manager.info.skills.model.Skill;
 import com.example.dnd_manager.info.skills.view.SkillCard;
@@ -20,7 +21,10 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class SkillsEditor extends AbstractEntityEditor<Skill> {
@@ -36,13 +40,13 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
     private final AtomicReference<String> iconPath = new AtomicReference<>("");
     private Label iconPathLabel;
     private final EditorItemMutationService itemMutationService = new EditorItemMutationService();
-    private final IconPathDisplayFormatter iconPathDisplayFormatter = new IconPathDisplayFormatter();
     private final SkillEditorItemFactory itemFactory = new SkillEditorItemFactory();
     private final EditorFormLayoutBuilder layoutBuilder = new EditorFormLayoutBuilder(this::createFieldLabel);
     private final SkillsEditorFormBuilder formBuilder = new SkillsEditorFormBuilder(layoutBuilder);
 
     public SkillsEditor(Character character) {
         super(character, "label.skillsEditor");
+        initializeEditor("label.skillsEditor");
     }
 
     @Override
@@ -68,17 +72,18 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
 
         AppButtonFactory.attachAssetPicker(controls.assetPickerButton(), path -> {
             iconPath.set(path);
-            iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(path));
+            showIconPreview(iconPathLabel, path);
         });
 
         controls.iconButton().setOnAction(e -> {
             String path = chooseAndImportIcon(AssetCategory.SKILLS);
             if (path != null) {
                 iconPath.set(path);
-                iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(path));
+                showIconPreview(iconPathLabel, path);
             }
         });
 
+        showIconPreview(iconPathLabel, "");
         addSkillButton.setOnAction(e -> handleSave());
     }
 
@@ -102,16 +107,37 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
     }
 
     private void prepareEdit(Skill skill) {
+        openEditDialog(skill);
+    }
+
+    private void openEditDialog(Skill skill) {
+        List<Skill> editBuffer = new ArrayList<>();
+        editBuffer.add(skill);
+
+        SkillsEditor editor = new SkillsEditor(null);
+        editor.prepareEditInline(skill);
+
+        Stage owner = getScene() != null && getScene().getWindow() instanceof Stage stage ? stage : null;
+        SubEditorManager.open(owner, editor, editBuffer, I18n.t("label.skillsEditor"), () -> {
+            if (!editBuffer.isEmpty()) {
+                Skill updatedSkill = editBuffer.getFirst();
+                itemMutationService.addOrReplace(items, skill, updatedSkill);
+                refreshUI();
+            }
+        });
+    }
+
+    private void prepareEditInline(Skill skill) {
         this.editingItem = skill;
         nameField.setText(skill.name());
         descriptionSection.setText(skill.description());
-        activationBox.setValue(skill.activationType());
+        activationBox.setValue(ActivationType.displayName(skill.activationType()));
 
         effectsBuilder.clear();
         skill.effects().forEach(effectsBuilder::addEffect);
 
         iconPath.set(skill.iconPath());
-        iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(skill.iconPath()));
+        showIconPreview(iconPathLabel, skill.iconPath());
 
         addSkillButton.setText(I18n.t("button.save"));
         nameField.getField().requestFocus();
@@ -122,7 +148,7 @@ public class SkillsEditor extends AbstractEntityEditor<Skill> {
         descriptionSection.clear();
         effectsBuilder.clear();
         iconPath.set("");
-        iconPathLabel.setText("");
+        showIconPreview(iconPathLabel, "");
         nameRequiredLabel.setVisible(false);
     }
 

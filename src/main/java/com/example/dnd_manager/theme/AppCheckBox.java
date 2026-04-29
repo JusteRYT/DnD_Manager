@@ -26,37 +26,32 @@ public class AppCheckBox extends HBox {
         setAlignment(Pos.CENTER_LEFT);
         setCursor(Cursor.HAND);
 
-        // Квадрат чекбокса
         box.setMinSize(20, 20);
         box.setMaxSize(20, 20);
         box.setStyle("""
-                -fx-background-color: #1a1a1a;
-                -fx-border-color: #c89b3c;
+                -fx-background-color: #10172a;
+                -fx-border-color: #b7c9dd;
                 -fx-border-width: 2;
                 -fx-border-radius: 4;
                 -fx-background-radius: 4;
                 """);
 
-        // Галочка
-        checkMark.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold; -fx-font-size: 14px;");
+        checkMark.setStyle("-fx-text-fill: #dfe6ec; -fx-font-weight: bold; -fx-font-size: 14px;");
         checkMark.setVisible(false);
         box.getChildren().add(checkMark);
 
-        // Текст рядом
         Label label = new Label(text);
-        label.setStyle("-fx-text-fill: #e6e6e6; -fx-font-size: 13px;");
+        label.setStyle("-fx-text-fill: #e9edf3; -fx-font-size: 13px;");
 
         getChildren().addAll(box, label);
 
-        // Логика клика
         setOnMouseClicked(e -> {
             setSelected(!selected);
             if (onAction != null) onAction.run();
         });
 
-        // Эффект наведения
-        setOnMouseEntered(e -> box.setStyle(box.getStyle() + "-fx-border-color: #f5b741;"));
-        setOnMouseExited(e -> box.setStyle(box.getStyle().replace("-fx-border-color: #f5b741;", "-fx-border-color: #c89b3c;")));
+        setOnMouseEntered(e -> box.setStyle(box.getStyle() + "-fx-border-color: #dfe6ec;"));
+        setOnMouseExited(e -> box.setStyle(box.getStyle().replace("-fx-border-color: #dfe6ec;", "-fx-border-color: #b7c9dd;")));
     }
 
     public void setSelected(boolean selected) {

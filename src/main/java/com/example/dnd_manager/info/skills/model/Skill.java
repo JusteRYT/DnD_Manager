@@ -14,6 +14,10 @@ import java.util.List;
 public record Skill(String name, String description, List<SkillEffect> effects, String activationType,
                     String iconPath) {
 
+    public String activationDisplayName() {
+        return ActivationType.displayName(activationType);
+    }
+
     public String effectsSummary() {
         StringBuilder sb = new StringBuilder();
         for (SkillEffect effect : effects) {

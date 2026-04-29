@@ -46,7 +46,7 @@ public class SkillSourceBadgeViewFactory {
         glow.setSpread(0.3);
         glow.setColor(sourceItem != null
                 ? Color.web(viewModel.backgroundColor(), 0.8)
-                : Color.web("#c89b3c", 0.6));
+                : Color.web("#b7c9dd", 0.42));
         return glow;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.dnd_manager.application;
 
+import com.example.dnd_manager.application.port.ExternalLinkOpener;
 import com.example.dnd_manager.application.port.ScreenNavigator;
 import com.example.dnd_manager.infrastructure.navigation.FxScreenNavigator;
 import com.example.dnd_manager.infrastructure.persistence.CharacterPathProvider;
@@ -7,6 +8,7 @@ import com.example.dnd_manager.infrastructure.persistence.DefaultCharacterPathPr
 import com.example.dnd_manager.application.service.CharacterImageIntegrityService;
 import com.example.dnd_manager.application.service.CharacterTransferService;
 import com.example.dnd_manager.application.service.CharacterTransferServiceImpl;
+import com.example.dnd_manager.infrastructure.system.DesktopExternalLinkOpener;
 import com.example.dnd_manager.store.StorageService;
 import com.example.dnd_manager.updater.flow.DefaultUpdateFlowCoordinator;
 import com.example.dnd_manager.updater.service.DefaultUpdateService;
@@ -31,6 +33,7 @@ public class AppContext {
     private final CharacterTransferService characterTransferService;
     private final CharacterImageIntegrityService characterImageIntegrityService;
     private final UpdateFlowCoordinator updateFlowCoordinator;
+    private final ExternalLinkOpener externalLinkOpener;
 
     private AppContext(Stage stage, StorageService storageService) {
         this.stage = Objects.requireNonNull(stage, "stage must not be null");
@@ -46,6 +49,7 @@ public class AppContext {
                 new ThreadAsyncRunner(),
                 new JavaFxUiDispatcher()
         );
+        this.externalLinkOpener = new DesktopExternalLinkOpener();
     }
 
     public static AppContext bootstrap(Stage stage, StorageService storageService) {
@@ -74,6 +78,10 @@ public class AppContext {
 
     public UpdateFlowCoordinator updateFlowCoordinator() {
         return updateFlowCoordinator;
+    }
+
+    public ExternalLinkOpener externalLinkOpener() {
+        return externalLinkOpener;
     }
 }
 

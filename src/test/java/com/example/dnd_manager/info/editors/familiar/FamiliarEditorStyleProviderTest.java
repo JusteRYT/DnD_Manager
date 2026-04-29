@@ -10,7 +10,8 @@ class FamiliarEditorStyleProviderTest {
 
     @Test
     void styleTokens_areProvided() {
-        assertTrue(provider.baseCardStyle().contains("#252526"));
+        assertTrue(provider.baseCardStyle().contains("linear-gradient"));
+        assertTrue(provider.baseCardStyle().contains("rgba(75, 93, 127"));
         assertTrue(provider.fieldLabelStyle().contains("-fx-font-size"));
     }
 }

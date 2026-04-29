@@ -16,7 +16,8 @@ class SkillSourceBadgeViewModelFactoryTest {
         SkillSourceBadgeViewModel viewModel = factory.create(item);
 
         assertEquals("\uD83D\uDCE6", viewModel.iconText());
-        assertEquals("#55ccff", viewModel.backgroundColor());
+        assertEquals("#8fb8c9", viewModel.backgroundColor());
+        assertEquals("#10172a", viewModel.textColor());
         assertEquals("Ring", viewModel.tooltipText());
     }
 
@@ -25,7 +26,8 @@ class SkillSourceBadgeViewModelFactoryTest {
         SkillSourceBadgeViewModel viewModel = factory.create(null);
 
         assertEquals("\uD83D\uDC64", viewModel.iconText());
-        assertEquals("#4a4a4a", viewModel.backgroundColor());
+        assertEquals("#20283c", viewModel.backgroundColor());
+        assertEquals("#dfe6ec", viewModel.textColor());
     }
 }
 

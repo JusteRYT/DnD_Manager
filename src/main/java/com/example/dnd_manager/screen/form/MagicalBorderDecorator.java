@@ -15,8 +15,11 @@ public class MagicalBorderDecorator {
 
     public void apply(Node node) {
         node.setStyle(node.getStyle() + styleProvider.magicalBorderStyle());
-        DropShadow softGlow = new DropShadow(BlurType.THREE_PASS_BOX, Color.web("#ffffff", 0.08), 15, 0, 0, 0);
-        node.setEffect(softGlow);
+        node.setEffect(softGlow());
+    }
+
+    public DropShadow softGlow() {
+        return new DropShadow(BlurType.THREE_PASS_BOX, Color.web("rgba(175, 196, 216, 0.18)"), 22, 0.22, 0, 8);
     }
 }
 

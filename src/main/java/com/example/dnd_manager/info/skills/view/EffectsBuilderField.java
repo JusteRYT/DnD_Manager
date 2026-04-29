@@ -1,11 +1,12 @@
 package com.example.dnd_manager.info.skills.view;
 
+import com.example.dnd_manager.info.editors.common.EntityEditorButtonFactory;
+import com.example.dnd_manager.info.editors.common.EntityEditorStyleProvider;
 import com.example.dnd_manager.info.skills.model.SkillEffect;
 import com.example.dnd_manager.info.skills.model.TypeEffects;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppComboBox;
 import com.example.dnd_manager.theme.AppTextField;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -19,12 +20,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 
-import java.util.Objects;
-
 public class EffectsBuilderField extends VBox {
 
     @Getter
     private final ObservableList<SkillEffect> effects = FXCollections.observableArrayList();
+    private final EntityEditorStyleProvider styleProvider = new EntityEditorStyleProvider();
     private final FlowPane tagsPane = new FlowPane(10, 10);
     private final Label errorLabel;
 
@@ -34,7 +34,7 @@ public class EffectsBuilderField extends VBox {
 
     public EffectsBuilderField() {
         setSpacing(8);
-        setStyle("-fx-background-color: rgba(0,0,0,0.2); -fx-padding: 15; -fx-background-radius: 5;");
+        setStyle(styleProvider.effectsBuilderStyle());
 
         errorLabel = new Label(I18n.t("labelField.effectRequired"));
         errorLabel.setStyle("-fx-text-fill: #ff6b6b; -fx-font-size: 10px; -fx-font-weight: bold;");
@@ -51,20 +51,21 @@ public class EffectsBuilderField extends VBox {
         customField.getField().setManaged(false);
 
         typeBox.valueProperty().addListener((obs, old, newVal) -> {
-            boolean isCustom = Objects.equals(newVal, TypeEffects.CUSTOM.getName());
+            boolean isCustom = TypeEffects.CUSTOM.matches(newVal);
             customField.getField().setVisible(isCustom);
             customField.getField().setManaged(isCustom);
         });
 
-        Button addBtn = AppButtonFactory.addEffectButton();
+        Button addBtn = EntityEditorButtonFactory.statControl("+");
         addBtn.setOnAction(e -> addCurrentEffect());
 
         Label sectionLabel = new Label(I18n.t("textFieldLabel.effectsBuilder"));
-        sectionLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 10px; -fx-font-weight: bold;");
+        sectionLabel.setStyle("-fx-text-fill: #b7c9dd; -fx-font-size: 10px; -fx-font-weight: bold;");
 
         HBox inputs = new HBox(8, typeBox, customField.getField(),
                 new VBox(0, valueField.getField(), errorLabel), addBtn);
         inputs.setAlignment(Pos.TOP_LEFT);
+        tagsPane.setMinHeight(34);
 
         getChildren().addAll(sectionLabel, inputs, tagsPane);
     }
@@ -76,7 +77,7 @@ public class EffectsBuilderField extends VBox {
             return;
         }
 
-        String typeName = Objects.equals(typeBox.getValue(), TypeEffects.CUSTOM.getName())
+        String typeName = TypeEffects.CUSTOM.matches(typeBox.getValue())
                 ? customField.getText().trim()
                 : typeBox.getValue();
 
@@ -103,11 +104,7 @@ public class EffectsBuilderField extends VBox {
         String colorHex = getEffectColor(effect.getType());
         Label tag = new Label(effect.toString());
 
-        tag.setStyle(String.format(
-                "-fx-background-color: %s; -fx-text-fill: white; -fx-padding: 4 10; " +
-                        "-fx-background-radius: 12; -fx-cursor: hand; -fx-font-weight: bold; -fx-font-size: 11px;",
-                colorHex
-        ));
+        tag.setStyle(effectTagStyle(effect.getType()));
 
         // ДОБАВЛЯЕМ СВЕЧЕНИЕ
         applyGlow(tag, colorHex);
@@ -138,9 +135,32 @@ public class EffectsBuilderField extends VBox {
     }
 
     private String getEffectColor(String typeName) {
-        if (typeName.contains(TypeEffects.DAMAGE.getName())) return "#722f37";
-        if (typeName.contains(TypeEffects.HEAL.getName())) return "#2e5a1c";
-        return "#3b444b";
+        if (TypeEffects.DAMAGE.matches(typeName)) return "#c56f82";
+        if (TypeEffects.HEAL.matches(typeName)) return "#7ebd9b";
+        if (TypeEffects.INCREASE_ARMOR.matches(typeName) || TypeEffects.DECREASE_ARMOR.matches(typeName)) return "#8fb3d8";
+        if (TypeEffects.DICE_INCREASE.matches(typeName) || TypeEffects.DICE_DECREASE.matches(typeName)) return "#b5a1d8";
+        return "#9fb2c8";
+    }
+
+    private String effectTagStyle(String typeName) {
+        if (TypeEffects.DAMAGE.matches(typeName)) {
+            return styleProvider.entityChipStyle("rgba(83, 32, 48, 0.70)", "rgba(197, 111, 130, 0.52)", "#ffdce3")
+                    + "-fx-cursor: hand;";
+        }
+        if (TypeEffects.HEAL.matches(typeName)) {
+            return styleProvider.entityChipStyle("rgba(28, 66, 55, 0.70)", "rgba(126, 189, 155, 0.48)", "#dbf5e7")
+                    + "-fx-cursor: hand;";
+        }
+        if (TypeEffects.INCREASE_ARMOR.matches(typeName) || TypeEffects.DECREASE_ARMOR.matches(typeName)) {
+            return styleProvider.entityChipStyle("rgba(31, 52, 78, 0.70)", "rgba(143, 179, 216, 0.48)", "#dcecff")
+                    + "-fx-cursor: hand;";
+        }
+        if (TypeEffects.DICE_INCREASE.matches(typeName) || TypeEffects.DICE_DECREASE.matches(typeName)) {
+            return styleProvider.entityChipStyle("rgba(48, 41, 76, 0.70)", "rgba(181, 161, 216, 0.48)", "#eee5ff")
+                    + "-fx-cursor: hand;";
+        }
+        return styleProvider.entityChipStyle("rgba(35, 47, 72, 0.70)", "rgba(159, 178, 200, 0.42)", "#e4edf6")
+                + "-fx-cursor: hand;";
     }
 
     public void clear() {

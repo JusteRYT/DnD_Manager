@@ -10,11 +10,11 @@ import javafx.scene.layout.VBox;
 
 public class AppContextMenu extends ContextMenu {
 
-    private static final String BG_COLOR = "#2b2b2b";
-    private static final String BORDER_COLOR = "#3a3a3a";
-    private static final String HOVER_BG_COLOR = "#3d3d3d";
-    private static final String ACCENT_COLOR = "#c89b3c"; // Твой золотой
-    private static final String DANGER_COLOR = "#ff6b6b"; // Твой красный
+    private static final String BG_COLOR = "#10172a";
+    private static final String BORDER_COLOR = "#4b5d7f";
+    private static final String HOVER_BG_COLOR = "#212d49";
+    private static final String ACCENT_COLOR = "#dfe6ec";
+    private static final String DANGER_COLOR = "#d7a0aa";
 
     public AppContextMenu() {
         this.setStyle(String.format("""
@@ -34,12 +34,10 @@ public class AppContextMenu extends ContextMenu {
     }
 
     public void addActionItem(String text, Runnable action) {
-        // Передаем ACCENT_COLOR как основной и как hover
         this.getItems().add(createStyledItem(text, action, ACCENT_COLOR, ACCENT_COLOR));
     }
 
     public void addDeleteItem(String text, Runnable action) {
-        // Передаем DANGER_COLOR как основной и как hover
         this.getItems().add(createStyledItem(text, action, DANGER_COLOR, DANGER_COLOR));
     }
 

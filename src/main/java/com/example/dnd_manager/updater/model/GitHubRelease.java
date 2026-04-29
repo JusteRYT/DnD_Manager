@@ -12,6 +12,15 @@ public class GitHubRelease {
     @JsonProperty("tag_name")
     public String tagName;
 
+    @JsonProperty("name")
+    public String name;
+
+    @JsonProperty("body")
+    public String body;
+
+    @JsonProperty("published_at")
+    public String publishedAt;
+
     @JsonProperty("assets")
     public List<Asset> assets;
 

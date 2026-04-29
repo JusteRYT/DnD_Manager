@@ -7,7 +7,6 @@ import com.example.dnd_manager.info.editors.buff.BuffEditor;
 import com.example.dnd_manager.info.editors.common.AbstractEntityEditor;
 import com.example.dnd_manager.info.editors.common.EditorFormLayoutBuilder;
 import com.example.dnd_manager.info.editors.common.EditorItemMutationService;
-import com.example.dnd_manager.info.editors.common.IconPathDisplayFormatter;
 import com.example.dnd_manager.info.editors.skills.SkillsEditor;
 import com.example.dnd_manager.info.inventory.model.InventoryItem;
 import com.example.dnd_manager.info.inventory.view.InventoryRow;
@@ -44,7 +43,6 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
     private Label effectsInfoLabel;
     private final InventoryEditorEffectsSummaryFormatter effectsSummaryFormatter = new InventoryEditorEffectsSummaryFormatter();
     private final EditorItemMutationService itemMutationService = new EditorItemMutationService();
-    private final IconPathDisplayFormatter iconPathDisplayFormatter = new IconPathDisplayFormatter();
     private final InventoryEditorItemFactory itemFactory = new InventoryEditorItemFactory();
     private final EditorFormLayoutBuilder layoutBuilder = new EditorFormLayoutBuilder(this::createFieldLabel);
     private final InventoryEditorFormBuilder formBuilder = new InventoryEditorFormBuilder(
@@ -54,6 +52,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
 
     public InventoryEditor(Character character) {
         super(character, "label.inventoryEditor");
+        initializeEditor("label.inventoryEditor");
     }
 
     @Override
@@ -79,24 +78,25 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
 
         AppButtonFactory.attachAssetPicker(controls.assetPickerButton(), path -> {
             iconPath.set(path);
-            iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(path));
+            showIconPreview(iconPathLabel, path);
         });
 
         controls.iconButton().setOnAction(e -> {
             String path = chooseAndImportIcon(AssetCategory.ITEMS);
             if (path != null) {
                 iconPath.set(path);
-                iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrEmpty(path));
+                showIconPreview(iconPathLabel, path);
             }
         });
 
+        showIconPreview(iconPathLabel, "");
         addButton.setOnAction(event -> handleSave());
     }
 
     private <E> void openSubEditor(AbstractEntityEditor<E> editor, List<E> targetList, String title) {
         // Здесь owner можно получить через getScene().getWindow()
         Stage owner = (Stage) this.getScene().getWindow();
-        SubEditorManager.open(owner, editor, targetList, title, this::updateEffectsLabel);
+        SubEditorManager.openCollection(owner, editor, targetList, title, this::updateEffectsLabel);
     }
 
     private void updateEffectsLabel() {
@@ -124,6 +124,27 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
     }
 
     private void prepareEdit(InventoryItem item) {
+        openEditDialog(item);
+    }
+
+    private void openEditDialog(InventoryItem item) {
+        List<InventoryItem> editBuffer = new ArrayList<>();
+        editBuffer.add(item);
+
+        InventoryEditor editor = new InventoryEditor(null);
+        editor.prepareEditInline(item);
+
+        Stage owner = getScene() != null && getScene().getWindow() instanceof Stage stage ? stage : null;
+        SubEditorManager.open(owner, editor, editBuffer, I18n.t("dialog.inventory.edit.title"), () -> {
+            if (!editBuffer.isEmpty()) {
+                InventoryItem updatedItem = editBuffer.getFirst();
+                itemMutationService.addOrReplace(items, item, updatedItem);
+                refreshUI();
+            }
+        });
+    }
+
+    private void prepareEditInline(InventoryItem item) {
         this.editingItem = item;
         nameField.setText(item.getName());
         descriptionField.setText(item.getDescription());
@@ -136,10 +157,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         tempSkills.addAll(item.getAttachedSkills());
         updateEffectsLabel();
 
-        iconPathLabel.setText(iconPathDisplayFormatter.fileNameOrFallback(
-                item.getIconPath(),
-                I18n.t("inventoryEditor.icon.noneSelected")
-        ));
+        showIconPreview(iconPathLabel, item.getIconPath());
 
         addButton.setText(I18n.t("button.save"));
         nameField.getField().requestFocus();
@@ -150,7 +168,7 @@ public class InventoryEditor extends AbstractEntityEditor<InventoryItem> {
         descriptionField.setText("");
         countField.getField().setText("");
         iconPath.set("");
-        iconPathLabel.setText("");
+        showIconPreview(iconPathLabel, "");
         tempBuffs.clear();
         tempSkills.clear();
         updateEffectsLabel();

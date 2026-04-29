@@ -24,9 +24,9 @@ final class OutlineButtonFactory {
 
     static Button actionImport(String text, int width) {
         final String hoverStyle = """
-                -fx-background-color: rgba(200, 155, 60, 0.1);
-                -fx-text-fill: #f6bb4a;
-                -fx-border-color: #f6bb4a;
+                -fx-background-color: rgba(175, 196, 216, 0.10);
+                -fx-text-fill: #dfe6ec;
+                -fx-border-color: #b7c9dd;
                 -fx-border-radius: 4;
                 -fx-cursor: hand;
                 """;
@@ -46,9 +46,9 @@ final class OutlineButtonFactory {
 
     static Button actionAdd(String text, int width) {
         final String hoverStyle = """
-            -fx-background-color: rgba(200, 155, 60, 0.1);
-            -fx-text-fill: #c89b3c;
-            -fx-border-color: #c89b3c;
+            -fx-background-color: rgba(175, 196, 216, 0.10);
+            -fx-text-fill: #dfe6ec;
+            -fx-border-color: #b7c9dd;
             -fx-border-radius: 4;
             -fx-cursor: hand;
             """;

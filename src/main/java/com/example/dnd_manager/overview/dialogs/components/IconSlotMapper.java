@@ -1,6 +1,7 @@
 package com.example.dnd_manager.overview.dialogs.components;
 
 import com.example.dnd_manager.info.buff_debuff.model.Buff;
+import com.example.dnd_manager.info.buff_debuff.model.BuffType;
 import com.example.dnd_manager.info.inventory.model.InventoryItem;
 import com.example.dnd_manager.info.skills.model.Skill;
 import com.example.dnd_manager.lang.I18n;
@@ -23,7 +24,7 @@ public class IconSlotMapper {
                 "",
                 I18n.t("label.familiarsSKILL"),
                 Map.of(
-                        I18n.t("skill.attrActivation"), skill.activationType(),
+                        I18n.t("skill.attrActivation"), skill.activationDisplayName(),
                         I18n.t("skill.attrEffects"), skill.effectsSummary()
                 ),
                 skill.description()
@@ -36,7 +37,7 @@ public class IconSlotMapper {
                 buff.iconPath(),
                 getAccentColor(buff.type()),
                 "",
-                buff.type().toUpperCase(),
+                BuffType.displayName(buff.type()).toUpperCase(),
                 Map.of(),
                 buff.description()
         );
@@ -57,7 +58,7 @@ public class IconSlotMapper {
     }
 
     private static String getAccentColor(String type) {
-        return "BUFF".equalsIgnoreCase(type) ? "#69db7c" : "#ff6b6b";
+        return BuffType.BUFF.matches(type) ? "#69db7c" : "#ff6b6b";
     }
 
 }

@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-import java.util.Objects;
-
 /**
  * Represents a single effect of a skill.
  *
@@ -37,12 +35,13 @@ public final class SkillEffect {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("Effect value must not be empty");
         }
-        if (type.equals(TypeEffects.CUSTOM.getName()) && (customName == null || customName.isBlank())) {
+        String canonicalType = TypeEffects.canonical(type);
+        if (TypeEffects.CUSTOM.matches(canonicalType) && (customName == null || customName.isBlank())) {
             throw new IllegalArgumentException("Custom effect requires customName");
         }
 
-        this.type = type;
-        this.customName = type.equals(TypeEffects.CUSTOM.getName()) ? customName : null;
+        this.type = canonicalType;
+        this.customName = TypeEffects.CUSTOM.matches(canonicalType) ? customName : null;
         this.value = value;
     }
 
@@ -58,7 +57,7 @@ public final class SkillEffect {
      */
     @JsonIgnore
     public String getDisplayName() {
-        return Objects.equals(type, TypeEffects.CUSTOM.getName()) ? customName : type;
+        return TypeEffects.CUSTOM.matches(type) ? customName : TypeEffects.displayName(type);
     }
 
     @Override

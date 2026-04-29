@@ -1,6 +1,5 @@
 package com.example.dnd_manager.theme.scroll;
 
-import com.example.dnd_manager.theme.AppTheme;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollBar;
@@ -23,27 +22,26 @@ public final class AppScrollPaneFactory {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        // Цвета из темы
-        Color colorBgPrimary = Color.web(AppTheme.BACKGROUND_PRIMARY);
-        Color colorBgSecondary = Color.web(AppTheme.BACKGROUND_SECONDARY);
-        Color colorAccent = Color.web(AppTheme.BUTTON_PRIMARY);
+        Color colorBgPrimary = Color.TRANSPARENT;
+        Color colorBgSecondary = Color.web("#11172a");
+        Color colorAccent = Color.web("#b7c9dd");
 
-        // Градиент для Thumb (как у actionSave)
         LinearGradient thumbGradient = new LinearGradient(
                 0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
-                new Stop(0, Color.web("#FFC107")),
-                new Stop(1, Color.web("#FF8C00"))
+                new Stop(0, Color.web("#dfe6ec")),
+                new Stop(1, Color.web("#829cbc"))
         );
 
-        // Свечение
-        DropShadow glow = new DropShadow(8, Color.web("rgba(200, 155, 60, 0.4)"));
-
-        if (content instanceof Region region) {
-            region.setBackground(new Background(new BackgroundFill(colorBgPrimary, CornerRadii.EMPTY, null)));
-        }
+        DropShadow glow = new DropShadow(5, Color.web("rgba(175, 196, 216, 0.14)"));
 
         scrollPane.setBackground(new Background(new BackgroundFill(colorBgPrimary, CornerRadii.EMPTY, null)));
-        scrollPane.setStyle("-fx-background: " + AppTheme.BACKGROUND_PRIMARY + "; -fx-background-insets: 0; -fx-padding: 0;");
+        scrollPane.setStyle("""
+                -fx-background: transparent;
+                -fx-background-color: transparent;
+                -fx-background-insets: 0;
+                -fx-padding: 0;
+                -fx-control-inner-background: transparent;
+                """);
 
         scrollPane.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
@@ -72,7 +70,7 @@ public final class AppScrollPaneFactory {
                                 thumb.setBackground(new Background(new BackgroundFill(thumbGradient, new CornerRadii(6), null)));
                                 thumb.setEffect(glow); // Добавляем свечение
 
-                                thumb.setOnMouseEntered(e -> thumb.setEffect(new DropShadow(12, Color.web("rgba(200, 155, 60, 0.6)"))));
+                                thumb.setOnMouseEntered(e -> thumb.setEffect(new DropShadow(7, Color.web("rgba(175, 196, 216, 0.24)"))));
                                 thumb.setOnMouseExited(e -> thumb.setEffect(glow));
                             }
 

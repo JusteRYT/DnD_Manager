@@ -11,9 +11,9 @@ class AssetCardStyleProviderTest {
 
     @Test
     void cardStyle_reflectsSelectionState() {
-        assertTrue(provider.cardStyle(false).contains("#2b2b2b"));
+        assertTrue(provider.cardStyle(false).contains(AppTheme.BACKGROUND_SECONDARY));
         assertTrue(provider.cardStyle(false).contains("transparent"));
-        assertTrue(provider.cardStyle(true).contains("#404040"));
+        assertTrue(provider.cardStyle(true).contains("#182238"));
         assertTrue(provider.cardStyle(true).contains(AppTheme.TEXT_ACCENT));
     }
 

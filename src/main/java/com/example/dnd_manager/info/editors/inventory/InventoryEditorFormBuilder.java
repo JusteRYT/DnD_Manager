@@ -1,11 +1,11 @@
 package com.example.dnd_manager.info.editors.inventory;
 
 import com.example.dnd_manager.info.editors.common.EditorFormLayoutBuilder;
+import com.example.dnd_manager.info.editors.common.EntityEditorButtonFactory;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.AppTextField;
 import com.example.dnd_manager.theme.AppTextSection;
 import com.example.dnd_manager.theme.IntegerField;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -31,16 +31,20 @@ public class InventoryEditorFormBuilder {
         IntegerField countField = new IntegerField(I18n.t("textField.inventoryCountPrompt"), true);
         Label iconPathLabel = layoutBuilder.iconPathLabel();
 
-        Button addBuffButton = AppButtonFactory.addIcon(I18n.t("dialog.inventory.buffs.short"));
-        Button addSkillButton = AppButtonFactory.addIcon(I18n.t("dialog.inventory.skills.short"));
+        Button addBuffButton = EntityEditorButtonFactory.arcaneBuff(I18n.t("dialog.inventory.buffs.short"), 120);
+        Button addSkillButton = EntityEditorButtonFactory.arcaneSkill(I18n.t("dialog.inventory.skills.short"), 120);
 
         Label effectsInfoLabel = new Label(effectsSummaryFormatter.emptyText());
-        effectsInfoLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-style: italic;");
+        effectsInfoLabel.setStyle("""
+                -fx-text-fill: #b8cbd3;
+                -fx-font-size: 11px;
+                -fx-font-style: italic;
+                -fx-effect: dropshadow(gaussian, rgba(111, 159, 189, 0.12), 7, 0.18, 0, 0);
+                """);
 
-        Button iconButton = AppButtonFactory.addIcon(I18n.t("button.addIcon"));
-        Button saveButton = AppButtonFactory.actionSave(I18n.t("button.addItem"));
-        saveButton.setPrefWidth(150);
-        Button assetPickerButton = AppButtonFactory.assetPickerButton();
+        Button iconButton = EntityEditorButtonFactory.iconPicker(I18n.t("button.addIcon"));
+        Button saveButton = EntityEditorButtonFactory.primary(I18n.t("button.addItem"), 150);
+        Button assetPickerButton = EntityEditorButtonFactory.secondary(I18n.t("button.Assets"), 120);
 
         HBox effectsRow = layoutBuilder.alignedRow(
                 10,
@@ -54,18 +58,20 @@ public class InventoryEditorFormBuilder {
                 Pos.BOTTOM_LEFT,
                 layoutBuilder.field(I18n.t("textFieldLabel.iconName"), iconPathLabel)
         );
-        HBox buttonsRow = layoutBuilder.row(15, saveButton, iconButton, assetPickerButton);
+        javafx.scene.layout.FlowPane buttonsRow = layoutBuilder.actionRow(saveButton, iconButton, assetPickerButton);
 
         inputCard.getChildren().addAll(
-                layoutBuilder.label(I18n.t("textFieldLabel.itemName")),
-                layoutBuilder.validatedNameField(nameField.getField(), nameRequiredLabel),
-                layoutBuilder.label(I18n.t("textFieldLabel.description")),
-                descriptionField,
-                layoutBuilder.label(I18n.t("textField.inventoryCount")),
-                countField.getField(),
-                layoutBuilder.label(I18n.t("label.editDialog")),
-                effectsRow,
-                settingsRow,
+                layoutBuilder.section(
+                        layoutBuilder.label(I18n.t("textFieldLabel.itemName")),
+                        layoutBuilder.validatedNameField(nameField.getField(), nameRequiredLabel),
+                        layoutBuilder.field(I18n.t("textFieldLabel.description"), descriptionField),
+                        layoutBuilder.field(I18n.t("textField.inventoryCount"), countField.getField())
+                ),
+                layoutBuilder.section(
+                        layoutBuilder.label(I18n.t("label.editDialog")),
+                        effectsRow
+                ),
+                layoutBuilder.section(settingsRow),
                 buttonsRow
         );
 

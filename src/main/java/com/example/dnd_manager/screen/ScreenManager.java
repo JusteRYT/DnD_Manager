@@ -32,13 +32,13 @@ public class ScreenManager {
         }
 
         ScrollPane scrollPane = AppScrollPaneFactory.defaultPane(newView);
-        scrollPane.setFitToHeight(false);
+        scrollPane.setFitToHeight(true);
         scrollPane.setFitToWidth(true);
 
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: #1e1e1e; -fx-border-width: 0;");
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background: #0b0d10; -fx-border-width: 0;");
 
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
         root.getChildren().add(scrollPane);

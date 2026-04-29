@@ -10,9 +10,6 @@ import javafx.scene.layout.VBox;
 
 import java.util.Map;
 
-/**
- * Отображение статов в виде красивых карточек-плиток.
- */
 public class StatsGridView extends GridPane {
 
     public StatsGridView(Map<StatEnum, Integer> stats) {
@@ -20,7 +17,6 @@ public class StatsGridView extends GridPane {
         setVgap(10);
         setPadding(new Insets(10));
 
-        // Настраиваем колонки, чтобы они делили место поровну
         javafx.scene.layout.ColumnConstraints col1 = new javafx.scene.layout.ColumnConstraints();
         col1.setPercentWidth(50);
         javafx.scene.layout.ColumnConstraints col2 = new javafx.scene.layout.ColumnConstraints();
@@ -29,10 +25,8 @@ public class StatsGridView extends GridPane {
 
         int index = 0;
         for (var entry : stats.entrySet()) {
-            // Создаем карточку для одного стата
             VBox statCard = createStatCard(entry.getKey().getName(), entry.getValue());
 
-            // Расставляем: 2 колонки
             int col = index % 2;
             int row = index / 2;
 
@@ -43,15 +37,10 @@ public class StatsGridView extends GridPane {
 
     private VBox createStatCard(String name, Integer value) {
         Label nameLabel = new Label(name.toUpperCase());
-        nameLabel.setStyle("-fx-text-fill: #8a8a8a; -fx-font-size: 11px; -fx-font-weight: bold;");
+        nameLabel.setStyle("-fx-text-fill: #aab8cf; -fx-font-size: 11px; -fx-font-weight: bold;");
 
         Label valueLabel = new Label(String.valueOf(value));
-        valueLabel.setStyle("-fx-text-fill: #e0e0e0; -fx-font-size: 24px; -fx-font-weight: bold;");
-
-        // Вычисляем модификатор (опционально, если хочешь добавить логику D&D)
-        // int mod = (value - 10) / 2;
-        // Label modLabel = new Label((mod >= 0 ? "+" : "") + mod);
-        // modLabel.setStyle("-fx-text-fill: #c89b3c; -fx-font-size: 14px;");
+        valueLabel.setStyle("-fx-text-fill: #e9edf3; -fx-font-size: 24px; -fx-font-weight: bold;");
 
         VBox card = getVBox(nameLabel, valueLabel);
 
@@ -64,17 +53,16 @@ public class StatsGridView extends GridPane {
         card.setAlignment(Pos.CENTER);
         card.setPadding(new Insets(10));
 
-        // Стиль карточки: темный фон, скругление, легкая обводка
         card.setStyle("""
-                -fx-background-color: #2b2b2b;
+                -fx-background-color: #11172a;
                 -fx-background-radius: 8;
-                -fx-border-color: #3e3e3e;
+                -fx-border-color: #293550;
                 -fx-border-radius: 8;
                 -fx-border-width: 1;
                 """);
 
-        card.setOnMouseEntered(e -> card.setStyle(card.getStyle() + "-fx-border-color: #c89b3c;"));
-        card.setOnMouseExited(e -> card.setStyle(card.getStyle().replace("-fx-border-color: #c89b3c;", "-fx-border-color: #3e3e3e;")));
+        card.setOnMouseEntered(e -> card.setStyle(card.getStyle() + "-fx-border-color: #b7c9dd;"));
+        card.setOnMouseExited(e -> card.setStyle(card.getStyle().replace("-fx-border-color: #b7c9dd;", "-fx-border-color: #293550;")));
         return card;
     }
 }

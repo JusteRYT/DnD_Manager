@@ -5,7 +5,7 @@ import com.example.dnd_manager.theme.AppTheme;
 public class AssetCardStyleProvider {
 
     public String cardStyle(boolean selected) {
-        String backgroundColor = selected ? "#404040" : "#2b2b2b";
+        String backgroundColor = selected ? "#182238" : AppTheme.BACKGROUND_SECONDARY;
         String borderColor = selected ? AppTheme.TEXT_ACCENT : "transparent";
         return """
                 -fx-background-radius: 8;
@@ -17,7 +17,7 @@ public class AssetCardStyleProvider {
     }
 
     public String fileNameLabelStyle() {
-        return "-fx-text-fill: white; -fx-font-size: 11px;";
+        return "-fx-text-fill: #e9edf3; -fx-font-size: 11px;";
     }
 }
 

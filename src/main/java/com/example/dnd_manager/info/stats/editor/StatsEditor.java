@@ -20,6 +20,7 @@ public class StatsEditor extends VBox {
 
     @Getter
     private final Map<StatEnum, Integer> values = new EnumMap<>(StatEnum.class);
+    private final StatsEditorStyleProvider styleProvider = new StatsEditorStyleProvider();
 
     public StatsEditor(Stats stats, FormMode mode) {
         setSpacing(8);
@@ -31,25 +32,9 @@ public class StatsEditor extends VBox {
 
             StatRow row = new StatRow(stat, initialValue);
 
-            // Базовый стиль плашки
-            String baseStyle = """
-                    -fx-background-color: linear-gradient(to right, #252526, #1e1e1e);
-                    -fx-background-radius: 6;
-                    -fx-border-radius: 6;
-                    -fx-border-width: 1;
-                    -fx-padding: 8 12;
-                    """;
-
-            // Стиль при наведении
-            String idleStyle = baseStyle + "-fx-border-color: #3a3a3a;";
-            String hoverStyle = baseStyle + """
-                    -fx-border-color: #c89b3c;
-                    -fx-effect: dropshadow(three-pass-box, rgba(255, 193, 7, 0.15), 10, 0, 0, 0);
-                    """;
-
-            row.setStyle(idleStyle);
-            row.setOnMouseEntered(e -> row.setStyle(hoverStyle));
-            row.setOnMouseExited(e -> row.setStyle(idleStyle));
+            row.setStyle(styleProvider.rowStyle(false));
+            row.setOnMouseEntered(e -> row.setStyle(styleProvider.rowStyle(true)));
+            row.setOnMouseExited(e -> row.setStyle(styleProvider.rowStyle(false)));
 
             // Логика кнопок...
             setupActions(row, stat, stats);

@@ -7,7 +7,7 @@ import javafx.scene.layout.VBox;
 
 /**
  * Styled container for displaying a text section.
- * Полностью синхронизирован по стилю с AppTextField.
+ * Fully synchronized with AppTextField.
  */
 public class AppTextSection extends VBox {
 
@@ -19,13 +19,12 @@ public class AppTextSection extends VBox {
     }
 
     public AppTextSection(String title, String content) {
-        super(8); // Отступ между заголовком и полем
+        super(8);
         setPadding(new Insets(12));
 
-        // Стилизуем заголовок в стиле DnD (как в BaseInfoForm)
         titleLabel = new Label(title.toUpperCase());
         titleLabel.setStyle("""
-            -fx-text-fill: #c89b3c;
+            -fx-text-fill: #b7c9dd;
             -fx-font-size: 12px;
             -fx-font-weight: bold;
             -fx-letter-spacing: 1px;
@@ -54,24 +53,34 @@ public class AppTextSection extends VBox {
         area.setMinHeight(TextArea.USE_PREF_SIZE);
 
         String baseStyle = """
-        -fx-background-color: #3a3a3a, #1e1e1e;
+        -fx-background-color: rgba(75, 93, 127, 0.42), rgba(16, 23, 42, 0.94);
         -fx-background-insets: 0, 1;
         -fx-background-radius: 6;
-        -fx-control-inner-background: #1e1e1e;
-        -fx-text-fill: #eee;
-        -fx-prompt-text-fill: #444;
+        -fx-control-inner-background: #10172a;
+        -fx-text-fill: #f0f2f7;
+        -fx-prompt-text-fill: #8fa4bd;
         -fx-font-size: 13px;
         -fx-focus-color: transparent;
         -fx-faint-focus-color: transparent;
+    """;
+        String focusStyle = """
+        -fx-background-color: rgba(175, 196, 216, 0.72), rgba(16, 23, 42, 0.94);
+        -fx-background-insets: 0, 1;
+        -fx-background-radius: 6;
+        -fx-control-inner-background: #10172a;
+        -fx-text-fill: #f0f2f7;
+        -fx-prompt-text-fill: #8fa4bd;
+        -fx-font-size: 13px;
+        -fx-focus-color: transparent;
+        -fx-faint-focus-color: transparent;
+        -fx-effect: dropshadow(gaussian, rgba(175, 196, 216, 0.18), 12, 0.24, 0, 0);
     """;
 
         area.setStyle(baseStyle);
 
         area.focusedProperty().addListener((obs, old, newVal) -> {
             if (newVal) {
-                area.setStyle(baseStyle.replace("-fx-background-color: #3a3a3a, #1e1e1e;",
-                        "-fx-background-color: #FFC107, #1e1e1e;")
-                        + "-fx-effect: dropshadow(three-pass-box, rgba(255,193,7,0.1), 10, 0, 0, 0);");
+                area.setStyle(focusStyle);
             } else {
                 area.setStyle(baseStyle);
             }

@@ -19,8 +19,8 @@ class AddEffectGradientButtonBuilder {
         button.setMaxSize(32, 32);
 
         Color colorSecondary = Color.web(AppTheme.BACKGROUND_SECONDARY);
-        Color baseGold = Color.web(AppTheme.BUTTON_PRIMARY);
-        Color colorAccent = baseGold.deriveColor(0, 1.2, 1.25, 1);
+        Color baseAccent = Color.web(AppTheme.BUTTON_PRIMARY);
+        Color colorAccent = baseAccent.deriveColor(0, 1.05, 1.08, 1);
         Color colorTextNormal = Color.web(AppTheme.BUTTON_PRIMARY);
         Color colorTextHover = Color.web(AppTheme.BACKGROUND_PRIMARY);
 

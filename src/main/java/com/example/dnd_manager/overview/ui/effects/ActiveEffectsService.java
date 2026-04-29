@@ -2,6 +2,7 @@ package com.example.dnd_manager.overview.ui.effects;
 
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.buff_debuff.model.Buff;
+import com.example.dnd_manager.info.buff_debuff.model.BuffType;
 import com.example.dnd_manager.info.inventory.model.InventoryItem;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class ActiveEffectsService {
 
     private String formatBuffText(Buff buff) {
         return (buff.type() != null && !buff.type().isBlank())
-                ? String.format("%s (%s)", buff.name(), buff.type())
+                ? String.format("%s (%s)", buff.name(), BuffType.displayName(buff.type()))
                 : buff.name();
     }
 }

@@ -14,25 +14,34 @@ public class AppComboBox<T> extends ComboBox<T> {
 
     private void applyStyle() {
         String baseStyle = """
-            -fx-background-color: #3a3a3a, #1e1e1e;
+            -fx-background-color: rgba(75, 93, 127, 0.42), rgba(16, 23, 42, 0.88);
             -fx-background-insets: 0, 1;
             -fx-background-radius: 6;
             -fx-border-radius: 6;
             -fx-padding: 2 5 2 5;
             -fx-font-size: 12px;
-            -fx-text-fill: #eee;
+            -fx-text-fill: #f0f2f7;
             -fx-focus-color: transparent;
             -fx-faint-focus-color: transparent;
+        """;
+        String focusStyle = """
+            -fx-background-color: rgba(175, 196, 216, 0.62), rgba(16, 23, 42, 0.88);
+            -fx-background-insets: 0, 1;
+            -fx-background-radius: 6;
+            -fx-border-radius: 6;
+            -fx-padding: 2 5 2 5;
+            -fx-font-size: 12px;
+            -fx-text-fill: #f0f2f7;
+            -fx-focus-color: transparent;
+            -fx-faint-focus-color: transparent;
+            -fx-effect: dropshadow(gaussian, rgba(175, 196, 216, 0.18), 12, 0.24, 0, 0);
         """;
 
         setStyle(baseStyle);
 
-        // Слушатель для золотой рамки
         focusedProperty().addListener((obs, old, newVal) -> {
             if (newVal) {
-                setStyle(baseStyle.replace("-fx-background-color: #3a3a3a, #1e1e1e;",
-                        "-fx-background-color: #FFC107, #1e1e1e;")
-                        + "-fx-effect: dropshadow(three-pass-box, rgba(255,193,7,0.1), 10, 0, 0, 0);");
+                setStyle(focusStyle);
             } else {
                 setStyle(baseStyle);
             }
@@ -45,10 +54,10 @@ public class AppComboBox<T> extends ComboBox<T> {
                     super.updateItem(item, empty);
                     if (empty || item == null) {
                         setText(null);
-                        setStyle("-fx-background-color: #1e1e1e;");
+                        setStyle("-fx-background-color: #10172a;");
                     } else {
                         setText(item.toString());
-                        setStyle("-fx-background-color: #1e1e1e; -fx-text-fill: #eee; -fx-padding: 8 12;");
+                        setStyle("-fx-background-color: #10172a; -fx-text-fill: #f0f2f7; -fx-padding: 8 12;");
                     }
                 }
             };
@@ -58,7 +67,7 @@ public class AppComboBox<T> extends ComboBox<T> {
                     ListView<T> listView = cell.getListView();
                     if (listView != null) {
                         listView.setStyle("""
-                            -fx-background-color: #3a3a3a, #1e1e1e;
+                            -fx-background-color: rgba(75, 93, 127, 0.42), #10172a;
                             -fx-background-insets: 0, 1;
                             -fx-padding: 1;
                         """);
@@ -67,10 +76,10 @@ public class AppComboBox<T> extends ComboBox<T> {
             });
 
             cell.setOnMouseEntered(e -> {
-                if (!cell.isEmpty()) cell.setStyle("-fx-background-color: #3a3a3a; -fx-text-fill: #FFC107; -fx-padding: 8 12;");
+                if (!cell.isEmpty()) cell.setStyle("-fx-background-color: rgba(39, 47, 79, 0.86); -fx-text-fill: #dbe5ea; -fx-padding: 8 12;");
             });
             cell.setOnMouseExited(e -> {
-                if (!cell.isEmpty()) cell.setStyle("-fx-background-color: #1e1e1e; -fx-text-fill: #eee; -fx-padding: 8 12;");
+                if (!cell.isEmpty()) cell.setStyle("-fx-background-color: #10172a; -fx-text-fill: #f0f2f7; -fx-padding: 8 12;");
             });
 
             return cell;
@@ -83,7 +92,7 @@ public class AppComboBox<T> extends ComboBox<T> {
                 if (empty || item == null) setText(null);
                 else {
                     setText(item.toString());
-                    setStyle("-fx-text-fill: #eee;");
+                    setStyle("-fx-text-fill: #f0f2f7;");
                 }
             }
         });

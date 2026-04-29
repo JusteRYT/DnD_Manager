@@ -15,7 +15,10 @@ public record StartScreenViewActions(
         Runnable onAssets,
         Runnable onTransfer,
         Runnable onLanguageChange,
-        Consumer<Button> onUpdateCheck
+        Consumer<Button> onUpdateCheck,
+        Runnable onDonate,
+        Runnable onDeveloperTelegram,
+        Runnable onCommunityBot
 ) {
     public StartScreenViewActions {
         Objects.requireNonNull(onCreate, "onCreate must not be null");
@@ -25,6 +28,9 @@ public record StartScreenViewActions(
         Objects.requireNonNull(onTransfer, "onTransfer must not be null");
         Objects.requireNonNull(onLanguageChange, "onLanguageChange must not be null");
         Objects.requireNonNull(onUpdateCheck, "onUpdateCheck must not be null");
+        Objects.requireNonNull(onDonate, "onDonate must not be null");
+        Objects.requireNonNull(onDeveloperTelegram, "onDeveloperTelegram must not be null");
+        Objects.requireNonNull(onCommunityBot, "onCommunityBot must not be null");
     }
 }
 
