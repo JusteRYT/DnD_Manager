@@ -4,6 +4,7 @@ import com.example.dnd_manager.info.editors.common.AbstractEntityEditor;
 import com.example.dnd_manager.info.editors.common.EntityEditorButtonFactory;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.CustomTitleBar;
+import com.example.dnd_manager.theme.dialog.AppDialogStyleProvider;
 import com.example.dnd_manager.theme.scroll.AppScrollPaneFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -25,6 +26,7 @@ import java.util.List;
 public class SubEditorManager {
 
     private static final double RESIZE_MARGIN = 8;
+    private static final AppDialogStyleProvider DIALOG_STYLES = new AppDialogStyleProvider();
 
     public static <E> void open(Stage owner,
                                 AbstractEntityEditor<E> editor,
@@ -91,24 +93,12 @@ public class SubEditorManager {
         content.setAlignment(Pos.CENTER);
         content.setFillWidth(true);
         content.setPadding(new Insets(15));
-        content.setStyle("""
-                -fx-background-color:
-                    radial-gradient(center 18% 18%, radius 62%, rgba(23, 35, 58, 0.86), transparent 64%),
-                    radial-gradient(center 82% 18%, radius 70%, rgba(42, 36, 69, 0.72), transparent 66%),
-                    linear-gradient(from 0% 0% to 100% 100%, #070b14, #11172a 52%, #151229);
-                """);
+        content.setStyle(DIALOG_STYLES.contentAreaStyle());
 
         VBox layout = new VBox(new CustomTitleBar(subStage), content);
         layout.setAlignment(Pos.CENTER);
         layout.setFillWidth(true);
-        layout.setStyle("""
-                -fx-background-color:
-                    radial-gradient(center 18% 18%, radius 62%, rgba(23, 35, 58, 0.86), transparent 64%),
-                    radial-gradient(center 82% 18%, radius 70%, rgba(42, 36, 69, 0.72), transparent 66%),
-                    linear-gradient(from 0% 0% to 100% 100%, #070b14, #11172a 52%, #151229);
-                -fx-border-color: rgba(127, 185, 212, 0.46);
-                -fx-border-width: 1;
-                """);
+        layout.setStyle(DIALOG_STYLES.rootStyle());
         VBox.setVgrow(content, Priority.ALWAYS);
         installResizeBehavior(subStage, layout);
 

@@ -27,9 +27,13 @@ public class InventoryItemEffectSection {
         this.effectDisplayField = new AppTextField(initialValue, false);
         this.effectDisplayField.getField().setPromptText(effectPrompt);
 
+        InventoryDialogStyleProvider styles = new InventoryDialogStyleProvider();
+        Label label = new Label(effectLabel);
+        label.setStyle(styles.effectLabelStyle());
+
         this.container = new VBox(
                 5,
-                new Label(effectLabel),
+                label,
                 this.effectDisplayField.getField()
         );
         this.container.setVisible(equipped);

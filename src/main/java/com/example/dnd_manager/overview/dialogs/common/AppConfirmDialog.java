@@ -1,8 +1,6 @@
 package com.example.dnd_manager.overview.dialogs.common;
 
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.theme.AppTheme;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -28,19 +26,16 @@ public class AppConfirmDialog extends BaseDialog {
         contentArea.setSpacing(25);
         contentArea.setAlignment(Pos.CENTER);
 
-        // Текст сообщения
         Label label = new Label(message);
-        label.setStyle("-fx-text-fill: " + AppTheme.TEXT_PRIMARY + "; -fx-font-size: 16px; -fx-text-alignment: center;");
+        label.setStyle(dialogStyles.messageStyle() + "-fx-text-alignment: center;");
         label.setWrapText(true);
 
-        // Кнопки
         HBox buttonBox = new HBox(15);
         buttonBox.setAlignment(Pos.CENTER);
 
-        Button okBtn = AppButtonFactory.primaryButton(
-                isConfirmation ? I18n.t("button.confirm") : I18n.t("button.close"),
-                120, 35, 14
-        );
+        Button okBtn = new Button(isConfirmation ? I18n.t("button.confirm") : I18n.t("button.close"));
+        okBtn.setPrefSize(120, 36);
+        dialogStyles.applyPrimaryButton(okBtn);
         okBtn.setOnAction(e -> {
             confirmed = isConfirmation;
             close();
@@ -49,8 +44,9 @@ public class AppConfirmDialog extends BaseDialog {
         buttonBox.getChildren().add(okBtn);
 
         if (isConfirmation) {
-            Button cancelBtn = AppButtonFactory.primaryButton(I18n.t("button.cancel"), 120, 35, 14);
-            cancelBtn.setStyle(cancelBtn.getStyle() + "-fx-base: #444444;"); // Немного приглушим кнопку отмены
+            Button cancelBtn = new Button(I18n.t("button.cancel"));
+            cancelBtn.setPrefSize(120, 36);
+            dialogStyles.applySecondaryButton(cancelBtn);
             cancelBtn.setOnAction(e -> {
                 confirmed = false;
                 close();

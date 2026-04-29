@@ -1,8 +1,6 @@
 package com.example.dnd_manager.overview.dialogs.common;
 
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.theme.AppTheme;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -29,7 +27,6 @@ public class AppErrorDialog extends BaseDialog {
     protected void setupContent() {
         contentArea.setSpacing(15);
         contentArea.setAlignment(Pos.TOP_LEFT);
-        contentArea.setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + ";");
         contentArea.setPadding(new Insets(25));
 
         Label messageLabel = new Label(message);
@@ -37,10 +34,7 @@ public class AppErrorDialog extends BaseDialog {
         messageLabel.setMaxWidth(400);
         messageLabel.setAlignment(Pos.TOP_LEFT);
 
-        messageLabel.setStyle(String.format(
-                "-fx-text-fill: %s; -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-alignment: left;",
-                AppTheme.TEXT_PRIMARY
-        ));
+        messageLabel.setStyle(dialogStyles.messageStyle() + "-fx-text-alignment: left;");
 
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
@@ -48,8 +42,10 @@ public class AppErrorDialog extends BaseDialog {
         HBox buttonContainer = new HBox();
         buttonContainer.setAlignment(Pos.CENTER);
 
-        Button okButton = AppButtonFactory.actionSave(I18n.t("error.buttonOk"));
+        Button okButton = new Button(I18n.t("error.buttonOk"));
         okButton.setPrefWidth(120);
+        okButton.setPrefHeight(36);
+        dialogStyles.applyPrimaryButton(okButton);
         okButton.setOnAction(e -> close());
 
         buttonContainer.getChildren().add(okButton);

@@ -4,6 +4,7 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.inventory.model.InventoryItem;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.theme.button.AppButtonFactory;
+import com.example.dnd_manager.theme.dialog.AppDialogStyleProvider;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -14,6 +15,8 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class InventoryItemDialogActionFactory {
+
+    private final AppDialogStyleProvider dialogStyles = new AppDialogStyleProvider();
 
     public HBox build(
             Stage stage,
@@ -36,13 +39,19 @@ public class InventoryItemDialogActionFactory {
 
         InventoryItem existingItem = state.existingItem();
 
-        Button iconBtn = AppButtonFactory.addIcon(I18n.t("buttonText.icon"));
+        Button iconBtn = new Button(I18n.t("buttonText.icon"));
+        iconBtn.setPrefSize(120, 38);
+        dialogStyles.applySecondaryButton(iconBtn);
         iconBtn.setOnAction(e -> state.setIconPath(iconChooser.chooseItemIcon(stage, state.iconPath())));
 
         Button chooseAssets = AppButtonFactory.assetPickerButton();
+        chooseAssets.setPrefSize(120, 38);
+        dialogStyles.applySecondaryButton(chooseAssets);
         AppButtonFactory.attachAssetPicker(chooseAssets, state::setIconPath);
 
-        Button saveBtn = AppButtonFactory.actionSave(existingItem == null ? I18n.t("button.addItem") : I18n.t("button.save"));
+        Button saveBtn = new Button(existingItem == null ? I18n.t("button.addItem") : I18n.t("button.save"));
+        saveBtn.setPrefSize(150, 38);
+        dialogStyles.applyPrimaryButton(saveBtn);
         saveBtn.setOnAction(e -> {
             boolean submitted = presenter.submit(
                     character,

@@ -3,6 +3,7 @@ package com.example.dnd_manager.updater.ui;
 import com.example.dnd_manager.updater.port.UpdateProgressView;
 
 import com.example.dnd_manager.lang.I18n;
+import com.example.dnd_manager.theme.dialog.AppDialogStyleProvider;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -22,6 +24,7 @@ public class AppUpdateProgressDialog implements UpdateProgressView {
     private final Stage dialogStage;
     private final ProgressBar progressBar;
     private final Label statusLabel;
+    private final AppDialogStyleProvider dialogStyles = new AppDialogStyleProvider();
 
     public AppUpdateProgressDialog(Stage owner) {
         dialogStage = new Stage();
@@ -31,17 +34,19 @@ public class AppUpdateProgressDialog implements UpdateProgressView {
 
         progressBar = new ProgressBar(0);
         progressBar.setPrefWidth(350);
-        progressBar.setStyle("-fx-accent: #ffaa00;");
+        progressBar.setStyle(dialogStyles.progressBarStyle());
 
         statusLabel = new Label(I18n.t("update.progress.initial"));
-        statusLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        statusLabel.setStyle(dialogStyles.messageStyle());
 
         VBox root = new VBox(15, statusLabel, progressBar);
         root.setPadding(new Insets(20));
         root.setAlignment(Pos.CENTER);
-        root.setStyle("-fx-background-color: #1e1e1e; -fx-border-color: #3a3a3a; -fx-border-width: 2;");
+        root.setStyle(dialogStyles.rootStyle());
 
-        dialogStage.setScene(new Scene(root));
+        Scene scene = new Scene(root);
+        scene.setFill(Color.TRANSPARENT);
+        dialogStage.setScene(scene);
     }
 
     public void show() {

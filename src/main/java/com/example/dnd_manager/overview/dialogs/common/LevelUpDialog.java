@@ -4,7 +4,6 @@ import com.example.dnd_manager.application.usecase.character.LevelUpCharacterUse
 import com.example.dnd_manager.application.usecase.character.SaveCharacterUseCase;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -39,14 +38,16 @@ public class LevelUpDialog extends BaseDialog {
         contentArea.setSpacing(20);
 
         Label message = new Label(I18n.t("dialogLevel.message"));
-        message.setStyle("-fx-text-fill: #ffffff; -fx-font-size: 14px; -fx-text-alignment: center;");
+        message.setStyle(dialogStyles.messageStyle() + "-fx-text-alignment: center;");
         message.setWrapText(true);
 
-        Button yesBtn = AppButtonFactory.actionImport(I18n.t("button.yes"), 120);
-        Button noBtn = AppButtonFactory.actionExit(I18n.t("button.no"), 120);
+        Button yesBtn = new Button(I18n.t("button.yes"));
+        Button noBtn = new Button(I18n.t("button.no"));
 
-        yesBtn.setPrefWidth(80);
-        noBtn.setPrefWidth(80);
+        yesBtn.setPrefSize(100, 36);
+        noBtn.setPrefSize(100, 36);
+        dialogStyles.applyPrimaryButton(yesBtn);
+        dialogStyles.applySecondaryButton(noBtn);
 
         yesBtn.setOnAction(ev -> {
             performLevelUp();

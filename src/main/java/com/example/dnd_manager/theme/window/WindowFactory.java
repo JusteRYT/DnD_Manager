@@ -1,7 +1,7 @@
 package com.example.dnd_manager.theme.window;
 
-import com.example.dnd_manager.theme.AppTheme;
 import com.example.dnd_manager.theme.CustomTitleBar;
+import com.example.dnd_manager.theme.dialog.AppDialogStyleProvider;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.Priority;
@@ -13,6 +13,8 @@ import javafx.stage.StageStyle;
 
 public class WindowFactory {
 
+    private static final AppDialogStyleProvider DIALOG_STYLES = new AppDialogStyleProvider();
+
     public static void openModal(Stage owner, Node content, double width, double height) {
         Stage modalStage = new Stage();
         modalStage.initOwner(owner);
@@ -20,8 +22,7 @@ public class WindowFactory {
         modalStage.initStyle(StageStyle.UNDECORATED);
 
         VBox root = new VBox();
-        root.setStyle("-fx-background-color: " + AppTheme.BACKGROUND_PRIMARY + "; " +
-                "-fx-border-color: " + AppTheme.BORDER_ACCENT + "; -fx-border-width: 1; -fx-border-radius: 5;");
+        root.setStyle(DIALOG_STYLES.rootStyle());
 
         CustomTitleBar titleBar = new CustomTitleBar(modalStage);
 

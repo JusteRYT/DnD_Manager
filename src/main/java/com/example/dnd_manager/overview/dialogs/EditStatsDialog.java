@@ -6,7 +6,6 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.common.BaseDialog;
 import com.example.dnd_manager.theme.IntegerField;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -45,31 +44,34 @@ public class EditStatsDialog extends BaseDialog {
 
         // HP
         Label hpLabel = new Label(I18n.t("hpField.name") + ":");
-        hpLabel.setStyle("-fx-text-fill: #ff5555; -fx-font-weight: bold;");
+        hpLabel.setStyle(dialogStyles.statLabelStyle("#d98a9a"));
         IntegerField hpField = new IntegerField(String.valueOf(character.getMaxHp()), true);
         VBox hpBox = new VBox(4, hpLabel, hpField.getField());
 
         // Armor
         Label armorLabel = new Label(I18n.t("armorField.name") + ":");
-        armorLabel.setStyle("-fx-text-fill: #55aaff; -fx-font-weight: bold;");
+        armorLabel.setStyle(dialogStyles.statLabelStyle("#7fb9d4"));
         IntegerField armorField = new IntegerField(String.valueOf(character.getArmor()), true);
         VBox armorBox = new VBox(4, armorLabel, armorField.getField());
 
         // Mana
         Label manaLabel = new Label(I18n.t("manaField.name") + ":");
-        manaLabel.setStyle("-fx-text-fill: #3aa3c3; -fx-font-weight: bold;");
+        manaLabel.setStyle(dialogStyles.statLabelStyle("#8fd0c8"));
         IntegerField manaField = new IntegerField(String.valueOf(character.getMaxMana()), true);
         VBox manaBox = new VBox(4, manaLabel, manaField.getField());
 
         // Level
         Label levelLabel = new Label(I18n.t("levelField.name") + ":");
-        levelLabel.setStyle("-fx-text-fill: #c89b3c; -fx-font-weight: bold;");
+        levelLabel.setStyle(dialogStyles.statLabelStyle("#c4bdd6"));
         IntegerField levelField = new IntegerField(String.valueOf(character.getLevel()), true);
         VBox levelBox = new VBox(4, levelLabel, levelField.getField());
 
         // Кнопка сохранения
-        Button saveBtn = AppButtonFactory.actionSave(I18n.t("button.save"));
+        Button saveBtn = new Button(I18n.t("button.save"));
         saveBtn.setMaxWidth(Double.MAX_VALUE);
+        saveBtn.setMinHeight(38);
+        saveBtn.setPrefHeight(38);
+        dialogStyles.applyPrimaryButton(saveBtn);
         saveBtn.setOnAction(ev -> {
             updateCharacterStatsUseCase.execute(
                     character,

@@ -4,7 +4,6 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.application.service.NotesService;
 import com.example.dnd_manager.theme.WindowResizer;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
@@ -40,22 +39,13 @@ public class CharacterNotesDialog extends BaseDialog {
         textArea.setText(notesService.loadNotes(character.getName()));
         textArea.setWrapText(true);
         textArea.setPromptText(I18n.t("prompt.notesPlaceholder"));
-
-        textArea.setStyle("""
-            -fx-control-inner-background: #2b2b2b;
-            -fx-text-fill: #dcdcdc;
-            -fx-font-size: 14px;
-            -fx-prompt-text-fill: #666666;
-            -fx-background-color: transparent;
-            -fx-border-color: #3a3a3a;
-            -fx-border-radius: 4;
-            -fx-focus-color: transparent;
-            -fx-faint-focus-color: transparent;
-        """);
+        dialogStyles.applyTextInput(textArea);
 
         VBox.setVgrow(textArea, Priority.ALWAYS);
 
-        Button saveBtn = AppButtonFactory.actionSave(I18n.t("button.save"));
+        Button saveBtn = new Button(I18n.t("button.save"));
+        saveBtn.setPrefSize(130, 36);
+        dialogStyles.applyPrimaryButton(saveBtn);
         saveBtn.setOnAction(e -> {
             notesService.saveNotes(character.getName(), textArea.getText());
             close();

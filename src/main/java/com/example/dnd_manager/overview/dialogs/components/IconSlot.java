@@ -3,6 +3,7 @@ package com.example.dnd_manager.overview.dialogs.components;
 import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.infrastructure.assets.CharacterAssetResolver;
+import com.example.dnd_manager.theme.dialog.AppDialogStyleProvider;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -20,7 +21,9 @@ public class IconSlot extends StackPane {
         setMinSize(50, 50);
 
         String color = item.getAccentColor();
-        setStyle(String.format("-fx-background-color: #2b2b2b; -fx-background-radius: 6; -fx-border-color: %s; -fx-border-width: 1; -fx-border-radius: 6; -fx-cursor: hand;", color));
+        String baseStyle = slotStyle(color, false);
+        String hoverStyle = slotStyle(color, true);
+        setStyle(baseStyle);
 
         // Иконка
         ImageView iv = new ImageView();
@@ -36,19 +39,30 @@ public class IconSlot extends StackPane {
         getChildren().add(iv);
         setupTooltip(item);
 
-        setOnMouseEntered(e -> setStyle(getStyle() + "-fx-background-color: #3d3d3d;"));
-        setOnMouseExited(e -> setStyle(getStyle() + "-fx-background-color: #2b2b2b;"));
+        setOnMouseEntered(e -> setStyle(hoverStyle));
+        setOnMouseExited(e -> setStyle(baseStyle));
+    }
+
+    private String slotStyle(String color, boolean hover) {
+        String background = hover ? "rgba(33, 45, 73, 0.90)" : "rgba(16, 23, 42, 0.86)";
+        return """
+                -fx-background-color: %s;
+                -fx-background-radius: 8;
+                -fx-border-color: %s;
+                -fx-border-width: 1;
+                -fx-border-radius: 8;
+                -fx-cursor: hand;
+                """.formatted(background, color);
     }
 
     private void setupTooltip(IconSlotViewModel item) {
+        AppDialogStyleProvider styles = new AppDialogStyleProvider();
         VBox root = new VBox(5);
         root.setPadding(new Insets(10));
-        root.setStyle("-fx-background-color: #1a1a1a; " +
-                "-fx-border-color: " + item.getAccentColor() + "; -fx-border-width: 1; " +
-                "-fx-min-width: 200; -fx-max-width: 300;");
+        root.setStyle(styles.panelStyle() + "-fx-border-color: " + item.getAccentColor() + "; -fx-min-width: 200; -fx-max-width: 300;");
 
         Label name = new Label(item.getName().toUpperCase());
-        name.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;");
+        name.setStyle("-fx-text-fill: #f0f2f7; -fx-font-weight: bold; -fx-font-size: 13px;");
 
         Label type = new Label(item.getTypeName());
         type.setStyle("-fx-text-fill: " + item.getAccentColor() + "; " +
@@ -61,9 +75,9 @@ public class IconSlot extends StackPane {
             if (value != null && !value.isEmpty()) {
                 HBox row = new HBox(5);
                 Label k = new Label(key + ":");
-                k.setStyle("-fx-text-fill: #888; -fx-font-size: 10px; -fx-font-weight: bold;");
+                k.setStyle("-fx-text-fill: #8fa4bd; -fx-font-size: 10px; -fx-font-weight: bold;");
                 Label v = new Label(value);
-                v.setStyle("-fx-text-fill: #eee; -fx-font-size: 10px;");
+                v.setStyle("-fx-text-fill: #dbe5ea; -fx-font-size: 10px;");
                 v.setWrapText(true);
                 row.getChildren().addAll(k, v);
                 root.getChildren().add(row);
@@ -73,10 +87,10 @@ public class IconSlot extends StackPane {
         if (item.getDescription() != null) {
             HBox row = new HBox(5);
             Label k = new Label(I18n.t("label.familiarsDescription") + ":");
-            k.setStyle("-fx-text-fill: #888; -fx-font-size: 10px; -fx-font-weight: bold;");
+            k.setStyle("-fx-text-fill: #8fa4bd; -fx-font-size: 10px; -fx-font-weight: bold;");
             Label desc = new Label(item.getDescription());
             desc.setWrapText(true);
-            desc.setStyle("-fx-text-fill: #bbb; -fx-font-size: 11px; -fx-font-style: italic;");
+            desc.setStyle("-fx-text-fill: #b7c9dd; -fx-font-size: 11px; -fx-font-style: italic;");
             row.getChildren().addAll(k, desc);
             root.getChildren().add(row);
         }

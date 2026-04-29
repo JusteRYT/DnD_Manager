@@ -8,7 +8,7 @@ import com.example.dnd_manager.info.editors.skills.SkillsEditor;
 import com.example.dnd_manager.info.skills.model.Skill;
 import com.example.dnd_manager.info.utils.SubEditorManager;
 import com.example.dnd_manager.lang.I18n;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
+import com.example.dnd_manager.theme.dialog.AppDialogStyleProvider;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -26,6 +26,7 @@ public class InventoryItemAttachmentsSection {
     private final List<Buff> attachedBuffs;
     private final List<Skill> attachedSkills;
     private final InventoryDialogStyleProvider styleProvider;
+    private final AppDialogStyleProvider dialogStyles = new AppDialogStyleProvider();
     private final Label buffsCountLabel = new Label();
     private final Label skillsCountLabel = new Label();
 
@@ -58,13 +59,19 @@ public class InventoryItemAttachmentsSection {
 
         Label sectionLabel = new Label(I18n.t("dialog.inventory.attachments.title"));
         sectionLabel.setStyle(styleProvider.attachmentsTitleStyle());
+        buffsCountLabel.setStyle(styleProvider.attachmentsCounterStyle());
+        skillsCountLabel.setStyle(styleProvider.attachmentsCounterStyle());
 
         updateLabels();
 
-        Button editBuffsBtn = AppButtonFactory.addIcon(I18n.t("dialog.inventory.buffs.short"));
+        Button editBuffsBtn = new Button(I18n.t("dialog.inventory.buffs.short"));
+        editBuffsBtn.setPrefSize(120, 36);
+        dialogStyles.applySecondaryButton(editBuffsBtn);
         editBuffsBtn.setOnAction(e -> openSubEditor(new BuffEditor(character), attachedBuffs, I18n.t("dialog.inventory.buffs.editorTitle")));
 
-        Button editSkillsBtn = AppButtonFactory.addIcon(I18n.t("dialog.inventory.skills.short"));
+        Button editSkillsBtn = new Button(I18n.t("dialog.inventory.skills.short"));
+        editSkillsBtn.setPrefSize(120, 36);
+        dialogStyles.applySecondaryButton(editSkillsBtn);
         editSkillsBtn.setOnAction(e -> openSubEditor(new SkillsEditor(character), attachedSkills, I18n.t("dialog.inventory.skills.editorTitle")));
 
         HBox buffRow = new HBox(15, buffsCountLabel, editBuffsBtn);

@@ -4,7 +4,6 @@ import com.example.dnd_manager.domain.Character;
 import com.example.dnd_manager.info.editors.familiar.FamiliarEditor;
 import com.example.dnd_manager.lang.I18n;
 import com.example.dnd_manager.overview.dialogs.common.BaseDialog;
-import com.example.dnd_manager.theme.button.AppButtonFactory;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -26,7 +25,9 @@ public class FamiliarDialog extends BaseDialog {
         editor = new FamiliarEditor(familiar);
         editor.setFocusTraversable(false);
 
-        Button applyBtn = AppButtonFactory.actionSave(I18n.t("button.editSave"));
+        Button applyBtn = new Button(I18n.t("button.editSave"));
+        applyBtn.setPrefSize(180, 38);
+        dialogStyles.applyPrimaryButton(applyBtn);
 
         applyBtn.setOnAction(e -> {
             editor.applyChanges();
@@ -35,7 +36,9 @@ public class FamiliarDialog extends BaseDialog {
         });
         applyBtn.setFocusTraversable(false);
 
-        Button cancelBtn = AppButtonFactory.actionExit(I18n.t("button.exit"), 100);
+        Button cancelBtn = new Button(I18n.t("button.exit"));
+        cancelBtn.setPrefSize(110, 38);
+        dialogStyles.applySecondaryButton(cancelBtn);
         cancelBtn.setOnAction(e -> close());
 
         HBox buttonContainer = new HBox(15, cancelBtn, applyBtn);

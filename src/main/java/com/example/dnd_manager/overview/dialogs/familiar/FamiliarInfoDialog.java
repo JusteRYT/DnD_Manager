@@ -65,10 +65,10 @@ public class FamiliarInfoDialog extends BaseDialog {
         contentArea.setSpacing(15);
         contentArea.setPadding(new Insets(15, 25, 25, 25));
 
-        Label hpValLabel = createResourceValueLabel("#ff6b6b");
-        Label mpValLabel = createResourceValueLabel("#4dabf7");
-        Label acValLabel = createResourceValueLabel("#74c0fc");
-        Label lvlValLabel = createResourceValueLabel("#ff922b");
+        Label hpValLabel = createResourceValueLabel("#d98a9a");
+        Label mpValLabel = createResourceValueLabel("#8fd0c8");
+        Label acValLabel = createResourceValueLabel("#7fb9d4");
+        Label lvlValLabel = createResourceValueLabel("#c4bdd6");
 
         FamiliarResourcePresenter resourcePresenter = new FamiliarResourcePresenter(
                 resourceSnapshotFactory,
@@ -104,7 +104,7 @@ public class FamiliarInfoDialog extends BaseDialog {
 
     private Label createResourceValueLabel(String color) {
         Label label = new Label();
-        label.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 15px; -fx-font-weight: bold;");
+        label.setStyle(dialogStyles.resourceValueStyle(color));
         return label;
     }
 
